@@ -83,6 +83,9 @@ public:
 
     void refresh();
 
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
 private:
     void updatePreview();
     void copySelected();

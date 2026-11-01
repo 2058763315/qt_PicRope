@@ -21,6 +21,10 @@
 #include <QIcon>
 #include <QPixmap>
 #include <QFileInfo>
+#include <QEvent>
+#include <QWheelEvent>
+#include <QScrollBar>
+#include <QtMath>
 
 #include "gallery.h"
 #include "texts.h"
@@ -342,6 +346,7 @@ TextsWindow::TextsWindow(TextCollection *texts, QWidget *parent)
     list_->setWordWrap(false);
     list_->setSelectionMode(QAbstractItemView::ExtendedSelection);
     list_->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    list_->viewport()->installEventFilter(this);
     preview_ = new QPlainTextEdit(this);
     preview_->setReadOnly(true);
     preview_->setPlaceholderText(QStringLiteral("选择左侧文字可查看全文"));
@@ -485,4 +490,20 @@ void TextsWindow::flashStatus(const QString &text)
         const int n = list_->count();
         status_->setText(QStringLiteral("共 %1 条").arg(n));
     });
+}
+
+// 左侧列表滚轮：固定小幅像素滚动，避免一格翻一页导致阅读断档
+bool TextsWindow::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == list_->viewport() && event->type() == QEvent::Wheel) {
+        auto *we = static_cast<QWheelEvent *>(event);
+        QScrollBar *sb = list_->verticalScrollBar();
+        const int step = 36;                          // 每格滚轮滚动像素
+        const int degrees = we->angleDelta().y() / 8; // 单位：度
+        int notches = qRound(degrees / 15.0);
+        if (notches == 0) notches = degrees > 0 ? 1 : -1;
+        sb->setValue(sb->value() - notches * step);
+        return true;
+    }
+    return PanelWindow::eventFilter(watched, event);
 }
