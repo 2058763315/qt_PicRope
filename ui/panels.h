@@ -59,17 +59,22 @@ public:
 
 signals:
     void hangRequested(const QStringList &paths);
+    void unhangRequested(const QStringList &paths);
+    void deleteRequested(const QStringList &paths);
 
 private:
     void setTab(int tab);
     void updateSummary();
+    void updateTip();
 
     Gallery *gallery_;
     QPushButton *pendingTab_ = nullptr;
     QPushButton *allTab_ = nullptr;
     QListWidget *list_ = nullptr;
     QLabel *summary_ = nullptr;
+    QLabel *tip_ = nullptr;
     QPushButton *hangBtn_ = nullptr;
+    QPushButton *deleteBtn_ = nullptr;
     int tab_ = 0;
     bool refreshing_ = false;
 };
@@ -97,6 +102,7 @@ private:
     QListWidget *list_ = nullptr;
     QPlainTextEdit *preview_ = nullptr;
     QLabel *status_ = nullptr;
+    QLabel *hint_ = nullptr;
     QPushButton *copyBtn_ = nullptr;
     QPushButton *deleteBtn_ = nullptr;
     bool refreshing_ = false;

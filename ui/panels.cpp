@@ -57,30 +57,34 @@ QString commonStyle()
         "QLabel#muted{color:#7D8797;}");
 }
 
-QPixmap placeholderIcon()
+QIcon placeholderIcon()
 {
-    QPixmap pm(96, 96);
-    pm.fill(QColor("#EDF1F8"));
-    QPainter p(&pm);
-    p.setRenderHint(QPainter::Antialiasing);
-    p.setPen(QPen(QColor("#C3CCDA"), 1.4));
-    p.setBrush(Qt::NoBrush);
-    const QRectF box(28, 30, 40, 34);
-    p.drawRoundedRect(box, 6, 6);
-    p.drawEllipse(QPointF(box.left() + 11, box.top() + 10), 3.6, 3.6);
-    QPainterPath mount;
-    mount.moveTo(box.left() + 4, box.bottom() - 6);
-    mount.lineTo(box.left() + 15, box.top() + 15);
-    mount.lineTo(box.left() + 23, box.bottom() - 10);
-    mount.lineTo(box.right() - 4, box.bottom() - 6);
-    p.drawPath(mount);
-    return pm;
+    // 占位图标只画一次，避免列表刷新时重复绘制（首次打开卡顿的主要来源之一）
+    static const QIcon icon = []{
+        QPixmap pm(96, 96);
+        pm.fill(QColor("#EDF1F8"));
+        QPainter p(&pm);
+        p.setRenderHint(QPainter::Antialiasing);
+        p.setPen(QPen(QColor("#C3CCDA"), 1.4));
+        p.setBrush(Qt::NoBrush);
+        const QRectF box(28, 30, 40, 34);
+        p.drawRoundedRect(box, 6, 6);
+        p.drawEllipse(QPointF(box.left() + 11, box.top() + 10), 3.6, 3.6);
+        QPainterPath mount;
+        mount.moveTo(box.left() + 4, box.bottom() - 6);
+        mount.lineTo(box.left() + 15, box.top() + 15);
+        mount.lineTo(box.left() + 23, box.bottom() - 10);
+        mount.lineTo(box.right() - 4, box.bottom() - 6);
+        p.drawPath(mount);
+        return QIcon(pm);
+    }();
+    return icon;
 }
 
 QIcon iconFor(const ImageContent &img)
 {
     if (!img.thumbnail.isNull()) return QIcon(img.thumbnail);
-    return QIcon(placeholderIcon());
+    return placeholderIcon();
 }
 } // namespace
 
@@ -202,7 +206,7 @@ BasketWindow::BasketWindow(Gallery *gallery, QWidget *parent)
     auto *tabRow = new QHBoxLayout;
     tabRow->setSpacing(6);
     pendingTab_ = new QPushButton(QStringLiteral("待挂"), this);
-    allTab_ = new QPushButton(QStringLiteral("全部"), this);
+    allTab_ = new QPushButton(QStringLiteral("已挂"), this);
     pendingTab_->setCheckable(true);
     allTab_->setCheckable(true);
     pendingTab_->setChecked(true);
@@ -233,33 +237,51 @@ BasketWindow::BasketWindow(Gallery *gallery, QWidget *parent)
     contentLayout()->addWidget(list_, 1);
 
     auto *bottom = new QHBoxLayout;
-    auto *tip = new QLabel(QStringLiteral("双击图片可直接挂上绳子"), this);
-    tip->setObjectName(QStringLiteral("muted"));
-    QFont tf2 = tip->font();
+    tip_ = new QLabel(this);
+    tip_->setObjectName(QStringLiteral("muted"));
+    QFont tf2 = tip_->font();
     tf2.setPixelSize(12);
-    tip->setFont(tf2);
+    tip_->setFont(tf2);
     hangBtn_ = new QPushButton(QStringLiteral("挂上绳子"), this);
     hangBtn_->setObjectName(QStringLiteral("primary"));
     hangBtn_->setMinimumHeight(36);
     hangBtn_->setCursor(Qt::PointingHandCursor);
     hangBtn_->setEnabled(false);
-    bottom->addWidget(tip, 0, Qt::AlignVCenter);
+    deleteBtn_ = new QPushButton(QStringLiteral("删除所选"), this);
+    deleteBtn_->setMinimumHeight(36);
+    deleteBtn_->setCursor(Qt::PointingHandCursor);
+    deleteBtn_->setEnabled(false);
+    bottom->addWidget(tip_, 0, Qt::AlignVCenter);
     bottom->addStretch(1);
+    bottom->addWidget(deleteBtn_);
     bottom->addWidget(hangBtn_);
     contentLayout()->addLayout(bottom);
 
     connect(list_, &QListWidget::itemSelectionChanged, this, [this]{ updateSummary(); });
     connect(list_, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem *it){
         if (!it || !(it->flags() & Qt::ItemIsEnabled)) return;
-        emit hangRequested({ it->data(Qt::UserRole).toString() });
+        const QStringList paths{ it->data(Qt::UserRole).toString() };
+        if (tab_ == 0) emit hangRequested(paths);
+        else emit unhangRequested(paths);
     });
     connect(hangBtn_, &QPushButton::clicked, this, [this]{
         QStringList paths;
         for (QListWidgetItem *it : list_->selectedItems())
             paths.append(it->data(Qt::UserRole).toString());
-        if (!paths.isEmpty()) emit hangRequested(paths);
+        if (paths.isEmpty()) return;
+        if (tab_ == 0) emit hangRequested(paths);
+        else emit unhangRequested(paths);
     });
-    connect(gallery_, &Gallery::changed, this, &BasketWindow::refresh);
+    connect(deleteBtn_, &QPushButton::clicked, this, [this]{
+        QStringList paths;
+        for (QListWidgetItem *it : list_->selectedItems())
+            paths.append(it->data(Qt::UserRole).toString());
+        if (!paths.isEmpty()) emit deleteRequested(paths);
+    });
+    // 隐藏时不必重建列表，打开面板时再刷新
+    connect(gallery_, &Gallery::changed, this, [this]{
+        if (isVisible()) refresh();
+    });
     refresh();
 }
 
@@ -278,15 +300,19 @@ void BasketWindow::refresh()
     list_->clear();
 
     int pendingCount = 0;
-    for (const Gallery::ItemPtr &item : gallery_->collected)
-        if (!gallery_->contains(item->path)) ++pendingCount;
+    int hungCount = 0;
+    for (const Gallery::ItemPtr &item : gallery_->collected) {
+        if (gallery_->contains(item->path)) ++hungCount;
+        else ++pendingCount;
+    }
     pendingTab_->setText(QStringLiteral("待挂 %1").arg(pendingCount));
-    allTab_->setText(QStringLiteral("全部 %1").arg(gallery_->collected.size()));
+    allTab_->setText(QStringLiteral("已挂 %1").arg(hungCount));
 
     QVector<Gallery::ItemPtr> view;
     for (int i = gallery_->collected.size() - 1; i >= 0; --i) {
         const Gallery::ItemPtr &item = gallery_->collected[i];
-        if (tab_ == 0 && gallery_->contains(item->path)) continue;
+        const bool hung = gallery_->contains(item->path);
+        if (tab_ == 0 ? hung : !hung) continue;   // 待挂只看未挂，已挂只看已挂
         view.append(item);
     }
 
@@ -302,14 +328,26 @@ void BasketWindow::refresh()
     if (view.isEmpty()) {
         auto *row = new QListWidgetItem(placeholderIcon(),
             tab_ == 0 ? QStringLiteral("篮子里的图片都已挂上绳子")
-                      : QStringLiteral("还没有收集到图片"), list_);
+                      : QStringLiteral("还没有已挂上绳子的图片"), list_);
         row->setFlags(Qt::NoItemFlags);
         row->setSizeHint(QSize(112, 128));
         row->setTextAlignment(Qt::AlignHCenter | Qt::AlignBottom);
     }
 
+    // 待挂 → 挂上绳子；已挂 → 取下绳子
+    hangBtn_->setText(tab_ == 0 ? QStringLiteral("挂上绳子")
+                                : QStringLiteral("取下绳子"));
+    updateTip();
+
     refreshing_ = false;
     updateSummary();
+}
+
+void BasketWindow::updateTip()
+{
+    tip_->setText(tab_ == 0
+        ? QStringLiteral("双击挂上绳子；鼠标拖动可框选，或 Ctrl / Shift 点击多选")
+        : QStringLiteral("双击取下绳子；鼠标拖动可框选，或 Ctrl / Shift 点击多选"));
 }
 
 void BasketWindow::updateSummary()
@@ -324,6 +362,7 @@ void BasketWindow::updateSummary()
     else
         summary_->setText(QStringLiteral("共 %1 张").arg(total));
     if (hangBtn_) hangBtn_->setEnabled(selected > 0);
+    if (deleteBtn_) deleteBtn_->setEnabled(selected > 0);
 }
 
 // =====================================================================
@@ -332,7 +371,7 @@ void BasketWindow::updateSummary()
 TextsWindow::TextsWindow(TextCollection *texts, QWidget *parent)
     : PanelWindow(QStringLiteral("文字信封"), parent), texts_(texts)
 {
-    setFixedSize(820, 560);
+    setFixedSize(760, 560);
 
     search_ = new QLineEdit(this);
     search_->setPlaceholderText(QStringLiteral("搜索文字…"));
@@ -360,6 +399,9 @@ TextsWindow::TextsWindow(TextCollection *texts, QWidget *parent)
     QFont sf2 = status_->font();
     sf2.setPixelSize(12);
     status_->setFont(sf2);
+    hint_ = new QLabel(QStringLiteral("鼠标拖动可框选，或 Ctrl / Shift 点击多选"), this);
+    hint_->setObjectName(QStringLiteral("muted"));
+    hint_->setFont(sf2);
     copyBtn_ = new QPushButton(QStringLiteral("复制所选"), this);
     deleteBtn_ = new QPushButton(QStringLiteral("删除所选"), this);
     copyBtn_->setCursor(Qt::PointingHandCursor);
@@ -367,6 +409,8 @@ TextsWindow::TextsWindow(TextCollection *texts, QWidget *parent)
     copyBtn_->setEnabled(false);
     deleteBtn_->setEnabled(false);
     bottom->addWidget(status_, 0, Qt::AlignVCenter);
+    bottom->addSpacing(12);
+    bottom->addWidget(hint_, 0, Qt::AlignVCenter);
     bottom->addStretch(1);
     bottom->addWidget(copyBtn_);
     bottom->addWidget(deleteBtn_);
@@ -392,7 +436,10 @@ TextsWindow::TextsWindow(TextCollection *texts, QWidget *parent)
     });
     connect(copyBtn_, &QPushButton::clicked, this, &TextsWindow::copySelected);
     connect(deleteBtn_, &QPushButton::clicked, this, &TextsWindow::deleteSelected);
-    connect(texts_, &TextCollection::changed, this, &TextsWindow::refresh);
+    // 隐藏时不必重建列表，打开面板时再刷新
+    connect(texts_, &TextCollection::changed, this, [this]{
+        if (isVisible()) refresh();
+    });
     refresh();
 }
 

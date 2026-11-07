@@ -61,6 +61,9 @@ bool AppController::start()
     shelf_->setScreenGeom(shelfGeom);
     shelf_->slideIn(3500);
 
+    // 启动后空闲时预热面板（图片篮子 / 文字信封），首次打开不再卡顿
+    QTimer::singleShot(400, this, [this]{ ensurePanels(); });
+
     // 全局热键：等事件循环启动后再注册（更稳），并记录 Windows 错误码
     QTimer::singleShot(0, this, [this]{
         events_->registerToggleHotkey();
@@ -260,6 +263,22 @@ void AppController::onLocate(CaptureItem *item)
 
 void AppController::onBasket()
 {
+    ensurePanels();
+    basket_->refresh();
+    showPanelBesideDock(basket_);
+}
+
+void AppController::onTexts()
+{
+    ensurePanels();
+    textsWin_->refresh();
+    showPanelBesideDock(textsWin_);
+}
+
+// 提前创建两个面板（隐藏状态），把窗口创建与列表构建的开销挪到启动后，
+// 避免第一次打开面板时出现卡顿
+void AppController::ensurePanels()
+{
     if (!basket_) {
         basket_ = new BasketWindow(gallery_);
         connect(basket_, &BasketWindow::hangRequested, this, [this](const QStringList &paths){
@@ -268,20 +287,29 @@ void AppController::onBasket()
                 if (ptr) capture_->hang(ptr.data());
             }
         });
+        connect(basket_, &BasketWindow::unhangRequested, this, [this](const QStringList &paths){
+            QVector<CaptureItem *> targets;
+            for (const QString &path : paths) {
+                Gallery::ItemPtr ptr = gallery_->byPath(path);
+                if (ptr) targets.append(ptr.data());
+            }
+            if (targets.isEmpty()) return;
+            gallery_->removeMany(targets);   // 仅从绳子取下，保留收集记录
+        });
+        connect(basket_, &BasketWindow::deleteRequested, this, [this](const QStringList &paths){
+            for (const QString &path : paths) {
+                Gallery::ItemPtr ptr = gallery_->byPath(path);
+                if (ptr) onTrash(ptr.data());
+            }
+        });
         connect(basket_, &PanelWindow::hidden, this, &AppController::syncShelfHold);
+        basket_->winId();          // 预创建原生窗口，消除首次显示的系统开销
     }
-    basket_->refresh();
-    showPanelBesideDock(basket_);
-}
-
-void AppController::onTexts()
-{
     if (!textsWin_) {
         textsWin_ = new TextsWindow(texts_);
         connect(textsWin_, &PanelWindow::hidden, this, &AppController::syncShelfHold);
+        textsWin_->winId();
     }
-    textsWin_->refresh();
-    showPanelBesideDock(textsWin_);
 }
 
 void AppController::showPanelBesideDock(PanelWindow *panel)

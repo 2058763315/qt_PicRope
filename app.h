@@ -44,6 +44,7 @@ private:
     void onLocate(CaptureItem *item);
     void onBasket();
     void onTexts();
+    void ensurePanels();
     void showPanelBesideDock(PanelWindow *panel);
     void syncShelfHold();
     void onCaptureShortcut();
