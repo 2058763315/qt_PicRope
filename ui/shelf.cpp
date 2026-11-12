@@ -235,6 +235,12 @@ void ShelfWindow::setHoldOpen(bool hold)
     if (hold) awaySince_ = -1;
 }
 
+void ShelfWindow::setEdgePopupEnabled(bool on)
+{
+    edgePopup_ = on;
+    if (!on) edgeSince_ = -1;
+}
+
 void ShelfWindow::edgeTick()
 {
     const QPoint cur = Win32::cursorPos();
@@ -272,8 +278,9 @@ void ShelfWindow::edgeTick()
     }
     prevDown_ = down;
 
-    // 鼠标在屏幕顶边停留片刻 → 展开
-    if (nearTop && !down && !suppressEdge_ && !Win32::foregroundFullscreen(windowHandle())) {
+    // 鼠标在屏幕顶边停留片刻 → 展开（可在托盘临时关闭）
+    if (edgePopup_ && nearTop && !down && !suppressEdge_
+        && !Win32::foregroundFullscreen(windowHandle())) {
         if (edgeSince_ < 0) edgeSince_ = now;
         else if (now - edgeSince_ >= kEdgeMs && (!shown_ || screenGeom_ != b)) {
             setScreenGeom(b);

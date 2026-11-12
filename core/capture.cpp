@@ -244,12 +244,16 @@ void CapturePipeline::clipboardChanged()
 {
     if (!collectClipboard()) return;
     if (clipJustIgnored_) { clipJustIgnored_ = false; return; }
+    // 单击绳上图片复制时写入的是自己带标记的剪贴板，不再二次收集
+    if (Clip::hasOwnFormat()) return;
     clipDueMs_ = QDateTime::currentMSecsSinceEpoch() + 160;
 }
 
 void CapturePipeline::readClipboardImage()
 {
     if (!collectClipboard() || clipBusy_) return;
+    // 延迟读取期间剪贴板仍是自身写入的内容，同样跳过
+    if (Clip::hasOwnFormat()) return;
     clipBusy_ = true;
 
     QByteArray bytes;

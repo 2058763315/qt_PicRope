@@ -26,6 +26,7 @@ signals:
     void toggleRequested();
     void basketRequested();
     void textsRequested();
+    void edgePopupChanged(bool enabled);   // 顶部自动弹出的开关
     void collectClipboardChanged(bool on);
     void collectTextClipboardChanged(bool on);
     void autoHangChanged(bool on);
@@ -43,6 +44,7 @@ private:
     QMenu *menu_;
 
     QAction *actToggle_ = nullptr;
+    QAction *actEdge_ = nullptr;
     QAction *actClip_ = nullptr;
     QAction *actText_ = nullptr;
     QAction *actHang_ = nullptr;

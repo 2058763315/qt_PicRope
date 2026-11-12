@@ -140,6 +140,9 @@ void AppController::connectAll()
     });
     connect(tray_, &TrayController::basketRequested, this, &AppController::onBasket);
     connect(tray_, &TrayController::textsRequested, this, &AppController::onTexts);
+    connect(tray_, &TrayController::edgePopupChanged, this, [this](bool enabled){
+        if (shelf_) shelf_->setEdgePopupEnabled(enabled);
+    });
     connect(tray_, &TrayController::collectClipboardChanged, this, [this](bool on){
         capture_->setCollectClipboard(on);
     });

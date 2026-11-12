@@ -38,6 +38,14 @@ void TrayController::buildMenu()
 {
     menu_ = new QMenu;
     actToggle_ = menu_->addAction(QStringLiteral("显示/收起"), this, &TrayController::toggleRequested);
+
+    // 勾选即临时关闭“鼠标移到屏幕顶部自动展开”，重启后恢复
+    actEdge_ = menu_->addAction(QStringLiteral("关闭自动弹出"));
+    actEdge_->setCheckable(true);
+    connect(actEdge_, &QAction::toggled, this, [this](bool off){
+        emit edgePopupChanged(!off);
+    });
+
     menu_->addAction(QStringLiteral("图片篮子…"), this, &TrayController::basketRequested);
     menu_->addAction(QStringLiteral("文字信封…"), this, &TrayController::textsRequested);
     menu_->addSeparator();

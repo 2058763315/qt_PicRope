@@ -48,6 +48,7 @@ public:
 
     QRect toolDockRect() const;         // 三个工具按钮在屏幕上的矩形
     void setHoldOpen(bool hold);        // 面板打开期间保持展开，不自动收起
+    void setEdgePopupEnabled(bool on);  // 鼠标移到屏幕顶部是否自动展开
 
 signals:
     void copyRequested(CaptureItem *item);
@@ -103,6 +104,7 @@ private:
     bool prevDown_ = false;
     bool dragActive_ = false;        // 卡片正在拖出，暂停自动收起
     bool holdOpen_ = false;          // 面板打开期间强制保持展开
+    bool edgePopup_ = true;          // 允许鼠标到顶部自动展开（托盘可临时关闭）
     qint64 edgeSince_ = -1;
     qint64 awaySince_ = -1;
     qint64 peekUntil_ = -1;
