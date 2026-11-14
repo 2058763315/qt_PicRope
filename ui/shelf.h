@@ -61,6 +61,7 @@ signals:
     void batchRequested(int batch);
     void basketRequested();
     void textsRequested();
+    void settingsRequested();
     void retracted();                   // 绳子收起（手动/热键/让位），面板应一并隐藏
 
 protected:
@@ -90,6 +91,7 @@ private:
     QScrollArea *scroll_ = nullptr;
     ShelfButton *basketBtn_ = nullptr;
     ShelfButton *textsBtn_ = nullptr;
+    ShelfButton *settingsBtn_ = nullptr;
     ShelfButton *hideBtn_ = nullptr;
     QPropertyAnimation *anim_ = nullptr;
     QTimer *edgeTimer_ = nullptr;

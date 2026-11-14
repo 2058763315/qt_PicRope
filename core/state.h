@@ -22,6 +22,7 @@ struct SavedState {
     bool   collectClipboard      = true;
     bool   collectTextClipboard  = true;
     bool   autoHang              = true;
+    bool   autoCheckUpdate       = true;   // 设置界面：自动检查更新
     bool   hoverPreview          = true;
     QString theme                = QStringLiteral("classic");
     QString displayDevice;                 // 空 = 跟随鼠标

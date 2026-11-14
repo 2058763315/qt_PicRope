@@ -7,6 +7,7 @@
 #include <QListWidget>
 #include <QListView>
 #include <QLineEdit>
+#include <QAction>
 #include <QPlainTextEdit>
 #include <QLabel>
 #include <QPainter>
@@ -31,6 +32,20 @@
 
 namespace {
 constexpr int kMargin = 14;
+
+QIcon clearTextIcon()
+{
+    QPixmap pm(32, 32);
+    pm.setDevicePixelRatio(2.0);
+    pm.fill(Qt::transparent);
+    QPainter p(&pm);
+    p.setRenderHint(QPainter::Antialiasing);
+    p.setPen(QPen(QColor("#8A94A6"), 1.7, Qt::SolidLine, Qt::RoundCap));
+    p.drawLine(QPointF(5.0, 5.0), QPointF(11.0, 11.0));
+    p.drawLine(QPointF(11.0, 5.0), QPointF(5.0, 11.0));
+    p.end();
+    return QIcon(pm);
+}
 
 QString commonStyle()
 {
@@ -104,15 +119,15 @@ PanelWindow::PanelWindow(const QString &title, QWidget *parent)
     root->setContentsMargins(kMargin + 18, kMargin + 12, kMargin + 18, kMargin + 16);
     root->setSpacing(12);
 
-    auto *header = new QHBoxLayout;
-    header->setContentsMargins(0, 0, 0, 0);
+    header_ = new QHBoxLayout;
+    header_->setContentsMargins(0, 0, 0, 0);
     auto *titleLabel = new QLabel(title, this);
     QFont tf = titleLabel->font();
-    tf.setPixelSize(15);
+    tf.setPixelSize(16);
     tf.setBold(true);
     titleLabel->setFont(tf);
-    header->addWidget(titleLabel, 0, Qt::AlignVCenter);
-    header->addStretch(1);
+    header_->addWidget(titleLabel, 0, Qt::AlignVCenter);
+    header_->addStretch(1);
 
     auto *close = new QToolButton(this);
     close->setObjectName(QStringLiteral("panelClose"));
@@ -121,8 +136,8 @@ PanelWindow::PanelWindow(const QString &title, QWidget *parent)
     close->setCursor(Qt::PointingHandCursor);
     close->setToolTip(QStringLiteral("关闭"));
     connect(close, &QToolButton::clicked, this, &QWidget::hide);
-    header->addWidget(close, 0, Qt::AlignVCenter);
-    root->addLayout(header);
+    header_->addWidget(close, 0, Qt::AlignVCenter);
+    root->addLayout(header_);
 
     content_ = new QVBoxLayout;
     content_->setContentsMargins(0, 0, 0, 0);
@@ -369,14 +384,31 @@ void BasketWindow::updateSummary()
 //  TextsWindow
 // =====================================================================
 TextsWindow::TextsWindow(TextCollection *texts, QWidget *parent)
-    : PanelWindow(QStringLiteral("文字信封"), parent), texts_(texts)
+    : PanelWindow(QStringLiteral("文字笔记"), parent), texts_(texts)
 {
     setFixedSize(760, 560);
 
     search_ = new QLineEdit(this);
     search_->setPlaceholderText(QStringLiteral("搜索文字…"));
-    search_->setClearButtonEnabled(true);
-    contentLayout()->addWidget(search_);
+    search_->setFixedSize(360, 30);
+    // 清空按钮：QLineEdit 内置 action 按钮自己重绘图标、不画样式表背景，
+    // 所以这里用独立 QToolButton 盖在搜索框右侧，悬停背景才看得见
+    auto *clearBtn = new QToolButton(search_);
+    clearBtn->setIcon(clearTextIcon());
+    clearBtn->setIconSize(QSize(16, 16));
+    clearBtn->setFixedSize(22, 22);
+    clearBtn->setCursor(Qt::PointingHandCursor);
+    clearBtn->setToolTip(QStringLiteral("清空搜索"));
+    clearBtn->setStyleSheet(QStringLiteral(
+        "QToolButton{background:transparent;border:none;border-radius:11px;}"
+        "QToolButton:hover{background:#DCE4F2;}"
+        "QToolButton:pressed{background:#C8D4E8;}"));
+    clearBtn->move(360 - 26, (30 - 22) / 2);
+    connect(clearBtn, &QToolButton::clicked, search_, &QLineEdit::clear);
+    search_->setTextMargins(10, 0, 28, 0);
+    // 搜索框放到标题栏，紧跟“文字笔记”标题，与关闭按钮同排
+    headerLayout()->insertSpacing(1, 12);
+    headerLayout()->insertWidget(2, search_, 0, Qt::AlignVCenter);
 
     auto *mid = new QHBoxLayout;
     mid->setSpacing(14);

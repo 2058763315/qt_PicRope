@@ -1,8 +1,8 @@
 #pragma once
 // =====================================================================
-//  ui/panels.h — 图片篮子 / 文字信封
+//  ui/panels.h — 图片篮子 / 文字笔记
 //  对应原 PicRope 的 BasketWindow 与 TextsWindow：
-//  篮子用于暂存与批量挂图，信封用于搜索、查看与复制文字。
+//  篮子用于暂存与批量挂图，笔记用于搜索、查看与复制文字。
 // =====================================================================
 
 #include <QWidget>
@@ -11,6 +11,7 @@
 #include <QStringList>
 
 class QVBoxLayout;
+class QHBoxLayout;
 class QPushButton;
 class QListWidget;
 class QLineEdit;
@@ -35,6 +36,7 @@ signals:
 
 protected:
     QVBoxLayout *contentLayout() const { return content_; }
+    QHBoxLayout *headerLayout() const { return header_; }
 
     void paintEvent(QPaintEvent *) override;
     void hideEvent(QHideEvent *) override;
@@ -44,6 +46,7 @@ protected:
 
 private:
     QVBoxLayout *content_ = nullptr;
+    QHBoxLayout *header_ = nullptr;
     QPoint dragOffset_;
     bool dragging_ = false;
 };
@@ -79,7 +82,7 @@ private:
     bool refreshing_ = false;
 };
 
-// 文字信封：搜索、查看全文、复制与删除
+// 文字笔记：搜索、查看全文、复制与删除
 class TextsWindow : public PanelWindow
 {
     Q_OBJECT

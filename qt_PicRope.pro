@@ -1,11 +1,11 @@
-QT += core gui widgets
+QT += core gui widgets network
 
 CONFIG += c++17
 
 # 应用名与产物
 TARGET = PicRope
 TEMPLATE = app
-VERSION = 1.0.3
+VERSION = 1.1.0
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
@@ -25,11 +25,13 @@ SOURCES += \
     core/gallery.cpp \
     core/texts.cpp \
     core/capture.cpp \
+    core/updater.cpp \
     ui/themes.cpp \
     ui/card.cpp \
     ui/shelf.cpp \
     ui/pinned.cpp \
     ui/panels.cpp \
+    ui/settings.cpp \
     ui/tray.cpp
 
 HEADERS += \
@@ -41,11 +43,13 @@ HEADERS += \
     core/gallery.h \
     core/texts.h \
     core/capture.h \
+    core/updater.h \
     ui/themes.h \
     ui/card.h \
     ui/shelf.h \
     ui/pinned.h \
     ui/panels.h \
+    ui/settings.h \
     ui/tray.h
 
 RESOURCES += resources.qrc

@@ -2,12 +2,10 @@
 
 #include <QMenu>
 #include <QAction>
-#include <QActionGroup>
 #include <QApplication>
 #include <QIcon>
 
 #include "state.h"
-#include "themes.h"
 
 TrayController::TrayController(StateStore *store, QObject *parent)
     : QObject(parent), store_(store)
@@ -47,7 +45,7 @@ void TrayController::buildMenu()
     });
 
     menu_->addAction(QStringLiteral("图片篮子…"), this, &TrayController::basketRequested);
-    menu_->addAction(QStringLiteral("文字信封…"), this, &TrayController::textsRequested);
+    menu_->addAction(QStringLiteral("文字笔记…"), this, &TrayController::textsRequested);
     menu_->addSeparator();
     actClip_ = menu_->addAction(QStringLiteral("剪贴板收集 · 图片"));
     actClip_->setCheckable(true);
@@ -62,21 +60,7 @@ void TrayController::buildMenu()
     connect(actHang_, &QAction::toggled, this, &TrayController::autoHangChanged);
 
     menu_->addSeparator();
-    themeMenu_ = menu_->addMenu(QStringLiteral("外观"));
-    {
-        QActionGroup *grp = new QActionGroup(this);
-        grp->setExclusive(true);
-        for (const LineTheme &t : LineTheme::all()) {
-            QAction *a = themeMenu_->addAction(t.name);
-            a->setCheckable(true);
-            a->setData(t.id);
-            a->setToolTip(t.description);
-            grp->addAction(a);
-        }
-        connect(themeMenu_, &QMenu::triggered, this, [this](QAction *a){
-            if (a->data().canConvert<QString>()) emit themeSelected(a->data().toString());
-        });
-    }
+    menu_->addAction(QStringLiteral("设置…"), this, &TrayController::settingsRequested);
 
     QMenu *more = menu_->addMenu(QStringLiteral("更多"));
     actCapture_ = more->addAction(QStringLiteral("区域截图…"), this, &TrayController::captureRequested);
@@ -95,7 +79,4 @@ void TrayController::refresh()
     actClip_->setChecked(store_->state.collectClipboard);
     actText_->setChecked(store_->state.collectTextClipboard);
     actHang_->setChecked(store_->state.autoHang);
-    for (QAction *a : themeMenu_->actions()) {
-        if (a->data().toString() == store_->state.theme) { a->setChecked(true); break; }
-    }
 }

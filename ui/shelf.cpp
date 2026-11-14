@@ -16,6 +16,7 @@
 #include <QDateTime>
 #include <QFontMetrics>
 #include <QIcon>
+#include <cmath>
 
 #include "gallery.h"
 #include "state.h"
@@ -23,7 +24,7 @@
 #include "win32.h"
 
 namespace {
-constexpr int kShelfH = 214;
+constexpr int kShelfH = 236;
 constexpr int kPeekMs = 2200;
 constexpr int kEdgeMs = 320;
 constexpr int kAwayMs = 1200;
@@ -52,9 +53,30 @@ QIcon glyphIcon(const QString &kind)
         p.drawLine(QPointF(15, 19), QPointF(16.5, 26));
         p.drawLine(QPointF(25, 19), QPointF(23.5, 26));
     } else if (kind == QLatin1String("texts")) {
-        p.drawRoundedRect(QRectF(6, 10, 28, 20), 4, 4);
-        p.drawLine(QPointF(7.5, 12), QPointF(20, 22));
-        p.drawLine(QPointF(32.5, 12), QPointF(20, 22));
+        // 文字笔记：方形笔记本 + 左侧装订 + 三条横线
+        p.drawRoundedRect(QRectF(11, 8, 21, 24), 3.5, 3.5);
+        p.save();
+        p.setPen(QPen(kInk, 2.4));
+        p.drawLine(QPointF(7, 13), QPointF(12, 13));
+        p.drawLine(QPointF(7, 20), QPointF(12, 20));
+        p.drawLine(QPointF(7, 27), QPointF(12, 27));
+        p.drawLine(QPointF(16, 14.5), QPointF(27, 14.5));
+        p.drawLine(QPointF(16, 20), QPointF(27, 20));
+        p.drawLine(QPointF(16, 25.5), QPointF(23, 25.5));
+        p.restore();
+    } else if (kind == QLatin1String("gear")) {
+        // 设置：圆盘 + 八颗齿 + 中心孔
+        p.setPen(QPen(kInk, 3.0));
+        const QPointF c(20, 20);
+        for (int i = 0; i < 8; ++i) {
+            const qreal a = i * 3.14159265358979 / 4.0;
+            const qreal dx = std::cos(a);
+            const qreal dy = std::sin(a);
+            p.drawLine(QPointF(c.x() + 9.5 * dx, c.y() + 9.5 * dy),
+                       QPointF(c.x() + 13.2 * dx, c.y() + 13.2 * dy));
+        }
+        p.drawEllipse(c, 9.5, 9.5);
+        p.drawEllipse(c, 3.8, 3.8);
     } else {
         // 收起：绳子向上滑出，图标用尖角向上的折角
         QPainterPath chevron;
@@ -168,12 +190,16 @@ ShelfWindow::ShelfWindow(Gallery *gallery, StateStore *store, QWidget *parent)
     basketBtn_->setToolTip(QStringLiteral("图片篮子"));
     textsBtn_ = new ShelfButton(btnCol);
     textsBtn_->setIcon(glyphIcon(QStringLiteral("texts")));
-    textsBtn_->setToolTip(QStringLiteral("文字信封"));
+    textsBtn_->setToolTip(QStringLiteral("文字笔记"));
+    settingsBtn_ = new ShelfButton(btnCol);
+    settingsBtn_->setIcon(glyphIcon(QStringLiteral("gear")));
+    settingsBtn_->setToolTip(QStringLiteral("设置"));
     hideBtn_ = new ShelfButton(btnCol);
     hideBtn_->setIcon(glyphIcon(QStringLiteral("hide")));
     hideBtn_->setToolTip(QStringLiteral("收起绳子"));
     col->addWidget(basketBtn_, 0, Qt::AlignHCenter);
     col->addWidget(textsBtn_, 0, Qt::AlignHCenter);
+    col->addWidget(settingsBtn_, 0, Qt::AlignHCenter);
     col->addWidget(hideBtn_, 0, Qt::AlignHCenter);
     col->addStretch(1);
     btnCol->installEventFilter(this);
@@ -181,6 +207,7 @@ ShelfWindow::ShelfWindow(Gallery *gallery, StateStore *store, QWidget *parent)
 
     connect(basketBtn_, &QToolButton::clicked, this, &ShelfWindow::basketRequested);
     connect(textsBtn_, &QToolButton::clicked, this, &ShelfWindow::textsRequested);
+    connect(settingsBtn_, &QToolButton::clicked, this, &ShelfWindow::settingsRequested);
     connect(hideBtn_, &QToolButton::clicked, this, &ShelfWindow::slideOut);
 
     anim_ = new QPropertyAnimation(this, "pos", this);
@@ -214,8 +241,8 @@ void ShelfWindow::updateBadges()
     const int texts = store_->state.texts.size();
     textsBtn_->setBadge(texts);
     textsBtn_->setToolTip(texts > 0
-        ? QStringLiteral("文字信封 · %1 条").arg(texts)
-        : QStringLiteral("文字信封"));
+        ? QStringLiteral("文字笔记 · %1 条").arg(texts)
+        : QStringLiteral("文字笔记"));
 }
 
 QRect ShelfWindow::toolDockRect() const
@@ -224,6 +251,8 @@ QRect ShelfWindow::toolDockRect() const
     QWidget *self = const_cast<ShelfWindow *>(this);
     QRect r(basketBtn_->mapTo(self, QPoint(0, 0)), basketBtn_->size());
     r = r.united(QRect(textsBtn_->mapTo(self, QPoint(0, 0)), textsBtn_->size()));
+    if (settingsBtn_)
+        r = r.united(QRect(settingsBtn_->mapTo(self, QPoint(0, 0)), settingsBtn_->size()));
     r = r.united(QRect(hideBtn_->mapTo(self, QPoint(0, 0)), hideBtn_->size()));
     r.translate(pos());
     return r;
@@ -331,6 +360,7 @@ bool ShelfWindow::overInteractive() const
     }
     for (QWidget *w : { static_cast<QWidget *>(basketBtn_),
                         static_cast<QWidget *>(textsBtn_),
+                        static_cast<QWidget *>(settingsBtn_),
                         static_cast<QWidget *>(hideBtn_) }) {
         if (w && w->isVisible()
             && QRect(w->mapTo(this, QPoint(0, 0)), w->size()).contains(local))

@@ -30,7 +30,7 @@ signals:
     void collectClipboardChanged(bool on);
     void collectTextClipboardChanged(bool on);
     void autoHangChanged(bool on);
-    void themeSelected(const QString &id);
+    void settingsRequested();
     void captureRequested();
     void openFolderRequested();
     void clearShelfRequested();
@@ -49,5 +49,4 @@ private:
     QAction *actText_ = nullptr;
     QAction *actHang_ = nullptr;
     QAction *actCapture_ = nullptr;
-    QMenu *themeMenu_ = nullptr;
 };

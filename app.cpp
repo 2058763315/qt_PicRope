@@ -22,7 +22,9 @@
 #include "shelf.h"
 #include "pinned.h"
 #include "panels.h"
+#include "settings.h"
 #include "tray.h"
+#include "updater.h"
 #include "win32.h"
 #include "clipboard.h"
 
@@ -61,8 +63,54 @@ bool AppController::start()
     shelf_->setScreenGeom(shelfGeom);
     shelf_->slideIn(3500);
 
-    // 启动后空闲时预热面板（图片篮子 / 文字信封），首次打开不再卡顿
+    // 启动后空闲时预热面板（图片篮子 / 文字笔记），首次打开不再卡顿
     QTimer::singleShot(400, this, [this]{ ensurePanels(); });
+
+    // 自动检查更新：静默请求 GitHub 最新发行版，有新版则下载安装包并拉起安装
+    if (store_->state.autoCheckUpdate) {
+        QTimer::singleShot(4000, this, [this]{
+            if (updater_) return;
+            updater_ = new UpdateChecker(this);
+
+            connect(updater_, &UpdateChecker::updateAvailable, this,
+                    [this](const QString &version, const QUrl &setupUrl, const QUrl &pageUrl){
+                if (setupUrl.isEmpty()) {
+                    if (!pageUrl.isEmpty()) QDesktopServices::openUrl(pageUrl);
+                    return;
+                }
+
+                // 先询问用户，同意后才下载并安装
+                QMessageBox box(QMessageBox::Question, QStringLiteral("发现新版本"),
+                                QStringLiteral("检测到新版本 %1，是否下载并自动安装？").arg(version),
+                                QMessageBox::Yes | QMessageBox::No);
+                box.setWindowFlag(Qt::WindowStaysOnTopHint, true);
+                box.setDefaultButton(QMessageBox::Yes);
+                box.setInformativeText(
+                    QStringLiteral("下载完成后会自动启动安装程序，安装期间本软件将退出。"));
+                if (box.exec() != QMessageBox::Yes) {
+                    store_->logError(QStringLiteral("自动更新：用户取消下载"));
+                    return;
+                }
+
+                store_->logError(QStringLiteral("自动更新：开始下载安装包"));
+                updater_->download(setupUrl);
+            });
+            connect(updater_, &UpdateChecker::downloadFinished, this,
+                    [this](const QString &path){
+                store_->logError(QStringLiteral("自动更新：下载完成，启动安装程序"));
+                if (!QProcess::startDetached(path)) {
+                    store_->logError(QStringLiteral("自动更新：安装程序启动失败 ") + path);
+                    return;
+                }
+                stop();
+                QCoreApplication::quit();
+            });
+            connect(updater_, &UpdateChecker::failed, this, [this](const QString &msg){
+                store_->logError(QStringLiteral("自动更新：") + msg);
+            });
+            updater_->checkLatest();
+        });
+    }
 
     // 全局热键：等事件循环启动后再注册（更稳），并记录 Windows 错误码
     QTimer::singleShot(0, this, [this]{
@@ -93,6 +141,7 @@ void AppController::stop()
     pins_.clear();
     if (basket_) { basket_->hide(); basket_->deleteLater(); basket_ = nullptr; }
     if (textsWin_) { textsWin_->hide(); textsWin_->deleteLater(); textsWin_ = nullptr; }
+    if (settings_) { settings_->hide(); settings_->deleteLater(); settings_ = nullptr; }
 }
 
 void AppController::connectAll()
@@ -122,6 +171,7 @@ void AppController::connectAll()
     connect(shelf_, &ShelfWindow::locateRequested, this, &AppController::onLocate);
     connect(shelf_, &ShelfWindow::basketRequested, this, &AppController::onBasket);
     connect(shelf_, &ShelfWindow::textsRequested, this, &AppController::onTexts);
+    connect(shelf_, &ShelfWindow::settingsRequested, this, &AppController::onSettings);
     // 绳子收起时面板随之隐藏，避免面板悬空
     connect(shelf_, &ShelfWindow::retracted, this, [this]{
         if (basket_) basket_->hide();
@@ -152,16 +202,7 @@ void AppController::connectAll()
     connect(tray_, &TrayController::autoHangChanged, this, [this](bool on){
         capture_->setAutoHang(on);
     });
-    connect(tray_, &TrayController::themeSelected, this, [this](const QString &id){
-        if (store_->state.theme == id) return;
-        store_->state.theme = id;
-        store_->save();
-        if (shelf_) {
-            shelf_->setTheme(LineTheme::byId(id));
-            shelf_->rebuild();
-        }
-        tray_->refresh();
-    });
+    connect(tray_, &TrayController::settingsRequested, this, &AppController::onSettings);
     connect(tray_, &TrayController::captureRequested, this, &AppController::onCaptureShortcut);
     connect(tray_, &TrayController::openFolderRequested, this, [this]{
         QDir().mkpath(store_->inbox);
@@ -276,6 +317,24 @@ void AppController::onTexts()
     ensurePanels();
     textsWin_->refresh();
     showPanelBesideDock(textsWin_);
+}
+
+// 设置界面：仅从托盘右键菜单打开，显示在屏幕正中间
+void AppController::onSettings()
+{
+    if (!settings_) {
+        settings_ = new SettingsDialog(store_);
+        connect(settings_, &SettingsDialog::themeSelected,
+                this, &AppController::applyTheme);
+    }
+    settings_->showCentered();
+}
+
+void AppController::applyTheme(const QString &id)
+{
+    if (!shelf_ || shelf_->theme().id == id) return;
+    shelf_->setTheme(LineTheme::byId(id));
+    shelf_->rebuild();
 }
 
 // 提前创建两个面板（隐藏状态），把窗口创建与列表构建的开销挪到启动后，

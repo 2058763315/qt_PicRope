@@ -18,6 +18,8 @@ class SystemEvents;
 class PinnedImageWindow;
 class BasketWindow;
 class TextsWindow;
+class SettingsDialog;
+class UpdateChecker;
 class PanelWindow;
 class CaptureItem;
 
@@ -44,6 +46,8 @@ private:
     void onLocate(CaptureItem *item);
     void onBasket();
     void onTexts();
+    void onSettings();
+    void applyTheme(const QString &id);
     void ensurePanels();
     void showPanelBesideDock(PanelWindow *panel);
     void syncShelfHold();
@@ -58,6 +62,8 @@ private:
     SystemEvents *events_ = nullptr;
     BasketWindow *basket_ = nullptr;
     TextsWindow *textsWin_ = nullptr;
+    SettingsDialog *settings_ = nullptr;
+    UpdateChecker *updater_ = nullptr;
     QVector<QPointer<PinnedImageWindow>> pins_;
     bool running_ = false;
 };
