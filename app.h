@@ -20,6 +20,7 @@ class BasketWindow;
 class TextsWindow;
 class SettingsDialog;
 class UpdateChecker;
+class ImageViewer;
 class PanelWindow;
 class CaptureItem;
 
@@ -64,6 +65,7 @@ private:
     TextsWindow *textsWin_ = nullptr;
     SettingsDialog *settings_ = nullptr;
     UpdateChecker *updater_ = nullptr;
+    ImageViewer *viewer_ = nullptr;
     QVector<QPointer<PinnedImageWindow>> pins_;
     bool running_ = false;
 };

@@ -1,6 +1,6 @@
 # qt_PicRope · 图绳（Qt 重构版）
 
-> **Qt 二次开发版本**（当前版本 **1.1.0**），源自作者 [Renly1994](https://github.com/Renly1994) 的 [PicRope](https://github.com/Renly1994/PicRope)（Windows 截图暂存与桌面贴图工具）。本仓库使用 **C++ / Qt Widgets** 对原 **C# / WPF** 项目进行重构与二次开发。
+> **Qt 二次开发版本**，源自作者 [Renly1994](https://github.com/Renly1994) 的 [PicRope](https://github.com/Renly1994/PicRope)（Windows 截图暂存与桌面贴图工具）。本仓库使用 **C++ / Qt Widgets** 对原 **C# / WPF** 项目进行重构与二次开发。
 
 **图绳（PicRope）** 是一款 Windows 截图暂存与桌面贴图工具：它把截图自动收集到屏幕上沿的一条“绳子”上，鼠标移到顶部即展开、离开后自动收起。单击图片即可复制，拖入聊天框、文档等目标应用即可取用，也可以把图片取下来钉在桌面上对照。适合写文档、做教程、整理参考图等场景。
 

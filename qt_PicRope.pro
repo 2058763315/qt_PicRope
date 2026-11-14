@@ -5,7 +5,7 @@ CONFIG += c++17
 # 应用名与产物
 TARGET = PicRope
 TEMPLATE = app
-VERSION = 1.1.0
+VERSION = 1.1.1
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
@@ -32,6 +32,7 @@ SOURCES += \
     ui/pinned.cpp \
     ui/panels.cpp \
     ui/settings.cpp \
+    ui/viewer.cpp \
     ui/tray.cpp
 
 HEADERS += \
@@ -50,6 +51,7 @@ HEADERS += \
     ui/pinned.h \
     ui/panels.h \
     ui/settings.h \
+    ui/viewer.h \
     ui/tray.h
 
 RESOURCES += resources.qrc

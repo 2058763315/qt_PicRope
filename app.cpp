@@ -23,6 +23,7 @@
 #include "pinned.h"
 #include "panels.h"
 #include "settings.h"
+#include "viewer.h"
 #include "tray.h"
 #include "updater.h"
 #include "win32.h"
@@ -142,6 +143,7 @@ void AppController::stop()
     if (basket_) { basket_->hide(); basket_->deleteLater(); basket_ = nullptr; }
     if (textsWin_) { textsWin_->hide(); textsWin_->deleteLater(); textsWin_ = nullptr; }
     if (settings_) { settings_->hide(); settings_->deleteLater(); settings_ = nullptr; }
+    if (viewer_) { viewer_->hide(); viewer_->deleteLater(); viewer_ = nullptr; }
 }
 
 void AppController::connectAll()
@@ -237,7 +239,9 @@ void AppController::onCopy(CaptureItem *item)
 
 void AppController::onOpen(CaptureItem *item)
 {
-    QDesktopServices::openUrl(QUrl::fromLocalFile(item->path));
+    // 内置查看器：同目录图片可左右切换；首次使用时创建，之后复用
+    if (!viewer_) viewer_ = new ImageViewer(nullptr);
+    viewer_->openFile(item->path);
 }
 
 void AppController::onEdit(CaptureItem *item)
