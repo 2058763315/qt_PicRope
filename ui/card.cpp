@@ -328,10 +328,6 @@ void ShotCard::mouseReleaseEvent(QMouseEvent *e)
         if (item_) emit trashRequested();
         return;
     }
-    if (clipRect().contains(e->pos())) {
-        if (item_) emit detachRequested();
-        return;
-    }
     if (held_ || pressTime_.elapsed() >= kLongPressMs) return;
 
     // 延迟到双击间隔后再复制，避免双击打开时先复制一次
@@ -379,7 +375,6 @@ void ShotCard::contextMenuEvent(QContextMenuEvent *e)
     QAction *save = menu.addAction(QStringLiteral("保存副本…"));
     QAction *locate = menu.addAction(QStringLiteral("在文件夹中显示"));
     menu.addSeparator();
-    QAction *detach = menu.addAction(QStringLiteral("贴到桌面"));
     QAction *edit = menu.addAction(QStringLiteral("编辑…"));
     menu.addSeparator();
     QAction *bSelf = menu.addAction(QStringLiteral("取下"));
@@ -397,7 +392,6 @@ void ShotCard::contextMenuEvent(QContextMenuEvent *e)
     else if (chosen == open) emit openRequested();
     else if (chosen == save) emit saveRequested();
     else if (chosen == locate) emit locateRequested();
-    else if (chosen == detach) emit detachRequested();
     else if (chosen == edit) emit editRequested();
     else if (chosen == trash) emit trashRequested();
     else if (chosen == bSelf) emit batchRequested(BatchSelf);

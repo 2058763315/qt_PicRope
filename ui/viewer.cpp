@@ -64,6 +64,7 @@ void ImageViewer::openFile(const QString &path)
         : QPoint(avail.x() + (avail.width() - width()) / 2,
                  avail.y() + (avail.height() - height()) / 2);
     move(pos);
+    if (isMinimized()) showNormal();   // 从最小化恢复
     show();
     raise();
     activateWindow();
@@ -106,8 +107,11 @@ void ImageViewer::showCurrent()
     fit_ = 1.0;
     if (!image_.isNull()) {
         const QRectF area = imageRect();
-        fit_ = qMin(1.0, qMin(area.width() / qMax(1, image_.width()),
-                               area.height() / qMax(1, image_.height())));
+        // 100% 时左右各让出箭头按钮的宽度，避免遮挡图片内容
+        const double sideGutters = 2.0 * (kNav + 16);
+        fit_ = qMin(1.0, qMin((area.width() - sideGutters) / qMax(1, image_.width()),
+                              area.height() / qMax(1, image_.height())));
+        fit_ = qMax(0.01, fit_);
     }
     rebuildDisplay();
     setWindowTitle(QFileInfo(currentPath_).fileName());
@@ -194,6 +198,11 @@ QRectF ImageViewer::closeRect() const
     return QRectF(bg.right() - 12 - kClose, bg.top() + 12, kClose, kClose);
 }
 
+QRectF ImageViewer::minimizeRect() const
+{
+    return closeRect().translated(-kClose - 10, 0);
+}
+
 void ImageViewer::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
@@ -272,6 +281,18 @@ void ImageViewer::paintEvent(QPaintEvent *)
         p.drawLine(QPointF(c.x() + rr, c.y() - rr), QPointF(c.x() - rr, c.y() + rr));
     }
 
+    // 最小化按钮
+    {
+        const QRectF r = minimizeRect();
+        p.setPen(QPen(QColor(255, 255, 255, 40), 1));
+        p.setBrush(overMin_ ? QColor(48, 56, 70, 235) : QColor(30, 36, 46, 190));
+        p.drawEllipse(r);
+        const QPointF c = r.center();
+        const qreal hw = 4.8;
+        p.setPen(QPen(QColor(226, 230, 236), 1.8, Qt::SolidLine, Qt::RoundCap));
+        p.drawLine(QPointF(c.x() - hw, c.y() + 2.0), QPointF(c.x() + hw, c.y() + 2.0));
+    }
+
     // 底栏
     p.save();
     QPainterPath bgClip;
@@ -310,6 +331,7 @@ void ImageViewer::mousePressEvent(QMouseEvent *e)
 {
     if (e->button() != Qt::LeftButton) return;
     if (closeRect().contains(e->pos())) { close(); return; }
+    if (minimizeRect().contains(e->pos())) { showMinimized(); return; }
     if (files_.size() > 1 && prevRect().contains(e->pos())) { step(-1); return; }
     if (files_.size() > 1 && nextRect().contains(e->pos())) { step(1); return; }
 
@@ -319,6 +341,12 @@ void ImageViewer::mousePressEvent(QMouseEvent *e)
         return;
     }
     if (imageRect().contains(e->pos())) {
+        // 未放大时整张图没有可平移的内容，按住即可拖动窗口
+        if (zoom_ <= 1.0 + 0.001) {
+            movingWindow_ = true;
+            dragOffset_ = e->globalPosition().toPoint() - frameGeometry().topLeft();
+            return;
+        }
         panning_ = true;
         dragStart_ = e->position();
         panStart_ = pan_;
@@ -330,11 +358,13 @@ void ImageViewer::mouseMoveEvent(QMouseEvent *e)
     const bool np = files_.size() > 1 && prevRect().contains(e->pos());
     const bool nn = files_.size() > 1 && nextRect().contains(e->pos());
     const bool nc = closeRect().contains(e->pos());
-    if (np != overPrev_ || nn != overNext_ || nc != overClose_) {
+    const bool nm = minimizeRect().contains(e->pos());
+    if (np != overPrev_ || nn != overNext_ || nc != overClose_ || nm != overMin_) {
         overPrev_ = np;
         overNext_ = nn;
         overClose_ = nc;
-        setCursor(np || nn || nc ? Qt::PointingHandCursor : Qt::ArrowCursor);
+        overMin_ = nm;
+        setCursor(np || nn || nc || nm ? Qt::PointingHandCursor : Qt::ArrowCursor);
         update();
     }
 

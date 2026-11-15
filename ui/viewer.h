@@ -2,6 +2,7 @@
 // =====================================================================
 //  ui/viewer.h — 内置图片查看器
 //  固定尺寸窗口：同目录图片 ← / → 切换，滚轮缩放，Esc 关闭。
+//  底部信息栏可拖动窗口，右上角有关闭 / 最小化按钮。
 // =====================================================================
 
 #include <QWidget>
@@ -45,6 +46,7 @@ private:
     QRectF prevRect() const;
     QRectF nextRect() const;
     QRectF closeRect() const;
+    QRectF minimizeRect() const;
 
     QImage image_;
     QPixmap display_;
@@ -66,4 +68,5 @@ private:
     bool overPrev_ = false;
     bool overNext_ = false;
     bool overClose_ = false;
+    bool overMin_ = false;
 };

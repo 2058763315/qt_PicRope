@@ -20,7 +20,6 @@
 #include "texts.h"
 #include "capture.h"
 #include "shelf.h"
-#include "pinned.h"
 #include "panels.h"
 #include "settings.h"
 #include "viewer.h"
@@ -137,9 +136,6 @@ void AppController::stop()
     if (shelf_) shelf_->forceHidden();
     events_->unregisterToggleHotkey();
     events_->unregisterCaptureHotkey();
-    for (const QPointer<PinnedImageWindow> &p : pins_)
-        if (p) { p->hide(); p->deleteLater(); }
-    pins_.clear();
     if (basket_) { basket_->hide(); basket_->deleteLater(); basket_ = nullptr; }
     if (textsWin_) { textsWin_->hide(); textsWin_->deleteLater(); textsWin_ = nullptr; }
     if (settings_) { settings_->hide(); settings_->deleteLater(); settings_ = nullptr; }
@@ -167,7 +163,6 @@ void AppController::connectAll()
     connect(shelf_, &ShelfWindow::copyRequested, this, &AppController::onCopy);
     connect(shelf_, &ShelfWindow::openRequested, this, &AppController::onOpen);
     connect(shelf_, &ShelfWindow::editRequested, this, &AppController::onEdit);
-    connect(shelf_, &ShelfWindow::detachRequested, this, &AppController::onDetach);
     connect(shelf_, &ShelfWindow::trashRequested, this, &AppController::onTrash);
     connect(shelf_, &ShelfWindow::saveRequested, this, &AppController::onSave);
     connect(shelf_, &ShelfWindow::locateRequested, this, &AppController::onLocate);
@@ -248,37 +243,6 @@ void AppController::onEdit(CaptureItem *item)
 {
     // 内置图片编辑器：后续迭代提供，当前先交给系统默认编辑器
     QDesktopServices::openUrl(QUrl::fromLocalFile(item->path));
-}
-
-void AppController::onDetach(CaptureItem *item)
-{
-    Gallery::ItemPtr ptr = gallery_->ptrOf(item);
-    if (!ptr) return;
-
-    // 取下后从绳上移除，关闭贴图时再挂回
-    gallery_->remove(item);
-
-    auto *pin = new PinnedImageWindow(ptr, nullptr);
-    pins_.append(pin);
-
-    connect(pin, &PinnedImageWindow::closed, this, [this, pin]{
-        Gallery::ItemPtr p = pin->itemPtr();
-        if (p) gallery_->add(p->path, p->image);
-        pin->hide();
-        pin->deleteLater();
-        pins_.removeAll(pin);
-        if (shelf_) shelf_->slideIn(2000);
-    });
-    connect(pin, &PinnedImageWindow::removeRequested, this, [this, pin]{
-        if (CaptureItem *it = pin->item()) onTrash(it);
-        pin->hide();
-        pin->deleteLater();
-        pins_.removeAll(pin);
-    });
-
-    pin->placeAtScreen(Win32::screenAt(Win32::cursorPos()).workArea);
-    pin->show();
-    pin->raise();
 }
 
 void AppController::onTrash(CaptureItem *item)
@@ -367,6 +331,10 @@ void AppController::ensurePanels()
                 Gallery::ItemPtr ptr = gallery_->byPath(path);
                 if (ptr) onTrash(ptr.data());
             }
+        });
+        connect(basket_, &BasketWindow::openFolderRequested, this, [this]{
+            QDir().mkpath(store_->inbox);
+            QDesktopServices::openUrl(QUrl::fromLocalFile(store_->inbox));
         });
         connect(basket_, &PanelWindow::hidden, this, &AppController::syncShelfHold);
         basket_->winId();          // 预创建原生窗口，消除首次显示的系统开销

@@ -8,6 +8,10 @@
 #include <QListView>
 #include <QLineEdit>
 #include <QAction>
+#include <QMenu>
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QFile>
 #include <QPlainTextEdit>
 #include <QLabel>
 #include <QPainter>
@@ -151,10 +155,11 @@ void PanelWindow::showPanel(const QRect &anchor)
     if (!s) s = QGuiApplication::primaryScreen();
     const QRect wa = s ? s->availableGeometry() : QRect(0, 0, 1280, 800);
 
-    // 贴在工具托板左侧，顶部与托板对齐；超出屏幕时向内夹紧
+    // 贴在工具托板左侧并下移一段，避免与绳子上的图片卡片重叠；超出屏幕时向内夹紧
     const int gap = 18;
+    const int downOffset = 96;
     int x = anchor.left() - gap - width();
-    int y = anchor.top();
+    int y = anchor.top() + downOffset;
     x = qMax(wa.left() + 12, x);
     y = qMax(wa.top() + 12, qMin(y, wa.bottom() - height() - 12));
     move(x, y);
@@ -218,6 +223,26 @@ BasketWindow::BasketWindow(Gallery *gallery, QWidget *parent)
 {
     setFixedSize(760, 540);
 
+    // 搜索框放到标题栏，按文件名过滤
+    search_ = new QLineEdit(this);
+    search_->setPlaceholderText(QStringLiteral("搜索图片文件名…"));
+    search_->setFixedSize(360, 30);
+    auto *clearBtn = new QToolButton(search_);
+    clearBtn->setIcon(clearTextIcon());
+    clearBtn->setIconSize(QSize(16, 16));
+    clearBtn->setFixedSize(22, 22);
+    clearBtn->setCursor(Qt::PointingHandCursor);
+    clearBtn->setToolTip(QStringLiteral("清空搜索"));
+    clearBtn->setStyleSheet(QStringLiteral(
+        "QToolButton{background:transparent;border:none;border-radius:11px;}"
+        "QToolButton:hover{background:#DCE4F2;}"
+        "QToolButton:pressed{background:#C8D4E8;}"));
+    clearBtn->move(360 - 26, (30 - 22) / 2);
+    connect(clearBtn, &QToolButton::clicked, search_, &QLineEdit::clear);
+    search_->setTextMargins(10, 0, 28, 0);
+    headerLayout()->insertSpacing(1, 12);
+    headerLayout()->insertWidget(2, search_, 0, Qt::AlignVCenter);
+
     auto *tabRow = new QHBoxLayout;
     tabRow->setSpacing(6);
     pendingTab_ = new QPushButton(QStringLiteral("待挂"), this);
@@ -232,10 +257,15 @@ BasketWindow::BasketWindow(Gallery *gallery, QWidget *parent)
     QFont sf = summary_->font();
     sf.setPixelSize(12);
     summary_->setFont(sf);
+    // 所有篮子图片都在同一个文件夹里，按钮直接打开该文件夹，无需选中图片
+    locateBtn_ = new QPushButton(QStringLiteral("打开文件夹"), this);
+    locateBtn_->setMinimumHeight(30);
+    locateBtn_->setCursor(Qt::PointingHandCursor);
+    locateBtn_->setToolTip(QStringLiteral("在资源管理器中打开图片所在文件夹"));
     tabRow->addWidget(pendingTab_);
     tabRow->addWidget(allTab_);
     tabRow->addStretch(1);
-    tabRow->addWidget(summary_, 0, Qt::AlignVCenter);
+    tabRow->addWidget(locateBtn_, 0, Qt::AlignVCenter);
     contentLayout()->addLayout(tabRow);
 
     list_ = new QListWidget(this);
@@ -266,6 +296,8 @@ BasketWindow::BasketWindow(Gallery *gallery, QWidget *parent)
     deleteBtn_->setMinimumHeight(36);
     deleteBtn_->setCursor(Qt::PointingHandCursor);
     deleteBtn_->setEnabled(false);
+    bottom->addWidget(summary_, 0, Qt::AlignVCenter);
+    bottom->addSpacing(14);
     bottom->addWidget(tip_, 0, Qt::AlignVCenter);
     bottom->addStretch(1);
     bottom->addWidget(deleteBtn_);
@@ -273,6 +305,9 @@ BasketWindow::BasketWindow(Gallery *gallery, QWidget *parent)
     contentLayout()->addLayout(bottom);
 
     connect(list_, &QListWidget::itemSelectionChanged, this, [this]{ updateSummary(); });
+    connect(search_, &QLineEdit::textChanged, this, [this]{ refresh(); });
+    list_->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(list_, &QListWidget::customContextMenuRequested, this, &BasketWindow::showListMenu);
     connect(list_, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem *it){
         if (!it || !(it->flags() & Qt::ItemIsEnabled)) return;
         const QStringList paths{ it->data(Qt::UserRole).toString() };
@@ -293,6 +328,7 @@ BasketWindow::BasketWindow(Gallery *gallery, QWidget *parent)
             paths.append(it->data(Qt::UserRole).toString());
         if (!paths.isEmpty()) emit deleteRequested(paths);
     });
+    connect(locateBtn_, &QPushButton::clicked, this, [this]{ emit openFolderRequested(); });
     // 隐藏时不必重建列表，打开面板时再刷新
     connect(gallery_, &Gallery::changed, this, [this]{
         if (isVisible()) refresh();
@@ -324,10 +360,13 @@ void BasketWindow::refresh()
     allTab_->setText(QStringLiteral("已挂 %1").arg(hungCount));
 
     QVector<Gallery::ItemPtr> view;
+    const QString query = search_->text().trimmed();
     for (int i = gallery_->collected.size() - 1; i >= 0; --i) {
         const Gallery::ItemPtr &item = gallery_->collected[i];
         const bool hung = gallery_->contains(item->path);
         if (tab_ == 0 ? hung : !hung) continue;   // 待挂只看未挂，已挂只看已挂
+        if (!query.isEmpty()
+            && !QFileInfo(item->path).fileName().contains(query, Qt::CaseInsensitive)) continue;
         view.append(item);
     }
 
@@ -341,9 +380,11 @@ void BasketWindow::refresh()
     }
 
     if (view.isEmpty()) {
-        auto *row = new QListWidgetItem(placeholderIcon(),
-            tab_ == 0 ? QStringLiteral("篮子里的图片都已挂上绳子")
-                      : QStringLiteral("还没有已挂上绳子的图片"), list_);
+        QString emptyText;
+        if (!query.isEmpty()) emptyText = QStringLiteral("没有匹配的图片");
+        else if (tab_ == 0) emptyText = QStringLiteral("篮子里的图片都已挂上绳子");
+        else emptyText = QStringLiteral("还没有已挂上绳子的图片");
+        auto *row = new QListWidgetItem(placeholderIcon(), emptyText, list_);
         row->setFlags(Qt::NoItemFlags);
         row->setSizeHint(QSize(112, 128));
         row->setTextAlignment(Qt::AlignHCenter | Qt::AlignBottom);
@@ -378,6 +419,69 @@ void BasketWindow::updateSummary()
         summary_->setText(QStringLiteral("共 %1 张").arg(total));
     if (hangBtn_) hangBtn_->setEnabled(selected > 0);
     if (deleteBtn_) deleteBtn_->setEnabled(selected > 0);
+}
+
+void BasketWindow::showListMenu(const QPoint &pos)
+{
+    QListWidgetItem *it = list_->itemAt(pos);
+    if (!it || !(it->flags() & Qt::ItemIsEnabled)) return;
+    if (!it->isSelected()) {
+        list_->clearSelection();
+        list_->setCurrentItem(it);
+    }
+    QMenu menu(this);
+    menu.setStyleSheet(
+        "QMenu{background:#FFFFFF;border:1px solid #E1E6EE;border-radius:10px;padding:6px;}"
+        "QMenu::item{padding:6px 26px 6px 14px;border-radius:6px;color:#2A303A;}"
+        "QMenu::item:selected{background:#EEF3FB;color:#12233E;}");
+    QAction *rename = menu.addAction(QStringLiteral("重命名…"));
+    if (menu.exec(list_->viewport()->mapToGlobal(pos)) == rename) renameItem(it);
+}
+
+void BasketWindow::renameItem(QListWidgetItem *item)
+{
+    if (!item || !(item->flags() & Qt::ItemIsEnabled)) return;
+    const QString path = item->data(Qt::UserRole).toString();
+    const QFileInfo info(path);
+
+    bool ok = false;
+    const QString input = QInputDialog::getText(
+        this, QStringLiteral("重命名"),
+        QStringLiteral("新的文件名（不含扩展名）："), QLineEdit::Normal,
+        info.completeBaseName(), &ok);
+    if (!ok) return;
+
+    const QString base = input.trimmed();
+    if (base.isEmpty() || base == info.completeBaseName()) return;
+
+    // 文件名不能包含路径分隔符与 Windows 保留字符
+    static const QString invalid = QStringLiteral("\\/:*?\"<>|");
+    for (const QChar &c : base) {
+        if (invalid.contains(c)) {
+            QMessageBox::warning(this, QStringLiteral("重命名"),
+                                 QStringLiteral("文件名不能包含 \\ / : * ? \" < > | 等字符。"));
+            return;
+        }
+    }
+
+    const QString suffix = info.suffix();
+    const QString newPath = info.absolutePath() + QLatin1Char('/') + base
+        + (suffix.isEmpty() ? QString() : QLatin1Char('.') + suffix);
+    if (QFileInfo::exists(newPath)) {
+        QMessageBox::warning(this, QStringLiteral("重命名"),
+                             QStringLiteral("同名文件已存在，请换一个名字。"));
+        return;
+    }
+    if (!QFile::rename(path, newPath)) {
+        QMessageBox::warning(this, QStringLiteral("重命名"),
+                             QStringLiteral("重命名失败，文件可能正被其他程序占用。"));
+        return;
+    }
+
+    // 同步更新收藏记录中的路径（挂绳与篮子共享同一对象）
+    Gallery::ItemPtr ptr = gallery_->byPath(path);
+    if (ptr) gallery_->replace(ptr.data(), newPath);
+    refresh();
 }
 
 // =====================================================================

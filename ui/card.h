@@ -1,7 +1,7 @@
 #pragma once
 // =====================================================================
 //  ui/card.h — 挂绳上的单张图片卡片（对应原 PicRope 的 ShotCard）
-//  交互：单击复制、双击打开、长按编辑、右键菜单、拖拽、点夹子贴桌面
+//  交互：单击复制、双击打开、长按编辑、右键菜单、拖拽
 // =====================================================================
 
 #include <QWidget>
@@ -41,7 +41,6 @@ signals:
     void copyRequested();
     void openRequested();
     void editRequested();
-    void detachRequested();           // 贴到桌面
     void trashRequested();            // 删除（移回收站）
     void saveRequested();             // 保存副本
     void locateRequested();           // 在文件夹中显示

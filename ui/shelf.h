@@ -54,7 +54,6 @@ signals:
     void copyRequested(CaptureItem *item);
     void openRequested(CaptureItem *item);
     void editRequested(CaptureItem *item);
-    void detachRequested(CaptureItem *item);
     void trashRequested(CaptureItem *item);
     void saveRequested(CaptureItem *item);
     void locateRequested(CaptureItem *item);

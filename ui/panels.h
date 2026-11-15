@@ -14,6 +14,7 @@ class QVBoxLayout;
 class QHBoxLayout;
 class QPushButton;
 class QListWidget;
+class QListWidgetItem;
 class QLineEdit;
 class QPlainTextEdit;
 class QLabel;
@@ -51,7 +52,7 @@ private:
     bool dragging_ = false;
 };
 
-// 图片篮子：待挂 / 全部，两种视图，多选后挂上绳子
+// 图片篮子：待挂 / 全部，两种视图，多选后挂上绳子；支持按文件名搜索与右键重命名
 class BasketWindow : public PanelWindow
 {
     Q_OBJECT
@@ -64,18 +65,23 @@ signals:
     void hangRequested(const QStringList &paths);
     void unhangRequested(const QStringList &paths);
     void deleteRequested(const QStringList &paths);
+    void openFolderRequested();          // 打开篮子图片所在文件夹
 
 private:
     void setTab(int tab);
     void updateSummary();
     void updateTip();
+    void renameItem(QListWidgetItem *item);
+    void showListMenu(const QPoint &pos);
 
     Gallery *gallery_;
+    QLineEdit *search_ = nullptr;
     QPushButton *pendingTab_ = nullptr;
     QPushButton *allTab_ = nullptr;
     QListWidget *list_ = nullptr;
     QLabel *summary_ = nullptr;
     QLabel *tip_ = nullptr;
+    QPushButton *locateBtn_ = nullptr;
     QPushButton *hangBtn_ = nullptr;
     QPushButton *deleteBtn_ = nullptr;
     int tab_ = 0;

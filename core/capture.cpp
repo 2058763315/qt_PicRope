@@ -150,13 +150,22 @@ void CapturePipeline::refreshDirty()
 
 bool CapturePipeline::receiptsAccept(const QByteArray &hash, int source)
 {
+    // 同一张图可能从多条路径重复到达，统一按内容指纹去重：
+    //  - 同一来源：系统截图工具会先后往剪贴板写 DIB 和 PNG，触发多次变化 → 短窗口
+    //  - 不同来源：剪贴板与「屏幕截图」文件夹是同一张图的两份镜像，落盘有延迟 → 长窗口
     const qint64 now = QDateTime::currentMSecsSinceEpoch();
+    constexpr qint64 kSameSourceWindow = 3000;
+    constexpr qint64 kCrossSourceWindow = 30000;
     recent_.erase(std::remove_if(recent_.begin(), recent_.end(),
-        [now](const Receipt &r) { return now - r.timeMs > 5000; }), recent_.end());
-    for (Receipt &r : recent_) {
-        if (!r.paired && r.hash == hash && r.source != source) { r.paired = true; return false; }
+        [now](const Receipt &r) { return now - r.timeMs > kCrossSourceWindow; }), recent_.end());
+
+    for (const Receipt &r : recent_) {
+        if (r.hash != hash) continue;
+        const qint64 window = (r.source == source) ? kSameSourceWindow : kCrossSourceWindow;
+        if (now - r.timeMs <= window) return false;
     }
-    Receipt r; r.hash = hash; r.source = source; r.timeMs = now; r.paired = false;
+
+    Receipt r; r.hash = hash; r.source = source; r.timeMs = now;
     recent_.append(r);
     return true;
 }
@@ -257,7 +266,7 @@ void CapturePipeline::readClipboardImage()
     clipBusy_ = true;
 
     QByteArray bytes;
-    QString ext = ".png";
+    QString ext = "png";          // 不含点，拼接时统一加 "."
     ImageContent content;
     const QString filePath = Clip::imageFileFromUrls();
     const QImage img = Clip::readImage();

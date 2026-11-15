@@ -504,7 +504,6 @@ ShotCard *ShelfWindow::makeCard(const Gallery::ItemPtr &item, int index)
     connect(card, &ShotCard::trashRequested, this, [this, raw]{ emit trashRequested(raw); });
     connect(card, &ShotCard::saveRequested, this, [this, raw]{ emit saveRequested(raw); });
     connect(card, &ShotCard::locateRequested, this, [this, raw]{ emit locateRequested(raw); });
-    connect(card, &ShotCard::detachRequested, this, [this, raw]{ emit detachRequested(raw); });
     connect(card, &ShotCard::dragActive, this, [this](bool active){
         dragActive_ = active;
         if (active) awaySince_ = -1;

@@ -29,7 +29,6 @@ SOURCES += \
     ui/themes.cpp \
     ui/card.cpp \
     ui/shelf.cpp \
-    ui/pinned.cpp \
     ui/panels.cpp \
     ui/settings.cpp \
     ui/viewer.cpp \
@@ -48,7 +47,6 @@ HEADERS += \
     ui/themes.h \
     ui/card.h \
     ui/shelf.h \
-    ui/pinned.h \
     ui/panels.h \
     ui/settings.h \
     ui/viewer.h \

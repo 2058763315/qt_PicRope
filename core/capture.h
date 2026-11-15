@@ -69,6 +69,6 @@ private:
     bool clipBusy_ = false;
     bool clipJustIgnored_ = false;
 
-    struct Receipt { QByteArray hash; int source; qint64 timeMs; bool paired; };
+    struct Receipt { QByteArray hash; int source; qint64 timeMs; };
     QList<Receipt> recent_;
 };

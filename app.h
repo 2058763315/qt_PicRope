@@ -5,7 +5,6 @@
 // =====================================================================
 
 #include <QObject>
-#include <QPointer>
 #include <QVector>
 
 class StateStore;
@@ -15,7 +14,6 @@ class CapturePipeline;
 class ShelfWindow;
 class TrayController;
 class SystemEvents;
-class PinnedImageWindow;
 class BasketWindow;
 class TextsWindow;
 class SettingsDialog;
@@ -41,7 +39,6 @@ private:
     void onCopy(CaptureItem *item);
     void onOpen(CaptureItem *item);
     void onEdit(CaptureItem *item);
-    void onDetach(CaptureItem *item);
     void onTrash(CaptureItem *item);
     void onSave(CaptureItem *item);
     void onLocate(CaptureItem *item);
@@ -66,6 +63,5 @@ private:
     SettingsDialog *settings_ = nullptr;
     UpdateChecker *updater_ = nullptr;
     ImageViewer *viewer_ = nullptr;
-    QVector<QPointer<PinnedImageWindow>> pins_;
     bool running_ = false;
 };
