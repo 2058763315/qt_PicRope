@@ -29,6 +29,7 @@
 #include <QEvent>
 #include <QWheelEvent>
 #include <QScrollBar>
+#include <QStyle>
 #include <QtMath>
 
 #include "gallery.h"
@@ -310,9 +311,8 @@ BasketWindow::BasketWindow(Gallery *gallery, QWidget *parent)
     connect(list_, &QListWidget::customContextMenuRequested, this, &BasketWindow::showListMenu);
     connect(list_, &QListWidget::itemDoubleClicked, this, [this](QListWidgetItem *it){
         if (!it || !(it->flags() & Qt::ItemIsEnabled)) return;
-        const QStringList paths{ it->data(Qt::UserRole).toString() };
-        if (tab_ == 0) emit hangRequested(paths);
-        else emit unhangRequested(paths);
+        // 待挂、已挂双击都用内置查看器预览
+        emit openRequested(QStringList{ it->data(Qt::UserRole).toString() });
     });
     connect(hangBtn_, &QPushButton::clicked, this, [this]{
         QStringList paths;
@@ -349,6 +349,16 @@ void BasketWindow::refresh()
 {
     refreshing_ = true;
     list_->clear();
+
+    // 按可用宽度均分列宽，让缩略图铺满整行，避免右侧留下空白；
+    // 始终预留垂直滚动条宽度，否则滚动条出现后可视宽度变窄，最后一行就排不满 6 个
+    const int sb = list_->style()->pixelMetric(QStyle::PM_ScrollBarExtent, nullptr, list_);
+    const int avail = list_->contentsRect().width() - sb;
+    if (avail > 120) {
+        const int cols = qMax(1, qRound(avail / 112.0));
+        const QSize grid(avail / cols, 132);
+        if (grid != list_->gridSize()) list_->setGridSize(grid);
+    }
 
     int pendingCount = 0;
     int hungCount = 0;
@@ -401,9 +411,7 @@ void BasketWindow::refresh()
 
 void BasketWindow::updateTip()
 {
-    tip_->setText(tab_ == 0
-        ? QStringLiteral("双击挂上绳子；鼠标拖动可框选，或 Ctrl / Shift 点击多选")
-        : QStringLiteral("双击取下绳子；鼠标拖动可框选，或 Ctrl / Shift 点击多选"));
+    tip_->setText(QStringLiteral("双击预览图片；鼠标拖动可框选，或 Ctrl / Shift 点击多选"));
 }
 
 void BasketWindow::updateSummary()
@@ -490,7 +498,7 @@ void BasketWindow::renameItem(QListWidgetItem *item)
 TextsWindow::TextsWindow(TextCollection *texts, QWidget *parent)
     : PanelWindow(QStringLiteral("文字笔记"), parent), texts_(texts)
 {
-    setFixedSize(760, 560);
+    setFixedSize(760, 540);   // 与图片篮子等高
 
     search_ = new QLineEdit(this);
     search_->setPlaceholderText(QStringLiteral("搜索文字…"));

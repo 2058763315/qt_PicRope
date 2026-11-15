@@ -13,7 +13,6 @@
 #include "themes.h"
 #include "gallery.h"
 
-class QHBoxLayout;
 class QScrollArea;
 class QPropertyAnimation;
 class QTimer;
@@ -78,6 +77,7 @@ private:
     void animateTo(const QPoint &dest, bool hideAfter);
     bool overInteractive() const;
     void updateBadges();
+    void layoutCards();              // 手动排布卡片：图片多时交叠，保证整排不超出可视宽度
 
     Gallery *gallery_;
     StateStore *store_;
@@ -86,7 +86,6 @@ private:
     QRect placedGeom_;
 
     QWidget *container_ = nullptr;
-    QHBoxLayout *layout_ = nullptr;
     QScrollArea *scroll_ = nullptr;
     ShelfButton *basketBtn_ = nullptr;
     ShelfButton *textsBtn_ = nullptr;

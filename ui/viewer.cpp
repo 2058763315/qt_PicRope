@@ -59,10 +59,13 @@ void ImageViewer::openFile(const QString &path)
     loadDirectory(path);
     showCurrent();
 
+    // 首次显示时水平居中，垂直方向整体下移一些，避免贴住屏幕顶部、被挂绳卡片遮挡
+    const int centeredY = avail.y() + (avail.height() - height()) / 2;
+    int y = centeredY + qRound(avail.height() * 0.06);
+    y = qMin(y, avail.y() + avail.height() - height() - 12);
     const QPoint pos = isVisible()
         ? geometry().topLeft()
-        : QPoint(avail.x() + (avail.width() - width()) / 2,
-                 avail.y() + (avail.height() - height()) / 2);
+        : QPoint(avail.x() + (avail.width() - width()) / 2, y);
     move(pos);
     if (isMinimized()) showNormal();   // 从最小化恢复
     show();

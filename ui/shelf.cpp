@@ -172,10 +172,6 @@ ShelfWindow::ShelfWindow(Gallery *gallery, StateStore *store, QWidget *parent)
     container_->setAttribute(Qt::WA_TranslucentBackground);
     container_->setStyleSheet("background:transparent;");
     container_->installEventFilter(this);
-    layout_ = new QHBoxLayout(container_);
-    layout_->setContentsMargins(2, 2, 2, 2);
-    layout_->setSpacing(10);
-    layout_->addStretch(1);
     scroll_->setWidget(container_);
     root->addWidget(scroll_, 1);
 
@@ -332,8 +328,15 @@ void ShelfWindow::edgeTick()
     if (!shown_) return;
 
     const QPoint local = cur - pos();
-    for (ShotCard *c : cards_)
-        c->setHovered(over && QRect(c->mapTo(this, QPoint(0, 0)), c->size()).contains(local));
+    // 卡片交叠时只有最上层（最后创建）的那张响应悬停
+    ShotCard *hovered = nullptr;
+    if (over) {
+        for (ShotCard *c : cards_) {
+            if (QRect(c->mapTo(this, QPoint(0, 0)), c->size()).contains(local))
+                hovered = c;
+        }
+    }
+    for (ShotCard *c : cards_) c->setHovered(c == hovered);
 
     const bool inside = geometry().contains(cur);
     if (inside) pinned_ = false;
@@ -464,28 +467,42 @@ void ShelfWindow::forceHidden()
 void ShelfWindow::rebuild()
 {
     for (ShotCard *c : cards_) {
-        layout_->removeWidget(c);
         c->hide();
         c->deleteLater();
     }
     cards_.clear();
 
-    while (QLayoutItem *child = layout_->takeAt(0))
-        delete child;
-    layout_->addStretch(1);
-
     for (int i = 0; i < gallery_->items.size(); ++i) {
         ShotCard *card = makeCard(gallery_->items[i], i);
+        card->setParent(container_);
         cards_.append(card);
-        layout_->insertWidget(layout_->count() - 1, card);
     }
 
-    layout_->activate();
-    QTimer::singleShot(0, this, [this]{
-        if (auto *bar = scroll_->horizontalScrollBar()) bar->setValue(bar->maximum());
-    });
+    layoutCards();
     updateBadges();
     update();
+}
+
+void ShelfWindow::layoutCards()
+{
+    if (!scroll_ || !container_) return;
+    const int n = cards_.size();
+    const int avail = qMax(200, scroll_->viewport()->width() - 4);
+
+    // 少量卡片时正常平铺；图片一多就一直保持交叠，每张最多推进 150px，
+    // 且整排宽度 = (n-1)*推进量 + 一张完整卡宽，必须据此反推才不会超宽
+    int advance = ShotCard::cardW + 10;
+    if (n > 7)
+        advance = qBound(40, (avail - ShotCard::cardW) / qMax(1, n - 1), 150);
+
+    int x = 2;
+    for (ShotCard *c : cards_) {
+        c->setGeometry(x, 2, ShotCard::cardW, ShotCard::cardH);
+        c->show();
+        x += advance;
+    }
+    // 交叠排布后整排都在可视区内，滚动位置归零，避免最左侧卡片被裁掉
+    if (auto *bar = scroll_->horizontalScrollBar()) bar->setValue(0);
 }
 
 ShotCard *ShelfWindow::makeCard(const Gallery::ItemPtr &item, int index)
@@ -537,20 +554,21 @@ void ShelfWindow::setTheme(const LineTheme &t)
 bool ShelfWindow::eventFilter(QObject *o, QEvent *e)
 {
     if (e->type() == QEvent::Wheel) {
-        auto *we = static_cast<QWheelEvent *>(e);
-        if (auto *bar = scroll_->horizontalScrollBar()) {
-            const int delta = we->angleDelta().y();
-            bar->setValue(bar->value() - delta);
-        }
+        // 交叠排列后整排不再超宽，禁用滚轮横向滑动
+        e->accept();
         return true;
+    }
+    // 窗口尺寸变化后，滚动区视口要等这一轮布局结束才有正确宽度，
+    // 这里在视口真正改变大小时重排卡片，避免首次启动用旧的窄宽度算出过小的推进量
+    if (scroll_ && o == scroll_->viewport() && e->type() == QEvent::Resize) {
+        layoutCards();
     }
     return QWidget::eventFilter(o, e);
 }
 
 void ShelfWindow::wheelEvent(QWheelEvent *e)
 {
-    if (auto *bar = scroll_->horizontalScrollBar())
-        bar->setValue(bar->value() - e->angleDelta().y());
+    e->ignore();
 }
 
 void ShelfWindow::showEvent(QShowEvent *)
@@ -563,6 +581,7 @@ void ShelfWindow::showEvent(QShowEvent *)
 
 void ShelfWindow::resizeEvent(QResizeEvent *)
 {
+    layoutCards();
     update();
 }
 

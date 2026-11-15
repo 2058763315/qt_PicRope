@@ -311,6 +311,11 @@ void AppController::ensurePanels()
 {
     if (!basket_) {
         basket_ = new BasketWindow(gallery_);
+        connect(basket_, &BasketWindow::openRequested, this, [this](const QStringList &paths){
+            if (paths.isEmpty()) return;
+            if (!viewer_) viewer_ = new ImageViewer(nullptr);
+            viewer_->openFile(paths.first());
+        });
         connect(basket_, &BasketWindow::hangRequested, this, [this](const QStringList &paths){
             for (const QString &path : paths) {
                 Gallery::ItemPtr ptr = gallery_->byPath(path);

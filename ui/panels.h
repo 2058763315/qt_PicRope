@@ -62,6 +62,7 @@ public:
     void refresh();
 
 signals:
+    void openRequested(const QStringList &paths);   // 双击用内置查看器预览
     void hangRequested(const QStringList &paths);
     void unhangRequested(const QStringList &paths);
     void deleteRequested(const QStringList &paths);
