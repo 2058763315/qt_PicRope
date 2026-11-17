@@ -139,7 +139,7 @@ PanelWindow::PanelWindow(const QString &title, QWidget *parent)
     close->setText(QStringLiteral("×"));
     close->setFixedSize(36, 36);
     close->setCursor(Qt::PointingHandCursor);
-    close->setToolTip(QStringLiteral("关闭"));
+    close->setToolTip(tr("关闭"));
     connect(close, &QToolButton::clicked, this, &QWidget::hide);
     header_->addWidget(close, 0, Qt::AlignVCenter);
     root->addLayout(header_);
@@ -220,20 +220,20 @@ void PanelWindow::mouseReleaseEvent(QMouseEvent *)
 //  BasketWindow
 // =====================================================================
 BasketWindow::BasketWindow(Gallery *gallery, QWidget *parent)
-    : PanelWindow(QStringLiteral("图片篮子"), parent), gallery_(gallery)
+    : PanelWindow(tr("图片篮子"), parent), gallery_(gallery)
 {
     setFixedSize(760, 540);
 
     // 搜索框放到标题栏，按文件名过滤
     search_ = new QLineEdit(this);
-    search_->setPlaceholderText(QStringLiteral("搜索图片文件名…"));
+    search_->setPlaceholderText(tr("搜索图片文件名…"));
     search_->setFixedSize(360, 30);
     auto *clearBtn = new QToolButton(search_);
     clearBtn->setIcon(clearTextIcon());
     clearBtn->setIconSize(QSize(16, 16));
     clearBtn->setFixedSize(22, 22);
     clearBtn->setCursor(Qt::PointingHandCursor);
-    clearBtn->setToolTip(QStringLiteral("清空搜索"));
+    clearBtn->setToolTip(tr("清空搜索"));
     clearBtn->setStyleSheet(QStringLiteral(
         "QToolButton{background:transparent;border:none;border-radius:11px;}"
         "QToolButton:hover{background:#DCE4F2;}"
@@ -246,8 +246,8 @@ BasketWindow::BasketWindow(Gallery *gallery, QWidget *parent)
 
     auto *tabRow = new QHBoxLayout;
     tabRow->setSpacing(6);
-    pendingTab_ = new QPushButton(QStringLiteral("待挂"), this);
-    allTab_ = new QPushButton(QStringLiteral("已挂"), this);
+    pendingTab_ = new QPushButton(tr("待挂"), this);
+    allTab_ = new QPushButton(tr("已挂"), this);
     pendingTab_->setCheckable(true);
     allTab_->setCheckable(true);
     pendingTab_->setChecked(true);
@@ -259,10 +259,10 @@ BasketWindow::BasketWindow(Gallery *gallery, QWidget *parent)
     sf.setPixelSize(12);
     summary_->setFont(sf);
     // 所有篮子图片都在同一个文件夹里，按钮直接打开该文件夹，无需选中图片
-    locateBtn_ = new QPushButton(QStringLiteral("打开文件夹"), this);
+    locateBtn_ = new QPushButton(tr("打开文件夹"), this);
     locateBtn_->setMinimumHeight(30);
     locateBtn_->setCursor(Qt::PointingHandCursor);
-    locateBtn_->setToolTip(QStringLiteral("在资源管理器中打开图片所在文件夹"));
+    locateBtn_->setToolTip(tr("在资源管理器中打开图片所在文件夹"));
     tabRow->addWidget(pendingTab_);
     tabRow->addWidget(allTab_);
     tabRow->addStretch(1);
@@ -288,12 +288,12 @@ BasketWindow::BasketWindow(Gallery *gallery, QWidget *parent)
     QFont tf2 = tip_->font();
     tf2.setPixelSize(12);
     tip_->setFont(tf2);
-    hangBtn_ = new QPushButton(QStringLiteral("挂上绳子"), this);
+    hangBtn_ = new QPushButton(tr("挂上绳子"), this);
     hangBtn_->setObjectName(QStringLiteral("primary"));
     hangBtn_->setMinimumHeight(36);
     hangBtn_->setCursor(Qt::PointingHandCursor);
     hangBtn_->setEnabled(false);
-    deleteBtn_ = new QPushButton(QStringLiteral("删除所选"), this);
+    deleteBtn_ = new QPushButton(tr("删除所选"), this);
     deleteBtn_->setMinimumHeight(36);
     deleteBtn_->setCursor(Qt::PointingHandCursor);
     deleteBtn_->setEnabled(false);
@@ -366,8 +366,8 @@ void BasketWindow::refresh()
         if (gallery_->contains(item->path)) ++hungCount;
         else ++pendingCount;
     }
-    pendingTab_->setText(QStringLiteral("待挂 %1").arg(pendingCount));
-    allTab_->setText(QStringLiteral("已挂 %1").arg(hungCount));
+    pendingTab_->setText(tr("待挂 %1").arg(pendingCount));
+    allTab_->setText(tr("已挂 %1").arg(hungCount));
 
     QVector<Gallery::ItemPtr> view;
     const QString query = search_->text().trimmed();
@@ -391,9 +391,9 @@ void BasketWindow::refresh()
 
     if (view.isEmpty()) {
         QString emptyText;
-        if (!query.isEmpty()) emptyText = QStringLiteral("没有匹配的图片");
-        else if (tab_ == 0) emptyText = QStringLiteral("篮子里的图片都已挂上绳子");
-        else emptyText = QStringLiteral("还没有已挂上绳子的图片");
+        if (!query.isEmpty()) emptyText = tr("没有匹配的图片");
+        else if (tab_ == 0) emptyText = tr("篮子里的图片都已挂上绳子");
+        else emptyText = tr("还没有已挂上绳子的图片");
         auto *row = new QListWidgetItem(placeholderIcon(), emptyText, list_);
         row->setFlags(Qt::NoItemFlags);
         row->setSizeHint(QSize(112, 128));
@@ -401,8 +401,8 @@ void BasketWindow::refresh()
     }
 
     // 待挂 → 挂上绳子；已挂 → 取下绳子
-    hangBtn_->setText(tab_ == 0 ? QStringLiteral("挂上绳子")
-                                : QStringLiteral("取下绳子"));
+    hangBtn_->setText(tab_ == 0 ? tr("挂上绳子")
+                                : tr("取下绳子"));
     updateTip();
 
     refreshing_ = false;
@@ -411,7 +411,7 @@ void BasketWindow::refresh()
 
 void BasketWindow::updateTip()
 {
-    tip_->setText(QStringLiteral("双击预览图片；鼠标拖动可框选，或 Ctrl / Shift 点击多选"));
+    tip_->setText(tr("双击预览图片；鼠标拖动可框选，或 Ctrl / Shift 点击多选"));
 }
 
 void BasketWindow::updateSummary()
@@ -420,11 +420,11 @@ void BasketWindow::updateSummary()
     const int total = list_->count();
     const int selected = list_->selectedItems().size();
     if (selected > 0)
-        summary_->setText(QStringLiteral("已选择 %1 张").arg(selected));
+        summary_->setText(tr("已选择 %1 张").arg(selected));
     else if (total <= 0 || !(list_->item(0)->flags() & Qt::ItemIsEnabled))
-        summary_->setText(QStringLiteral("共 0 张"));
+        summary_->setText(tr("共 0 张"));
     else
-        summary_->setText(QStringLiteral("共 %1 张").arg(total));
+        summary_->setText(tr("共 %1 张").arg(total));
     if (hangBtn_) hangBtn_->setEnabled(selected > 0);
     if (deleteBtn_) deleteBtn_->setEnabled(selected > 0);
 }
@@ -442,7 +442,7 @@ void BasketWindow::showListMenu(const QPoint &pos)
         "QMenu{background:#FFFFFF;border:1px solid #E1E6EE;border-radius:10px;padding:6px;}"
         "QMenu::item{padding:6px 26px 6px 14px;border-radius:6px;color:#2A303A;}"
         "QMenu::item:selected{background:#EEF3FB;color:#12233E;}");
-    QAction *rename = menu.addAction(QStringLiteral("重命名…"));
+    QAction *rename = menu.addAction(tr("重命名…"));
     if (menu.exec(list_->viewport()->mapToGlobal(pos)) == rename) renameItem(it);
 }
 
@@ -454,8 +454,8 @@ void BasketWindow::renameItem(QListWidgetItem *item)
 
     bool ok = false;
     const QString input = QInputDialog::getText(
-        this, QStringLiteral("重命名"),
-        QStringLiteral("新的文件名（不含扩展名）："), QLineEdit::Normal,
+        this, tr("重命名"),
+        tr("新的文件名（不含扩展名）："), QLineEdit::Normal,
         info.completeBaseName(), &ok);
     if (!ok) return;
 
@@ -466,8 +466,8 @@ void BasketWindow::renameItem(QListWidgetItem *item)
     static const QString invalid = QStringLiteral("\\/:*?\"<>|");
     for (const QChar &c : base) {
         if (invalid.contains(c)) {
-            QMessageBox::warning(this, QStringLiteral("重命名"),
-                                 QStringLiteral("文件名不能包含 \\ / : * ? \" < > | 等字符。"));
+            QMessageBox::warning(this, tr("重命名"),
+                                 tr("文件名不能包含 \\ / : * ? \" < > | 等字符。"));
             return;
         }
     }
@@ -476,13 +476,13 @@ void BasketWindow::renameItem(QListWidgetItem *item)
     const QString newPath = info.absolutePath() + QLatin1Char('/') + base
         + (suffix.isEmpty() ? QString() : QLatin1Char('.') + suffix);
     if (QFileInfo::exists(newPath)) {
-        QMessageBox::warning(this, QStringLiteral("重命名"),
-                             QStringLiteral("同名文件已存在，请换一个名字。"));
+        QMessageBox::warning(this, tr("重命名"),
+                             tr("同名文件已存在，请换一个名字。"));
         return;
     }
     if (!QFile::rename(path, newPath)) {
-        QMessageBox::warning(this, QStringLiteral("重命名"),
-                             QStringLiteral("重命名失败，文件可能正被其他程序占用。"));
+        QMessageBox::warning(this, tr("重命名"),
+                             tr("重命名失败，文件可能正被其他程序占用。"));
         return;
     }
 
@@ -496,12 +496,12 @@ void BasketWindow::renameItem(QListWidgetItem *item)
 //  TextsWindow
 // =====================================================================
 TextsWindow::TextsWindow(TextCollection *texts, QWidget *parent)
-    : PanelWindow(QStringLiteral("文字笔记"), parent), texts_(texts)
+    : PanelWindow(tr("文字笔记"), parent), texts_(texts)
 {
     setFixedSize(760, 540);   // 与图片篮子等高
 
     search_ = new QLineEdit(this);
-    search_->setPlaceholderText(QStringLiteral("搜索文字…"));
+    search_->setPlaceholderText(tr("搜索文字…"));
     search_->setFixedSize(360, 30);
     // 清空按钮：QLineEdit 内置 action 按钮自己重绘图标、不画样式表背景，
     // 所以这里用独立 QToolButton 盖在搜索框右侧，悬停背景才看得见
@@ -510,7 +510,7 @@ TextsWindow::TextsWindow(TextCollection *texts, QWidget *parent)
     clearBtn->setIconSize(QSize(16, 16));
     clearBtn->setFixedSize(22, 22);
     clearBtn->setCursor(Qt::PointingHandCursor);
-    clearBtn->setToolTip(QStringLiteral("清空搜索"));
+    clearBtn->setToolTip(tr("清空搜索"));
     clearBtn->setStyleSheet(QStringLiteral(
         "QToolButton{background:transparent;border:none;border-radius:11px;}"
         "QToolButton:hover{background:#DCE4F2;}"
@@ -532,7 +532,7 @@ TextsWindow::TextsWindow(TextCollection *texts, QWidget *parent)
     list_->viewport()->installEventFilter(this);
     preview_ = new QPlainTextEdit(this);
     preview_->setReadOnly(true);
-    preview_->setPlaceholderText(QStringLiteral("选择左侧文字可查看全文"));
+    preview_->setPlaceholderText(tr("选择左侧文字可查看全文"));
     mid->addWidget(list_);
     mid->addWidget(preview_, 1);
     contentLayout()->addLayout(mid, 1);
@@ -543,11 +543,11 @@ TextsWindow::TextsWindow(TextCollection *texts, QWidget *parent)
     QFont sf2 = status_->font();
     sf2.setPixelSize(12);
     status_->setFont(sf2);
-    hint_ = new QLabel(QStringLiteral("鼠标拖动可框选，或 Ctrl / Shift 点击多选"), this);
+    hint_ = new QLabel(tr("鼠标拖动可框选，或 Ctrl / Shift 点击多选"), this);
     hint_->setObjectName(QStringLiteral("muted"));
     hint_->setFont(sf2);
-    copyBtn_ = new QPushButton(QStringLiteral("复制所选"), this);
-    deleteBtn_ = new QPushButton(QStringLiteral("删除所选"), this);
+    copyBtn_ = new QPushButton(tr("复制所选"), this);
+    deleteBtn_ = new QPushButton(tr("删除所选"), this);
     copyBtn_->setCursor(Qt::PointingHandCursor);
     deleteBtn_->setCursor(Qt::PointingHandCursor);
     copyBtn_->setEnabled(false);
@@ -573,7 +573,7 @@ TextsWindow::TextsWindow(TextCollection *texts, QWidget *parent)
         for (const TextItem &t : texts_->items()) {
             if (t.id == id) {
                 QGuiApplication::clipboard()->setText(t.content);
-                flashStatus(QStringLiteral("已复制到剪贴板"));
+                flashStatus(tr("已复制到剪贴板"));
                 break;
             }
         }
@@ -615,15 +615,15 @@ void TextsWindow::refresh()
     if (shown == 0) {
         preview_->setPlainText(QString());
         preview_->setPlaceholderText(query.isEmpty()
-            ? QStringLiteral("还没有收集到文字。复制文字后会自动出现在这里")
-            : QStringLiteral("没有匹配的文字"));
-        status_->setText(QStringLiteral("共 0 条"));
+            ? tr("还没有收集到文字。复制文字后会自动出现在这里")
+            : tr("没有匹配的文字"));
+        status_->setText(tr("共 0 条"));
         copyBtn_->setEnabled(false);
         deleteBtn_->setEnabled(false);
         return;
     }
 
-    status_->setText(QStringLiteral("共 %1 条").arg(shown));
+    status_->setText(tr("共 %1 条").arg(shown));
     updatePreview();
     if (!list_->selectedItems().isEmpty()) {
         copyBtn_->setEnabled(true);
@@ -656,7 +656,7 @@ void TextsWindow::copySelected()
     }
     if (parts.isEmpty()) return;
     QGuiApplication::clipboard()->setText(parts.join(QStringLiteral("\n\n")));
-    flashStatus(QStringLiteral("已复制 %1 条").arg(parts.size()));
+    flashStatus(tr("已复制 %1 条").arg(parts.size()));
 }
 
 void TextsWindow::deleteSelected()
@@ -671,7 +671,7 @@ void TextsWindow::deleteSelected()
     if (targets.isEmpty()) return;
     const int n = targets.size();
     texts_->removeMany(targets);
-    flashStatus(QStringLiteral("已删除 %1 条").arg(n));
+    flashStatus(tr("已删除 %1 条").arg(n));
 }
 
 void TextsWindow::flashStatus(const QString &text)
@@ -679,7 +679,7 @@ void TextsWindow::flashStatus(const QString &text)
     status_->setText(text);
     QTimer::singleShot(1600, this, [this]{
         const int n = list_->count();
-        status_->setText(QStringLiteral("共 %1 条").arg(n));
+        status_->setText(tr("共 %1 条").arg(n));
     });
 }
 

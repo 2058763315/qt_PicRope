@@ -11,6 +11,7 @@
 class StateStore;
 class UpdateChecker;
 class QButtonGroup;
+class QCheckBox;
 class QLabel;
 class QProgressBar;
 class QPushButton;
@@ -23,11 +24,14 @@ public:
     explicit SettingsDialog(StateStore *store, QWidget *parent = nullptr);
 
     void showCentered();
+    void syncFromState();          // 按最新状态刷新控件（托盘可能在设置打开时改动过）
 
 signals:
     void themeSelected(const QString &id);
+    void edgePopupChanged(bool enabled);   // 鼠标到屏幕顶部自动弹出挂绳
 
 private:
+    void buildFeatures(QVBoxLayout *root);
     void buildAppearance(QVBoxLayout *root);
     void buildAbout(QVBoxLayout *root);
     void startManualCheck();
@@ -37,6 +41,8 @@ private:
 
     StateStore *store_;
     QButtonGroup *themeGroup_ = nullptr;
+    QCheckBox *edgeCheck_ = nullptr;
+    QCheckBox *startCheck_ = nullptr;
     QPushButton *checkBtn_ = nullptr;
     QProgressBar *progress_ = nullptr;
     QLabel *percent_ = nullptr;

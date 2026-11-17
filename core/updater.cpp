@@ -88,23 +88,23 @@ void UpdateChecker::onCheckFinished()
     const QByteArray body = reply->readAll();
     if (reply->error() != QNetworkReply::NoError) {
         const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        emit failed(QStringLiteral("获取更新信息失败（%1%2）")
+        emit failed(tr("获取更新信息失败（%1%2）")
                         .arg(reply->errorString(),
-                             status > 0 ? QStringLiteral("，HTTP %1").arg(status) : QString()));
+                             status > 0 ? tr("，HTTP %1").arg(status) : QString()));
         return;
     }
 
     QJsonParseError err;
     const QJsonDocument doc = QJsonDocument::fromJson(body, &err);
     if (err.error != QJsonParseError::NoError || !doc.isObject()) {
-        emit failed(QStringLiteral("更新信息解析失败：") + err.errorString());
+        emit failed(tr("更新信息解析失败：") + err.errorString());
         return;
     }
 
     const QJsonObject rel = doc.object();
     const QString tag = rel.value("tag_name").toString();
     if (tag.isEmpty()) {
-        emit failed(QStringLiteral("最新发行版缺少版本号"));
+        emit failed(tr("最新发行版缺少版本号"));
         return;
     }
     latestVersion_ = tag;
@@ -136,7 +136,7 @@ void UpdateChecker::onCheckFinished()
 void UpdateChecker::download(const QUrl &url)
 {
     if (dlReply_ || url.isEmpty()) {
-        emit failed(QStringLiteral("没有可下载的安装包"));
+        emit failed(tr("没有可下载的安装包"));
         return;
     }
 
@@ -147,7 +147,7 @@ void UpdateChecker::download(const QUrl &url)
 
     dlFile_ = new QFile(dlPath_, this);
     if (!dlFile_->open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-        emit failed(QStringLiteral("无法写入临时文件：") + dlPath_);
+        emit failed(tr("无法写入临时文件：") + dlPath_);
         dlFile_->deleteLater();
         dlFile_ = nullptr;
         return;
@@ -193,7 +193,7 @@ void UpdateChecker::onDownloadFinished()
 
     if (!ok) {
         QFile::remove(dlPath_);
-        emit failed(QStringLiteral("下载安装包失败：") + errText);
+        emit failed(tr("下载安装包失败：") + errText);
         return;
     }
     emit downloadProgress(100);

@@ -183,16 +183,16 @@ ShelfWindow::ShelfWindow(Gallery *gallery, StateStore *store, QWidget *parent)
     col->addSpacing(34);            // 托板挂在绳子下方
     basketBtn_ = new ShelfButton(btnCol);
     basketBtn_->setIcon(glyphIcon(QStringLiteral("basket")));
-    basketBtn_->setToolTip(QStringLiteral("图片篮子"));
+    basketBtn_->setToolTip(tr("图片篮子"));
     textsBtn_ = new ShelfButton(btnCol);
     textsBtn_->setIcon(glyphIcon(QStringLiteral("texts")));
-    textsBtn_->setToolTip(QStringLiteral("文字笔记"));
+    textsBtn_->setToolTip(tr("文字笔记"));
     settingsBtn_ = new ShelfButton(btnCol);
     settingsBtn_->setIcon(glyphIcon(QStringLiteral("gear")));
-    settingsBtn_->setToolTip(QStringLiteral("设置"));
+    settingsBtn_->setToolTip(tr("设置"));
     hideBtn_ = new ShelfButton(btnCol);
     hideBtn_->setIcon(glyphIcon(QStringLiteral("hide")));
-    hideBtn_->setToolTip(QStringLiteral("收起绳子"));
+    hideBtn_->setToolTip(tr("收起绳子"));
     col->addWidget(basketBtn_, 0, Qt::AlignHCenter);
     col->addWidget(textsBtn_, 0, Qt::AlignHCenter);
     col->addWidget(settingsBtn_, 0, Qt::AlignHCenter);
@@ -232,13 +232,13 @@ void ShelfWindow::updateBadges()
     const int pending = qMax(0, gallery_->collected.size() - gallery_->items.size());
     basketBtn_->setBadge(pending);
     basketBtn_->setToolTip(pending > 0
-        ? QStringLiteral("图片篮子 · %1 张待挂").arg(pending)
-        : QStringLiteral("图片篮子"));
+        ? tr("图片篮子 · %1 张待挂").arg(pending)
+        : tr("图片篮子"));
     const int texts = store_->state.texts.size();
     textsBtn_->setBadge(texts);
     textsBtn_->setToolTip(texts > 0
-        ? QStringLiteral("文字笔记 · %1 条").arg(texts)
-        : QStringLiteral("文字笔记"));
+        ? tr("文字笔记 · %1 条").arg(texts)
+        : tr("文字笔记"));
 }
 
 QRect ShelfWindow::toolDockRect() const
@@ -675,7 +675,7 @@ void ShelfWindow::paintEvent(QPaintEvent *)
         p.setFont(f);
         p.setPen(QColor("#2B3240"));
         p.drawText(QRectF(hint.left(), hint.top() + 17, hint.width(), 20),
-                   Qt::AlignHCenter | Qt::AlignVCenter, QStringLiteral("当前没有图片"));
+                   Qt::AlignHCenter | Qt::AlignVCenter, tr("当前没有图片"));
 
         f.setPixelSize(12);
         f.setBold(false);
@@ -683,13 +683,13 @@ void ShelfWindow::paintEvent(QPaintEvent *)
         p.setPen(QColor("#6E7886"));
         p.drawText(QRectF(hint.left(), hint.top() + 42, hint.width(), 18),
                    Qt::AlignHCenter | Qt::AlignVCenter,
-                   QStringLiteral("截图或复制图片后，会自动挂到这里"));
+                   tr("截图或复制图片后，会自动挂到这里"));
 
         f.setPixelSize(11);
         p.setFont(f);
         p.setPen(QColor("#9AA4B2"));
         p.drawText(QRectF(hint.left(), hint.top() + 63, hint.width(), 18),
                    Qt::AlignHCenter | Qt::AlignVCenter,
-                   QStringLiteral("Win + Shift + S 截图 · 单击图片即复制"));
+                   tr("Win + Shift + S 截图 · 单击图片即复制"));
     }
 }

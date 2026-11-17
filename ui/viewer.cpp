@@ -247,7 +247,7 @@ void ImageViewer::paintEvent(QPaintEvent *)
         f.setPixelSize(13);
         p.setFont(f);
         p.setPen(QColor(200, 206, 216));
-        p.drawText(ir, Qt::AlignCenter, QStringLiteral("无法打开图片"));
+        p.drawText(ir, Qt::AlignCenter, tr("无法打开图片"));
     }
     p.restore();
     p.setPen(QPen(QColor(255, 255, 255, 22), 1));

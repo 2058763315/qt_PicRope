@@ -61,6 +61,7 @@ bool AppController::start()
     if (!store_->state.displayDevice.isEmpty())
         shelfGeom = Win32::screenByName(store_->state.displayDevice).bounds;
     shelf_->setScreenGeom(shelfGeom);
+    shelf_->setEdgePopupEnabled(store_->state.edgePopup);   // 沿用上次的顶部自动弹出设置
     shelf_->slideIn(3500);
 
     // 启动后空闲时预热面板（图片篮子 / 文字笔记），首次打开不再卡顿
@@ -80,13 +81,13 @@ bool AppController::start()
                 }
 
                 // 先询问用户，同意后才下载并安装
-                QMessageBox box(QMessageBox::Question, QStringLiteral("发现新版本"),
-                                QStringLiteral("检测到新版本 %1，是否下载并自动安装？").arg(version),
+                QMessageBox box(QMessageBox::Question, tr("发现新版本"),
+                                tr("检测到新版本 %1，是否下载并自动安装？").arg(version),
                                 QMessageBox::Yes | QMessageBox::No);
                 box.setWindowFlag(Qt::WindowStaysOnTopHint, true);
                 box.setDefaultButton(QMessageBox::Yes);
                 box.setInformativeText(
-                    QStringLiteral("下载完成后会自动启动安装程序，安装期间本软件将退出。"));
+                    tr("下载完成后会自动启动安装程序，安装期间本软件将退出。"));
                 if (box.exec() != QMessageBox::Yes) {
                     store_->logError(QStringLiteral("自动更新：用户取消下载"));
                     return;
@@ -189,6 +190,11 @@ void AppController::connectAll()
     connect(tray_, &TrayController::textsRequested, this, &AppController::onTexts);
     connect(tray_, &TrayController::edgePopupChanged, this, [this](bool enabled){
         if (shelf_) shelf_->setEdgePopupEnabled(enabled);
+        store_->state.edgePopup = enabled;
+        store_->save();
+        tray_->refresh();
+        // 设置界面正开着时同步勾选状态，避免两边显示不一致
+        if (settings_) settings_->syncFromState();
     });
     connect(tray_, &TrayController::collectClipboardChanged, this, [this](bool on){
         capture_->setCollectClipboard(on);
@@ -259,9 +265,9 @@ void AppController::onTrash(CaptureItem *item)
 void AppController::onSave(CaptureItem *item)
 {
     const QString dest = QFileDialog::getSaveFileName(
-        nullptr, QStringLiteral("保存图片副本"),
+        nullptr, tr("保存图片副本"),
         QFileInfo(item->path).fileName(),
-        QStringLiteral("图片 (*.png *.jpg *.jpeg *.bmp);;所有文件 (*)"));
+        tr("图片 (*.png *.jpg *.jpeg *.bmp);;所有文件 (*)"));
     if (dest.isEmpty()) return;
     QFile::copy(item->path, dest);
 }
@@ -294,6 +300,13 @@ void AppController::onSettings()
         settings_ = new SettingsDialog(store_);
         connect(settings_, &SettingsDialog::themeSelected,
                 this, &AppController::applyTheme);
+        // 设置界面的顶部自动弹出与托盘菜单同一份状态，改动后同步两边
+        connect(settings_, &SettingsDialog::edgePopupChanged, this, [this](bool enabled){
+            if (shelf_) shelf_->setEdgePopupEnabled(enabled);
+            store_->state.edgePopup = enabled;
+            store_->save();
+            tray_->refresh();
+        });
     }
     settings_->showCentered();
 }

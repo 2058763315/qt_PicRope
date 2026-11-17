@@ -10,6 +10,7 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QStandardPaths>
+#include <QTranslator>
 
 #include "app.h"
 #include "state.h"
@@ -18,7 +19,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     QApplication::setApplicationName(QStringLiteral("PicRope"));
-    QApplication::setApplicationVersion(QStringLiteral("1.1.2"));
+    QApplication::setApplicationVersion(QStringLiteral("1.1.3"));
     QApplication::setApplicationDisplayName(QStringLiteral("图绳 PicRope"));
     QApplication::setOrganizationName(QStringLiteral("PicRope"));
     QApplication::setWindowIcon(QIcon(QStringLiteral(":/app.ico")));
@@ -45,8 +46,8 @@ int main(int argc, char *argv[])
     if (!lock.tryLock(100)) {
         lock.removeStaleLockFile();
         if (!lock.tryLock(100)) {
-            QMessageBox::information(nullptr, QStringLiteral("图绳"),
-                                     QStringLiteral("图绳已在运行。"));
+            QMessageBox::information(nullptr, QObject::tr("图绳"),
+                                     QObject::tr("图绳已在运行。"));
             return 0;
         }
     }
@@ -55,10 +56,19 @@ int main(int argc, char *argv[])
     StateStore store(QCoreApplication::applicationDirPath() + QStringLiteral("/data"));
     store.load();
 
+    // 界面语言：根据持久化设置加载对应翻译文件（重启生效）
+    QTranslator translator;
+    if (store.state.language == QLatin1String("en")) {
+        const QString qmPath = QCoreApplication::applicationDirPath()
+            + QStringLiteral("/translations/PicRope_en.qm");
+        if (translator.load(qmPath))
+            app.installTranslator(&translator);
+    }
+
     AppController controller(&store);
     if (!controller.start()) {
-        QMessageBox::critical(nullptr, QStringLiteral("图绳"),
-                              QStringLiteral("图绳启动失败，请查看 data/error.log。"));
+        QMessageBox::critical(nullptr, QObject::tr("图绳"),
+                              QObject::tr("图绳启动失败，请查看 data/error.log。"));
         return 1;
     }
 

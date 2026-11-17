@@ -5,7 +5,7 @@ CONFIG += c++17
 # 应用名与产物
 TARGET = PicRope
 TEMPLATE = app
-VERSION = 1.1.2
+VERSION = 1.1.3
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
@@ -59,3 +59,11 @@ win32: RC_ICONS = app.ico
 
 # Windows 平台额外链接
 win32: LIBS += -luser32 -lgdi32 -lshell32 -lshcore -ldwmapi -lole32
+
+# 翻译文件
+TRANSLATIONS += translations/PicRope_en.ts
+
+# 构建后把翻译文件复制到产物旁，确保运行时能加载 .qm
+win32 {
+    QMAKE_POST_LINK += copy /y $$shell_quote($$shell_path($$PWD/translations/PicRope_en.qm)) $$shell_quote($$shell_path($$OUT_PWD/release/translations/PicRope_en.qm))
+}

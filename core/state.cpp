@@ -38,6 +38,8 @@ QJsonObject toJson(const SavedState &s)
     o["CollectTextClipboard"] = s.collectTextClipboard;
     o["AutoHang"] = s.autoHang;
     o["AutoCheckUpdate"] = s.autoCheckUpdate;
+    o["EdgePopup"] = s.edgePopup;
+    o["Language"] = s.language;
     o["HoverPreview"] = s.hoverPreview;
     o["Theme"] = s.theme;
     o["DisplayDevice"] = s.displayDevice;
@@ -65,6 +67,8 @@ bool fromJson(const QJsonObject &o, SavedState &s)
     s.collectTextClipboard = o["CollectTextClipboard"].toBool();
     s.autoHang = o["AutoHang"].toBool(true);
     s.autoCheckUpdate = o["AutoCheckUpdate"].toBool(true);
+    s.edgePopup = o["EdgePopup"].toBool(true);
+    s.language = o["Language"].toString(QStringLiteral("zh_CN"));
     s.hoverPreview = o["HoverPreview"].toBool(true);
     s.theme = o["Theme"].toString(QStringLiteral("classic"));
     s.displayDevice = o["DisplayDevice"].toString();

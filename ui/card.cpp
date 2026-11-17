@@ -265,7 +265,7 @@ void ShotCard::paintEvent(QPaintEvent *)
         f.setPixelSize(11);
         f.setBold(true);
         p.setFont(f);
-        p.drawText(pill, Qt::AlignCenter, QStringLiteral("✓ 已复制"));
+        p.drawText(pill, Qt::AlignCenter, tr("✓ 已复制"));
     }
 
     p.restore();
@@ -370,21 +370,21 @@ void ShotCard::contextMenuEvent(QContextMenuEvent *e)
         "QMenu::item:selected{background:#EEF3FB;color:#12233E;}"
         "QMenu::separator{height:1px;background:#EDF0F5;margin:5px 10px;}");
 
-    QAction *copy = menu.addAction(QStringLiteral("复制图片"));
-    QAction *open = menu.addAction(QStringLiteral("打开图片"));
-    QAction *save = menu.addAction(QStringLiteral("保存副本…"));
-    QAction *locate = menu.addAction(QStringLiteral("在文件夹中显示"));
+    QAction *copy = menu.addAction(tr("复制图片"));
+    QAction *open = menu.addAction(tr("打开图片"));
+    QAction *save = menu.addAction(tr("保存副本…"));
+    QAction *locate = menu.addAction(tr("在文件夹中显示"));
     menu.addSeparator();
-    QAction *edit = menu.addAction(QStringLiteral("编辑…"));
+    QAction *edit = menu.addAction(tr("编辑…"));
     menu.addSeparator();
-    QAction *bSelf = menu.addAction(QStringLiteral("取下"));
-    QMenu *batch = menu.addMenu(QStringLiteral("批量取下"));
-    QAction *bLeft = batch->addAction(QStringLiteral("取下左侧"));
-    QAction *bRight = batch->addAction(QStringLiteral("取下右侧"));
-    QAction *bOthers = batch->addAction(QStringLiteral("取下其他"));
-    QAction *bAll = batch->addAction(QStringLiteral("全部取下"));
+    QAction *bSelf = menu.addAction(tr("取下"));
+    QMenu *batch = menu.addMenu(tr("批量取下"));
+    QAction *bLeft = batch->addAction(tr("取下左侧"));
+    QAction *bRight = batch->addAction(tr("取下右侧"));
+    QAction *bOthers = batch->addAction(tr("取下其他"));
+    QAction *bAll = batch->addAction(tr("全部取下"));
     menu.addSeparator();
-    QAction *trash = menu.addAction(QStringLiteral("删除（移入回收站）"));
+    QAction *trash = menu.addAction(tr("删除（移入回收站）"));
 
     QAction *chosen = menu.exec(e->globalPos());
     if (!chosen) return;

@@ -1,10 +1,13 @@
 #include "settings.h"
 
 #include <QAbstractButton>
+#include <QAbstractItemView>
 #include <QButtonGroup>
 #include <QCheckBox>
+#include <QComboBox>
 #include <QCoreApplication>
 #include <QDesktopServices>
+#include <QDir>
 #include <QGridLayout>
 #include <QGuiApplication>
 #include <QHBoxLayout>
@@ -19,6 +22,9 @@
 #include <QProgressBar>
 #include <QPushButton>
 #include <QScreen>
+#include <QSettings>
+#include <QSignalBlocker>
+#include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -264,21 +270,54 @@ private:
     QPixmap preview_;
 };
 
+// 开机自启：读写与安装包完全相同的 HKCU Run 项，
+// 这样安装向导里勾选的自启能在这里反映并可关闭，绿色版也能直接开启。
+const QLatin1String kRunKey(
+    "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run");
+const QLatin1String kRunValue("PicRope");
+
+bool autoStartEnabled()
+{
+    QSettings reg(kRunKey, QSettings::NativeFormat);
+    return !reg.value(kRunValue).toString().trimmed().isEmpty();
+}
+
+void setAutoStartEnabled(bool on)
+{
+    QSettings reg(kRunKey, QSettings::NativeFormat);
+    if (on) {
+        // Windows 的 Run 项要求给含空格的路径加引号
+        const QString exe = QDir::toNativeSeparators(
+            QCoreApplication::applicationFilePath());
+        reg.setValue(kRunValue, QStringLiteral("\"%1\"").arg(exe));
+    } else {
+        reg.remove(kRunValue);
+    }
+    reg.sync();
+}
+
 } // namespace
 
 SettingsDialog::SettingsDialog(StateStore *store, QWidget *parent)
-    : PanelWindow(QStringLiteral("设置"), parent), store_(store)
+    : PanelWindow(tr("设置"), parent), store_(store)
 {
-    setFixedSize(720, 640);
+    setFixedSize(720, 740);
     setStyleSheet(styleSheet() + QStringLiteral(
         "QLabel#section{font-size:24px;font-weight:700;color:#1B2330;}"
         "QLabel#rowLabel{font-size:14px;color:#33405A;}"
         "QLabel#percent{font-size:12px;color:#4A5668;}"
         "QLabel#status{font-size:12px;color:#2C8A57;}"
+        "QComboBox{background:#FFFFFF;border:1px solid #DCE2EC;border-radius:8px;"
+        "padding:4px 10px;color:#33405A;min-width:110px;}"
+        "QComboBox:hover{border-color:#C9D3E2;}"
+        "QComboBox QAbstractItemView{background:#FFFFFF;border:1px solid #DCE2EC;"
+        "selection-background-color:#E7EFFC;selection-color:#16345F;outline:none;}"
         "QProgressBar{background:#EEF2F8;border:1px solid #E1E7F0;border-radius:6px;}"
         "QProgressBar::chunk{background:#2F6BFF;border-radius:5px;}"));
 
     QVBoxLayout *root = contentLayout();
+    buildFeatures(root);
+    root->addSpacing(10);
     buildAppearance(root);
     root->addSpacing(10);
     buildAbout(root);
@@ -288,21 +327,21 @@ SettingsDialog::SettingsDialog(StateStore *store, QWidget *parent)
 
     connect(updater_, &UpdateChecker::upToDate, this, [this]{
         resetUpdateUi();
-        status_->setText(QStringLiteral("当前已是最新版"));
+        status_->setText(tr("当前已是最新版"));
         status_->setVisible(true);
     });
     connect(updater_, &UpdateChecker::failed, this, [this](const QString &msg){
         resetUpdateUi();
-        QMessageBox::warning(this, QStringLiteral("检查更新"), msg);
+        QMessageBox::warning(this, tr("检查更新"), msg);
     });
     connect(updater_, &UpdateChecker::updateAvailable, this,
             [this](const QString &v, const QUrl &setupUrl, const QUrl &pageUrl){
         if (setupUrl.isEmpty()) {
             resetUpdateUi();
             QMessageBox::information(
-                this, QStringLiteral("发现新版本"),
-                QStringLiteral("发现新版本 %1，但该版本没有可自动安装的安装包，"
-                               "请前往发布页下载。").arg(v));
+                this, tr("发现新版本"),
+                tr("发现新版本 %1，但该版本没有可自动安装的安装包，"
+                   "请前往发布页下载。").arg(v));
             if (!pageUrl.isEmpty()) QDesktopServices::openUrl(pageUrl);
             return;
         }
@@ -311,7 +350,7 @@ SettingsDialog::SettingsDialog(StateStore *store, QWidget *parent)
     connect(updater_, &UpdateChecker::downloadProgress, this, [this](int percent){
         if (!downloading_) return;
         progress_->setValue(percent);
-        percent_->setText(QStringLiteral("%1%").arg(percent));
+        percent_->setText(tr("%1%").arg(percent));
     });
     connect(updater_, &UpdateChecker::downloadFinished,
             this, &SettingsDialog::launchInstaller);
@@ -319,6 +358,7 @@ SettingsDialog::SettingsDialog(StateStore *store, QWidget *parent)
 
 void SettingsDialog::showCentered()
 {
+    syncFromState();   // 设置界面复用，打开前同步托盘那边可能已改过的开关
     QScreen *s = QGuiApplication::primaryScreen();
     const QRect wa = s ? s->availableGeometry() : QRect(0, 0, 1280, 800);
     move(wa.center() - QPoint(width() / 2, height() / 2));
@@ -327,9 +367,118 @@ void SettingsDialog::showCentered()
     activateWindow();
 }
 
+void SettingsDialog::syncFromState()
+{
+    if (startCheck_) {
+        // 自启状态以注册表为准，可能被安装包或系统工具改动过
+        const QSignalBlocker block(startCheck_);
+        startCheck_->setChecked(autoStartEnabled());
+    }
+    if (!edgeCheck_) return;
+    const QSignalBlocker block(edgeCheck_);   // 仅同步显示，不触发保存与信号
+    edgeCheck_->setChecked(store_->state.edgePopup);
+}
+
+void SettingsDialog::buildFeatures(QVBoxLayout *root)
+{
+    root->addWidget(makeSectionTitle(tr("功能"), this));
+
+    // 鼠标移到屏幕顶部自动弹出挂绳：与托盘菜单共用同一份状态，改动会持久化
+    auto *edgeRow = new QHBoxLayout;
+    edgeRow->setContentsMargins(0, 0, 0, 0);
+    auto *edgeLabel = new QLabel(
+        tr("鼠标移到屏幕顶部自动弹出挂绳（快捷键 Ctrl+Alt+T 弹出或关闭挂绳）"), this);
+    edgeLabel->setObjectName(QStringLiteral("rowLabel"));
+    edgeRow->addWidget(edgeLabel);
+    edgeRow->addStretch(1);
+
+    auto *edgeCheck = new WhiteCheckBox(this);
+    edgeCheck_ = edgeCheck;
+    edgeCheck->setChecked(store_->state.edgePopup);
+    edgeRow->addWidget(edgeCheck);
+    connect(edgeCheck, &QCheckBox::toggled, this, [this](bool on){
+        store_->state.edgePopup = on;
+        store_->save();
+        emit edgePopupChanged(on);
+    });
+    root->addLayout(edgeRow);
+
+    // 开机自启：状态以注册表 Run 项为准，因此安装版在安装向导里勾选的自启
+    // 在这里会显示为已勾选，取消勾选即可关闭；绿色版也能直接用这里开启。
+    auto *startRow = new QHBoxLayout;
+    startRow->setContentsMargins(0, 0, 0, 0);
+    auto *startLabel = new QLabel(tr("开机时自动启动图绳"), this);
+    startLabel->setObjectName(QStringLiteral("rowLabel"));
+    startRow->addWidget(startLabel);
+    startRow->addStretch(1);
+
+    auto *startCheck = new WhiteCheckBox(this);
+    startCheck_ = startCheck;
+    startCheck->setChecked(autoStartEnabled());
+    startRow->addWidget(startCheck);
+    connect(startCheck, &QCheckBox::toggled, this, [](bool on){
+        setAutoStartEnabled(on);
+    });
+    root->addLayout(startRow);
+
+    // 界面语言：默认简体中文；切换后提示重启生效
+    auto *langRow = new QHBoxLayout;
+    langRow->setContentsMargins(0, 0, 0, 0);
+    auto *langLabel = new QLabel(tr("界面语言"), this);
+    langLabel->setObjectName(QStringLiteral("rowLabel"));
+    langRow->addWidget(langLabel);
+    langRow->addStretch(1);
+
+    auto *combo = new QComboBox(this);
+    combo->addItem(tr("简体中文"), QStringLiteral("zh_CN"));
+    combo->addItem(QStringLiteral("English"), QStringLiteral("en"));
+    // 按当前持久化语言选中
+    {
+        const QString cur = store_->state.language;
+        const int idx = combo->findData(cur);
+        combo->setCurrentIndex(idx >= 0 ? idx : 0);
+    }
+    combo->setCursor(Qt::PointingHandCursor);
+    langRow->addWidget(combo);
+    connect(combo, &QComboBox::currentIndexChanged, this,
+            [this, combo, prevIndex = combo->currentIndex()](int idx) mutable {
+        const QString lang = combo->itemData(idx).toString();
+        if (store_->state.language == lang) { prevIndex = idx; return; }
+
+        QMessageBox box(QMessageBox::Question, tr("界面语言"),
+                        tr("界面语言将在重启后生效，是否立即重启图绳？"),
+                        QMessageBox::Yes | QMessageBox::No);
+        box.setDefaultButton(QMessageBox::Yes);
+        if (box.exec() != QMessageBox::Yes) {
+            // 选择 No 视为取消：不保存，并把下拉框恢复为切换前的选项。
+            // 这里必须延迟到本次鼠标事件处理完再恢复，否则弹出列表内部的当前项
+            // 会被事件收尾流程覆盖，表现为再次展开时高亮仍是取消掉的那一项。
+            QTimer::singleShot(0, combo, [combo, prevIndex]{
+                const QSignalBlocker blocker(combo);
+                combo->setCurrentIndex(prevIndex);
+                if (QAbstractItemView *view = combo->view()) {
+                    const QSignalBlocker viewBlocker(view->selectionModel());
+                    view->setCurrentIndex(combo->model()->index(prevIndex,
+                                                               combo->modelColumn()));
+                }
+            });
+            return;
+        }
+
+        prevIndex = idx;
+        store_->state.language = lang;
+        store_->save();
+
+        QProcess::startDetached(QCoreApplication::applicationFilePath(),
+                                QStringList());
+        QCoreApplication::quit();
+    });
+    root->addLayout(langRow);
+}
+
 void SettingsDialog::buildAppearance(QVBoxLayout *root)
 {
-    root->addWidget(makeSectionTitle(QStringLiteral("外观"), this));
+    root->addWidget(makeSectionTitle(tr("外观"), this));
 
     auto *grid = new QGridLayout;
     grid->setContentsMargins(0, 0, 0, 0);
@@ -363,12 +512,12 @@ void SettingsDialog::buildAppearance(QVBoxLayout *root)
 
 void SettingsDialog::buildAbout(QVBoxLayout *root)
 {
-    root->addWidget(makeSectionTitle(QStringLiteral("关于"), this));
+    root->addWidget(makeSectionTitle(tr("关于"), this));
 
     // 自动检查更新
     auto *autoRow = new QHBoxLayout;
     autoRow->setContentsMargins(0, 0, 0, 0);
-    auto *autoLabel = new QLabel(QStringLiteral("自动检查更新"), this);
+    auto *autoLabel = new QLabel(tr("自动检查更新"), this);
     autoLabel->setObjectName(QStringLiteral("rowLabel"));
     autoRow->addWidget(autoLabel);
     autoRow->addStretch(1);
@@ -387,12 +536,12 @@ void SettingsDialog::buildAbout(QVBoxLayout *root)
     auto *verRow = new QHBoxLayout;
     verRow->setContentsMargins(0, 0, 0, 0);
     auto *verLabel = new QLabel(
-        QStringLiteral("当前版本为 %1").arg(QCoreApplication::applicationVersion()), this);
+        tr("当前版本为 %1").arg(QCoreApplication::applicationVersion()), this);
     verLabel->setObjectName(QStringLiteral("rowLabel"));
     verRow->addWidget(verLabel);
     verRow->addStretch(1);
 
-    checkBtn_ = new QPushButton(QStringLiteral("检查更新"), this);
+    checkBtn_ = new QPushButton(tr("检查更新"), this);
     checkBtn_->setCursor(Qt::PointingHandCursor);
     connect(checkBtn_, &QPushButton::clicked, this, &SettingsDialog::startManualCheck);
     verRow->addWidget(checkBtn_);
@@ -416,7 +565,7 @@ void SettingsDialog::buildAbout(QVBoxLayout *root)
     progress_->setVisible(false);
     progressRow->addWidget(progress_, 1);
 
-    percent_ = new QLabel(QStringLiteral("0%"), this);
+    percent_ = new QLabel(tr("0%"), this);
     percent_->setObjectName(QStringLiteral("percent"));
     percent_->setFixedWidth(40);
     percent_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -432,7 +581,7 @@ void SettingsDialog::startManualCheck()
 
     status_->setVisible(false);
     checkBtn_->setEnabled(false);
-    checkBtn_->setText(QStringLiteral("检查中…"));
+    checkBtn_->setText(tr("检查中…"));
     updater_->checkLatest();
 }
 
@@ -441,9 +590,9 @@ void SettingsDialog::beginDownload(const QUrl &url)
     downloading_ = true;
     status_->setVisible(false);
     checkBtn_->setEnabled(false);
-    checkBtn_->setText(QStringLiteral("下载中…"));
+    checkBtn_->setText(tr("下载中…"));
     progress_->setValue(0);
-    percent_->setText(QStringLiteral("0%"));
+    percent_->setText(tr("0%"));
     progress_->setVisible(true);
     percent_->setVisible(true);
     updater_->download(url);
@@ -451,15 +600,15 @@ void SettingsDialog::beginDownload(const QUrl &url)
 
 void SettingsDialog::launchInstaller(const QString &filePath)
 {
-    percent_->setText(QStringLiteral("100%"));
+    percent_->setText(tr("100%"));
     progress_->setValue(100);
-    checkBtn_->setText(QStringLiteral("正在安装…"));
+    checkBtn_->setText(tr("正在安装…"));
 
     if (!QProcess::startDetached(filePath)) {
         downloading_ = false;
         resetUpdateUi();
-        QMessageBox::warning(this, QStringLiteral("检查更新"),
-                             QStringLiteral("无法启动安装程序：%1").arg(filePath));
+        QMessageBox::warning(this, tr("检查更新"),
+                             tr("无法启动安装程序：%1").arg(filePath));
         return;
     }
     QCoreApplication::quit();
@@ -470,7 +619,7 @@ void SettingsDialog::resetUpdateUi()
     downloading_ = false;
     status_->setVisible(false);
     checkBtn_->setEnabled(true);
-    checkBtn_->setText(QStringLiteral("检查更新"));
+    checkBtn_->setText(tr("检查更新"));
     progress_->setVisible(false);
     percent_->setVisible(false);
 }
