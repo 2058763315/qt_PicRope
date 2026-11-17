@@ -15,7 +15,7 @@ English | [简体中文](README.md)
 
 - **Upstream repository (original)**： <https://github.com/Renly1994/PicRope> (Windows screenshot staging and desktop-pin tool, C#/WPF)
 - **This repository (Qt secondary development)**： <https://github.com/2058763315/qt_PicRope>
-- **Positioning**： a Qt secondary-development version of the author's C#/WPF implementation, rewritten in C++17, with UI and interactions aligned to the original and reusing its feature design (screenshot collection, rope, basket, text notes, built-in viewer, tray, multi-monitor and themes).
+- **Positioning**： a Qt secondary-development version of the author's C#/WPF implementation, rewritten in C++17, with UI and interactions aligned to the original and reusing its feature design (screenshot collection, rope, basket, text notes, built-in viewer, tray, multi-monitor, UI language and themes).
 - Comments at the top of each source file state the mapping to the original module (e.g. `app.h ↔ App.cs DesktopController`, `ui/shelf.h ↔ ShelfWindow`, `core/gallery.h ↔ Gallery`), making it easy to compare against the original design.
 - The in-app update check is based on this repository's GitHub Releases (`2058763315/qt_PicRope`).
 
@@ -33,10 +33,12 @@ English | [简体中文](README.md)
 | **Built-in viewer** | Double-click opens the built-in viewer: switch among images in the same folder with ← / →, zoom with the wheel, pan when zoomed, close with Esc; the bottom bar shows the file name, zoom and index |
 | **Image basket** | Search by file name, right-click to rename, open the containing folder; "hang on rope / take off rope", "delete selected", double-click preview, rubber-band or Ctrl/Shift multi-select |
 | **Text notes** | Collects clipboard text (called "text envelope" in the original); supports search, full-text view, copy and multi-delete, preserving original line breaks and indentation |
-| **Settings** | Opened from the tray "Settings…", centered on screen: **Appearance** (five theme cards with previews) + **About** (auto check for updates, current version, manual check for updates and download progress) |
+| **Settings** | Opened from the tray "Settings…", centered on screen: **Features** (auto pop-up at top edge, launch at startup, UI language) + **Appearance** (five theme cards with previews) + **About** (auto check for updates, version info, manual check for updates and download progress) |
+| **UI language** | Simplified Chinese / English, applied by an automatic restart; UI strings are loaded from Qt translation files (`translations/PicRope_en.qm`) |
+| **Launch at startup** | A switch in Settings that writes the current user's registry Run key; the auto-start option ticked in the installer wizard is reflected here as well |
 | **In-app update** | Silently checks the latest GitHub release after startup; when a new version is found it asks, then automatically downloads the installer and launches it (auto check can be disabled in Settings) |
 | **Global hotkeys** | `Ctrl+Alt+T` show/hide; `Ctrl+Alt+S` region capture (the capture shortcut is customizable) |
-| **Tray control** | Clipboard image/text collection switches, auto-hang new images, disable auto-popup (temporary, restored after restart), settings, open collection folder, etc. |
+| **Tray control** | Show/hide, Image basket…, Text notes…, clipboard image/text collection switches, auto pop-up, auto-hang new images, Settings, More (region capture / open collection folder / clear the rope keeping files), Exit |
 | **Desktop adaptation** | Five themes, multi-monitor selection (follow mouse or fixed), auto-collapse at the top, click-through |
 
 ---
@@ -47,7 +49,8 @@ English | [简体中文](README.md)
 
 ```
 qt_PicRope/
-├── main.cpp              Entry: font, single-instance lock, state loading, start controller
+├── main.cpp              Entry: font, single-instance lock, state loading, UI translation
+│                         by setting, start controller
 ├── app.h / app.cpp       Desktop controller (AppController): assembles modules, handles
 │                         actions, listens to clipboard, binds tray/settings/hotkeys, update scheduling
 ├── widget.h/.cpp/.ui     Skeleton window (Qt default window, can be ignored)
@@ -56,7 +59,7 @@ qt_PicRope/
 │   │                     window, cursor position, foreground-window state detection
 │   └── clipboard.h/.cpp  Clipboard read/write: image, text, file references, own-format marker
 ├── core/                 Core business logic
-│   ├── state.h/.cpp      State persistence: settings and collection paths in data/state.json
+│   ├── state.h/.cpp      State persistence: settings, language and collection paths in data/state.json
 │   ├── image.h/.cpp      Image read/validation, thumbnail generation, pixel fingerprint (dedup)
 │   ├── gallery.h/.cpp    Collection management: rope items + collected list, shared items
 │   │                     managed with QSharedPointer
@@ -74,11 +77,14 @@ qt_PicRope/
 │   ├── viewer.h/.cpp     Built-in image viewer: ←/→ in same folder, wheel zoom, drag pan
 │   ├── pinned.h/.cpp     Desktop pin window (source kept, currently not compiled)
 │   ├── panels.h/.cpp     Image basket + text notes (rounded borderless panels)
-│   ├── settings.h/.cpp   Settings: theme selection + about/update check
+│   ├── settings.h/.cpp   Settings: feature switches/language + themes + about/update check
 │   └── tray.h/.cpp       System tray menu and switches
 ├── resources.qrc         Resource manifest (app.ico)
 ├── app.ico               Application icon
-└── qt_PicRope.pro        qmake project file (core/gui/widgets/network)
+├── translations/         UI translations (Qt Linguist project)
+│   ├── PicRope_en.ts     English translation source
+│   └── PicRope_en.qm     Compiled translation loaded at runtime
+└── qt_PicRope.pro        qmake project file (core/gui/widgets/network, TRANSLATIONS, .qm copy)
 ```
 
 ### 3.2 Three-layer architecture
@@ -100,6 +106,8 @@ qt_PicRope/
 - **Card overlap layout**：the rope lays cards out with overlap as needed within the container width (each card advances by a bounded distance), so the whole row fits the visible width without horizontal scrolling.
 - **Built-in viewer**：`ImageViewer` is a fixed-size window that browses images in the same folder in order, zooms with the wheel, pans when zoomed, and shows the file name, zoom and index in its bottom bar.
 - **Panel pre-creation**：the image basket / text notes panels are pre-created while idle after startup (with native window handles pre-created), eliminating jank on first open.
+- **UI language**：the UI language is stored as `Language` in `state.json` (default `zh_CN`); at startup, if it is `en`, a `QTranslator` loads `translations/PicRope_en.qm` next to the program, and switching the language in Settings restarts the app automatically.
+- **Launch at startup**：the Settings switch reads/writes the current user's registry key `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`; installer and portable builds share the same state.
 - **In-app update**：`UpdateChecker` requests this repository's latest release JSON, compares versions segment by segment, prefers an exe whose asset name contains `Setup`, downloads it to a temp folder and then launches the installer; it checks silently about 4 seconds after startup (controlled by `autoCheckUpdate`, enabled by default).
 - **Single instance & fault tolerance**：`QLockFile` guarantees a single instance and stale locks left by a crash can be cleaned up; startup failures are written to `data/error.log`.
 
@@ -111,6 +119,7 @@ qt_PicRope/
 
 - Qt 6 (**Widgets + Network** modules), a C++17 compiler (MSVC or MinGW; MSVC is built with `/utf-8`)
 - Windows 10 / 11 64-bit
+- Building the English UI needs Qt Linguist tools (`lrelease`) to generate `.qm` (a ready-made `PicRope_en.qm` is already included)
 
 **Build steps**
 
@@ -120,10 +129,16 @@ qmake qt_PicRope.pro
 make          # MinGW: mingw32-make; MSVC: nmake / jom
 ```
 
+**Translations**
+
+- The English UI is compiled from `translations/PicRope_en.ts` into `PicRope_en.qm` (`lrelease PicRope_en.ts`).
+- The project configures `TRANSLATIONS` and a post-build copy step: the `.qm` is copied to `translations/` next to the build output and loaded at runtime according to the `Language` setting; without the `.qm` the UI falls back to Simplified Chinese.
+
 **Runtime directory layout**
 
-- State & settings：`data/state.json` next to the program (settings, theme, rope and collection paths, text notes)
+- State & settings：`data/state.json` next to the program (settings, theme, UI language, rope and collection paths, text notes)
 - Image inbox：`data/Captures/` next to the program (copies of collected and manually imported images)
+- UI translation：`translations/PicRope_en.qm` next to the program
 - Error log：`data/error.log` (hotkey registration failures, update errors, etc.)
 
 **Release & update**
@@ -140,6 +155,6 @@ make          # MinGW: mingw32-make; MSVC: nmake / jom
 | Copy / edit | Click to copy; long-press or right-click → "Edit" (system default image editor) |
 | Image basket | Search by name, right-click rename, open folder, hang/take off the rope, double-click preview, rubber-band or Ctrl/Shift multi-select, "delete selected" |
 | Text notes | Search, full-text view, copy, rubber-band multi-select, "delete selected" |
-| Settings / theme | Tray "Settings…" or the gear button on the rope tool dock; choose one of five themes under Appearance |
-| Tray management | Clipboard image/text collection switches, auto-hang, disable auto-popup (temporary, restored after restart), settings, open collection folder |
+| Settings / theme / language | Tray "Settings…" or the gear button on the rope tool dock; switch themes, and under "Features" toggle auto pop-up / launch at startup and switch the UI language (the language change requires a restart) |
+| Tray management | Show/hide, Image basket…, Text notes…, clipboard image/text collection switches, auto pop-up (persisted), auto-hang, Settings, under "More": region capture / open collection folder / clear the rope (keeping files), Exit |
 

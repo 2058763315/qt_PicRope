@@ -532,47 +532,45 @@ void SettingsDialog::buildAbout(QVBoxLayout *root)
     root->addLayout(autoRow);
     root->addSpacing(6);
 
-    // 当前版本 + 检查更新
+    // 当前版本 + 检查结果 + 下载进度 + 检查更新，全部排在同一行
     auto *verRow = new QHBoxLayout;
     verRow->setContentsMargins(0, 0, 0, 0);
+    verRow->setSpacing(8);
     auto *verLabel = new QLabel(
         tr("当前版本为 %1").arg(QCoreApplication::applicationVersion()), this);
     verLabel->setObjectName(QStringLiteral("rowLabel"));
     verRow->addWidget(verLabel);
-    verRow->addStretch(1);
 
-    checkBtn_ = new QPushButton(tr("检查更新"), this);
-    checkBtn_->setCursor(Qt::PointingHandCursor);
-    connect(checkBtn_, &QPushButton::clicked, this, &SettingsDialog::startManualCheck);
-    verRow->addWidget(checkBtn_);
-    root->addLayout(verRow);
-
-    // 检查结果提示（例如“当前已是最新版”），显示在版本行下方
+    // 检查结果提示（例如“当前已是最新版”）：紧跟在当前版本后面
     status_ = new QLabel(this);
     status_->setObjectName(QStringLiteral("status"));
     status_->setVisible(false);
-    root->addWidget(status_);
+    verRow->addWidget(status_);
 
-    // 下载进度：默认隐藏，检查到新版本后显示在版本行下方
-    auto *progressRow = new QHBoxLayout;
-    progressRow->setContentsMargins(0, 0, 0, 0);
-    progressRow->setSpacing(10);
+    verRow->addStretch(1);
+
+    // 下载进度与百分比：显示在当前版本与「检查更新」按钮之间
     progress_ = new QProgressBar(this);
     progress_->setRange(0, 100);
     progress_->setValue(0);
     progress_->setTextVisible(false);
     progress_->setFixedHeight(12);
+    progress_->setFixedWidth(140);
     progress_->setVisible(false);
-    progressRow->addWidget(progress_, 1);
+    verRow->addWidget(progress_);
 
     percent_ = new QLabel(tr("0%"), this);
     percent_->setObjectName(QStringLiteral("percent"));
     percent_->setFixedWidth(40);
     percent_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     percent_->setVisible(false);
-    progressRow->addWidget(percent_);
+    verRow->addWidget(percent_);
 
-    root->addLayout(progressRow);
+    checkBtn_ = new QPushButton(tr("检查更新"), this);
+    checkBtn_->setCursor(Qt::PointingHandCursor);
+    connect(checkBtn_, &QPushButton::clicked, this, &SettingsDialog::startManualCheck);
+    verRow->addWidget(checkBtn_);
+    root->addLayout(verRow);
 }
 
 void SettingsDialog::startManualCheck()
