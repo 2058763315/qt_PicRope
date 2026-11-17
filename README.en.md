@@ -1,1 +1,145 @@
-[简体中文](README.md) | English
+<div align="center">
+
+# qt_PicRope · PicRope (Qt Rebuild)
+English | [简体中文](README.md)
+
+</div>
+
+> **Qt secondary-development version** (current **1.1.2**), based on [PicRope](https://github.com/Renly1994/PicRope) by [Renly1994](https://github.com/Renly1994) — a Windows screenshot staging and desktop-pin tool. This repository rebuilds and extends the original **C# / WPF** project in **C++ / Qt Widgets**.
+
+**PicRope (图绳)** is a Windows screenshot staging and desktop-pin tool. It automatically collects screenshots onto a "rope" along the top edge of the screen: move the mouse to the top to expand it, and it collapses when the mouse leaves. Click an image to copy it, then drag it into chat windows, documents or any other target app; double-click to open it in the built-in viewer. It is handy for writing docs, making tutorials and organizing reference images.
+
+---
+
+## 1. Origin & Notes
+
+- **Upstream repository (original)**： <https://github.com/Renly1994/PicRope> (Windows screenshot staging and desktop-pin tool, C#/WPF)
+- **This repository (Qt secondary development)**： <https://github.com/2058763315/qt_PicRope>
+- **Positioning**： a Qt secondary-development version of the author's C#/WPF implementation, rewritten in C++17, with UI and interactions aligned to the original and reusing its feature design (screenshot collection, rope, basket, text notes, built-in viewer, tray, multi-monitor and themes).
+- Comments at the top of each source file state the mapping to the original module (e.g. `app.h ↔ App.cs DesktopController`, `ui/shelf.h ↔ ShelfWindow`, `core/gallery.h ↔ Gallery`), making it easy to compare against the original design.
+- The in-app update check is based on this repository's GitHub Releases (`2058763315/qt_PicRope`).
+
+> **Note**：this rebuild currently focuses on the "collect — hang on rope — copy/view — settings/update" loop. The original **built-in image editor** and **region-capture annotation** (rectangles/arrows/scribbles/mosaic, etc.) are not yet implemented here: "Edit" opens the system default image editor, and region capture launches the system screenshot tool. The original **desktop pinning (pin-to-desktop)** is not currently compiled (`ui/pinned.*` is kept but excluded from the build).
+
+---
+
+## 2. Features
+
+| Feature | Description |
+| --- | --- |
+| **Screenshot collection** | Automatically scans the Windows Screenshots folder for new images; also supports clipboard images and text, plus manual import |
+| **Rope staging** | New images go onto the rope (up to 50 most recent) or into the image basket according to the "auto-hang" switch; cards overlap automatically to fit the visible width when there are many |
+| **Copy & drag** | Click an image to copy it and drag it into a target app (drag copies only); right-click to "take off the rope" or batch take-off |
+| **Built-in viewer** | Double-click opens the built-in viewer: switch among images in the same folder with ← / →, zoom with the wheel, pan when zoomed, close with Esc; the bottom bar shows the file name, zoom and index |
+| **Image basket** | Search by file name, right-click to rename, open the containing folder; "hang on rope / take off rope", "delete selected", double-click preview, rubber-band or Ctrl/Shift multi-select |
+| **Text notes** | Collects clipboard text (called "text envelope" in the original); supports search, full-text view, copy and multi-delete, preserving original line breaks and indentation |
+| **Settings** | Opened from the tray "Settings…", centered on screen: **Appearance** (five theme cards with previews) + **About** (auto check for updates, current version, manual check for updates and download progress) |
+| **In-app update** | Silently checks the latest GitHub release after startup; when a new version is found it asks, then automatically downloads the installer and launches it (auto check can be disabled in Settings) |
+| **Global hotkeys** | `Ctrl+Alt+T` show/hide; `Ctrl+Alt+S` region capture (the capture shortcut is customizable) |
+| **Tray control** | Clipboard image/text collection switches, auto-hang new images, disable auto-popup (temporary, restored after restart), settings, open collection folder, etc. |
+| **Desktop adaptation** | Five themes, multi-monitor selection (follow mouse or fixed), auto-collapse at the top, click-through |
+
+---
+
+## 3. Project Structure
+
+### 3.1 Directory layout
+
+```
+qt_PicRope/
+├── main.cpp              Entry: font, single-instance lock, state loading, start controller
+├── app.h / app.cpp       Desktop controller (AppController): assembles modules, handles
+│                         actions, listens to clipboard, binds tray/settings/hotkeys, update scheduling
+├── widget.h/.cpp/.ui     Skeleton window (Qt default window, can be ignored)
+├── system/               Windows platform capability wrappers
+│   ├── win32.h/.cpp      Global hotkey (RegisterHotKey), monitor info, topmost/click-through
+│   │                     window, cursor position, foreground-window state detection
+│   └── clipboard.h/.cpp  Clipboard read/write: image, text, file references, own-format marker
+├── core/                 Core business logic
+│   ├── state.h/.cpp      State persistence: settings and collection paths in data/state.json
+│   ├── image.h/.cpp      Image read/validation, thumbnail generation, pixel fingerprint (dedup)
+│   ├── gallery.h/.cpp    Collection management: rope items + collected list, shared items
+│   │                     managed with QSharedPointer
+│   ├── texts.h/.cpp      Text notes (text collection) data source
+│   ├── capture.h/.cpp    Capture pipeline: folder scan, clipboard collection, dedup,
+│   │                     manual import, inbox copy management
+│   └── updater.h/.cpp    Update check: request latest GitHub release, version compare,
+│                         download installer (Qt Network)
+├── ui/                   UI layer
+│   ├── themes.h/.cpp     Five themes (Classic Silver / Linen / Porcelain / Soft Color / Graphite)
+│   ├── shelf.h/.cpp      Rope main window: topmost transparent strip, auto expand/collapse at
+│   │                     the edge, click-through on non-interactive areas, card overlap layout, tool dock
+│   ├── card.h/.cpp       Single image card: click to copy, double-click to open, long-press to edit,
+│   │                     context menu, drag
+│   ├── viewer.h/.cpp     Built-in image viewer: ←/→ in same folder, wheel zoom, drag pan
+│   ├── pinned.h/.cpp     Desktop pin window (source kept, currently not compiled)
+│   ├── panels.h/.cpp     Image basket + text notes (rounded borderless panels)
+│   ├── settings.h/.cpp   Settings: theme selection + about/update check
+│   └── tray.h/.cpp       System tray menu and switches
+├── resources.qrc         Resource manifest (app.ico)
+├── app.ico               Application icon
+└── qt_PicRope.pro        qmake project file (core/gui/widgets/network)
+```
+
+### 3.2 Three-layer architecture
+
+| Layer | Directory | Responsibility | Typical types |
+| --- | --- | --- | --- |
+| System layer | `system/` | Interacts with Windows capabilities: hotkeys, monitors, clipboard, window effects | `Win32`、`Clip`、`SystemEvents` |
+| Core layer | `core/` | UI-independent business logic and data: state, collection, capture, dedup, update | `StateStore`、`Gallery`、`TextCollection`、`CapturePipeline`、`ImageContent`、`UpdateChecker` |
+| UI layer | `ui/` | All visible windows and widgets, interactions and appearance | `ShelfWindow`、`ShotCard`、`ImageViewer`、`PanelWindow`、`BasketWindow`、`TextsWindow`、`SettingsDialog`、`TrayController` |
+
+- **Dependency direction**：`ui → core → system`; `core` does not depend on the UI, which keeps it reusable and testable.
+- **Assembly hub**：`AppController` (`app.cpp`) glues the three layers together — it owns the module instances, wires "UI action → business handling" through signals/slots, and listens to the system clipboard, global hotkeys and update results.
+
+### 3.3 Key design points
+
+- **Shared item model**：`Gallery` uses `QSharedPointer<CaptureItem>` so the "rope" and "collected" lists share the same objects; cards and the built-in viewer can safely extend an item's lifetime, avoiding dangling pointers.
+- **Clipboard echo prevention**：images written back to the clipboard carry a "PicRope own format" marker, so the collector skips its own writes; a pixel fingerprint (sampled SHA-256) is used for image deduplication.
+- **Atomic persistence**：`state.json` is written atomically with `QSaveFile`; every image is copied into the `data/Captures` inbox next to the program.
+- **Card overlap layout**：the rope lays cards out with overlap as needed within the container width (each card advances by a bounded distance), so the whole row fits the visible width without horizontal scrolling.
+- **Built-in viewer**：`ImageViewer` is a fixed-size window that browses images in the same folder in order, zooms with the wheel, pans when zoomed, and shows the file name, zoom and index in its bottom bar.
+- **Panel pre-creation**：the image basket / text notes panels are pre-created while idle after startup (with native window handles pre-created), eliminating jank on first open.
+- **In-app update**：`UpdateChecker` requests this repository's latest release JSON, compares versions segment by segment, prefers an exe whose asset name contains `Setup`, downloads it to a temp folder and then launches the installer; it checks silently about 4 seconds after startup (controlled by `autoCheckUpdate`, enabled by default).
+- **Single instance & fault tolerance**：`QLockFile` guarantees a single instance and stale locks left by a crash can be cleaned up; startup failures are written to `data/error.log`.
+
+---
+
+## 4. Build & Run
+
+**Requirements**
+
+- Qt 6 (**Widgets + Network** modules), a C++17 compiler (MSVC or MinGW; MSVC is built with `/utf-8`)
+- Windows 10 / 11 64-bit
+
+**Build steps**
+
+```bash
+# Open qt_PicRope.pro in Qt Creator, pick a kit and build/run; or build from the command line:
+qmake qt_PicRope.pro
+make          # MinGW: mingw32-make; MSVC: nmake / jom
+```
+
+**Runtime directory layout**
+
+- State & settings：`data/state.json` next to the program (settings, theme, rope and collection paths, text notes)
+- Image inbox：`data/Captures/` next to the program (copies of collected and manually imported images)
+- Error log：`data/error.log` (hotkey registration failures, update errors, etc.)
+
+**Release & update**
+
+- Windows installers (`*Setup*.exe`) are published via GitHub Releases; the in-app updater reads that release and launches the installer after download.
+
+**Shortcuts & operations**
+
+| Operation | How |
+| --- | --- |
+| Show / hide the rope | `Ctrl+Alt+T`, or click the tray icon |
+| Region capture | `Ctrl+Alt+S` (launches the system screenshot tool; the result goes to the clipboard) |
+| Open an image | Double-click a card to use the built-in viewer (← / → in the same folder, wheel zoom, Esc to close) |
+| Copy / edit | Click to copy; long-press or right-click → "Edit" (system default image editor) |
+| Image basket | Search by name, right-click rename, open folder, hang/take off the rope, double-click preview, rubber-band or Ctrl/Shift multi-select, "delete selected" |
+| Text notes | Search, full-text view, copy, rubber-band multi-select, "delete selected" |
+| Settings / theme | Tray "Settings…" or the gear button on the rope tool dock; choose one of five themes under Appearance |
+| Tray management | Clipboard image/text collection switches, auto-hang, disable auto-popup (temporary, restored after restart), settings, open collection folder |
+
