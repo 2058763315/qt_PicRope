@@ -5,7 +5,7 @@ English | [简体中文](README.md)
 
 </div>
 
-> **Qt secondary-development version** (current **1.1.2**), based on [PicRope](https://github.com/Renly1994/PicRope) by [Renly1994](https://github.com/Renly1994) — a Windows screenshot staging and desktop-pin tool. This repository rebuilds and extends the original **C# / WPF** project in **C++ / Qt Widgets**.
+> **Qt secondary-development version**, based on [PicRope](https://github.com/Renly1994/PicRope) by [Renly1994](https://github.com/Renly1994) — a Windows screenshot staging and desktop-pin tool. This repository rebuilds and extends the original **C# / WPF** project in **C++ / Qt Widgets**.
 
 **PicRope (图绳)** is a Windows screenshot staging and desktop-pin tool. It automatically collects screenshots onto a "rope" along the top edge of the screen: move the mouse to the top to expand it, and it collapses when the mouse leaves. Click an image to copy it, then drag it into chat windows, documents or any other target app; double-click to open it in the built-in viewer. It is handy for writing docs, making tutorials and organizing reference images.
 
