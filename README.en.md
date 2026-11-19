@@ -19,7 +19,7 @@ English | [简体中文](README.md)
 - Comments at the top of each source file state the mapping to the original module (e.g. `app.h ↔ App.cs DesktopController`, `ui/shelf.h ↔ ShelfWindow`, `core/gallery.h ↔ Gallery`), making it easy to compare against the original design.
 - The in-app update check is based on this repository's GitHub Releases (`2058763315/qt_PicRope`).
 
-> **Note**：this rebuild currently focuses on the "collect — hang on rope — copy/view — settings/update" loop. The original **built-in image editor** and **region-capture annotation** (rectangles/arrows/scribbles/mosaic, etc.) are not yet implemented here: "Edit" opens the system default image editor, and region capture launches the system screenshot tool. The original **desktop pinning (pin-to-desktop)** is not currently compiled (`ui/pinned.*` is kept but excluded from the build).
+> **Note**：this rebuild currently focuses on the "collect — hang on rope — copy/view — settings/update" loop. The original **built-in image editor** and **region-capture annotation** (rectangles/arrows/scribbles/mosaic, etc.) are not yet implemented here: "Edit" opens the system default image editor, and region capture launches the system screenshot tool.
 
 ---
 
