@@ -5,23 +5,25 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>图绳 PicRope · 截图随手一放，要用时再取</title>
 <meta name="description" content="图绳 PicRope 是一款 Windows 截图暂存与桌面贴图工具：自动收集截图到屏幕顶部的一条绳子上，鼠标移到顶部即展开，图片篮子、文字笔记、内置查看器一应俱全。">
-<meta name="theme-color" content="#f5f6f8">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2314532d'/%3E%3Cpath d='M6 11h20' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'/%3E%3Crect x='9' y='13' width='6' height='9' rx='1.4' fill='%23fff' opacity='.9'/%3E%3Crect x='17' y='15' width='6' height='7' rx='1.4' fill='%23fff' opacity='.55'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#f3f6fa">
+<link rel="icon" href="app.ico" type="image/x-icon">
+<link rel="apple-touch-icon" href="app.ico">
 <style>
-/* ============ 设计变量：对齐参考站（VitePress + 绿色主题） ============ */
+/* ============ 设计变量：对齐参考站排版，配色取自软件图标（天蓝 + 暖沙） ============ */
 :root{
-  --c-bg:#f5f6f8;
-  --c-bg-alt:#dde3ea;
+  --c-bg:#f3f6fa;
+  --c-bg-alt:#dde5ee;
   --c-surface:#ffffff;
-  --c-border:#e2e6ec;
-  --c-text-1:#171717;
-  --c-text-2:#52525b;
-  --c-text-3:#8b8f98;
-  --c-brand-1:#14532d;
-  --c-brand-2:#166534;
-  --c-brand-3:#22c55e;
-  --c-brand-soft:rgba(34,197,94,.12);
-  --c-code-bg:#eef1f5;
+  --c-border:#e1e8f0;
+  --c-text-1:#17212b;
+  --c-text-2:#4d5b6a;
+  --c-text-3:#8894a3;
+  --c-brand-1:#0e6fa6;
+  --c-brand-2:#0b5c8a;
+  --c-brand-3:#4fc3f7;
+  --c-brand-soft:rgba(79,195,247,.14);
+  --c-accent:#e0913a;
+  --c-code-bg:#eef2f8;
   --shadow-1:0 1px 2px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.06);
   --shadow-2:0 12px 32px -12px rgba(16,24,40,.18);
   --radius:14px;
@@ -30,18 +32,19 @@
   --font-mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
 }
 html.dark{
-  --c-bg:#000000;
-  --c-bg-alt:#0a0a0a;
-  --c-surface:#101012;
-  --c-border:#232326;
-  --c-text-1:#f5f7fb;
-  --c-text-2:#b7bcc6;
-  --c-text-3:#7d828c;
+  --c-bg:#07090b;
+  --c-bg-alt:#0e1114;
+  --c-surface:#10151a;
+  --c-border:#232c35;
+  --c-text-1:#f2f6fa;
+  --c-text-2:#aebbc8;
+  --c-text-3:#76838f;
   --c-brand-1:#ffffff;
-  --c-brand-2:#e5e5e5;
-  --c-brand-3:#22c55e;
-  --c-brand-soft:rgba(34,197,94,.16);
-  --c-code-bg:#17171a;
+  --c-brand-2:#e3eaf1;
+  --c-brand-3:#4fc3f7;
+  --c-brand-soft:rgba(79,195,247,.16);
+  --c-accent:#e0a45c;
+  --c-code-bg:#151b21;
   --shadow-1:0 1px 2px rgba(0,0,0,.4);
   --shadow-2:0 16px 40px -16px rgba(0,0,0,.8);
 }
@@ -65,7 +68,7 @@ img{max-width:100%}
 }
 .nav .container{height:100%;display:flex;align-items:center;gap:8px}
 .brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px;letter-spacing:.2px;flex:0 0 auto}
-.brand svg{width:26px;height:26px;flex:0 0 auto}
+.brand svg,.brand img{width:26px;height:26px;flex:0 0 auto;display:block;border-radius:6px}
 .brand small{color:var(--c-text-3);font-weight:500;font-size:13px;letter-spacing:.3px}
 .nav-links{display:flex;align-items:center;gap:2px;margin-left:28px}
 .nav-links a{
@@ -123,7 +126,7 @@ html.dark .btn-ghost:hover{color:var(--c-brand-3)}
   border-radius:999px;border:1px solid var(--c-border);background:var(--c-surface);
   font-size:13px;color:var(--c-text-2);box-shadow:var(--shadow-1);
 }
-.hero-eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--c-brand-3);box-shadow:0 0 0 4px var(--c-brand-soft)}
+.hero-eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--c-accent);box-shadow:0 0 0 4px rgba(224,145,58,.16)}
 .hero h1{
   margin:22px 0 0;font-size:clamp(56px,10vw,132px);line-height:.98;
   font-weight:800;letter-spacing:-.02em;
@@ -150,7 +153,7 @@ html.dark .btn-ghost:hover{color:var(--c-brand-3)}
   position:relative;height:300px;margin-top:56px;border-radius:18px 18px 0 0;
   border:1px solid var(--c-border);border-bottom:none;
   background:
-    radial-gradient(ellipse at 50% -30%,rgba(34,197,94,.10),transparent 62%),
+    radial-gradient(ellipse at 50% -30%,rgba(79,195,247,.14),transparent 62%),
     linear-gradient(180deg,var(--c-surface),var(--c-bg));
   box-shadow:var(--shadow-2);overflow:hidden;
 }
@@ -238,7 +241,7 @@ html.dark .card .icon{color:var(--c-brand-3)}
 .tick li::before{
   content:"";position:absolute;left:0;top:9px;width:15px;height:15px;border-radius:50%;
   background:var(--c-brand-soft);
-  box-shadow:inset 0 0 0 1px rgba(34,197,94,.35);
+  box-shadow:inset 0 0 0 1px rgba(79,195,247,.45);
 }
 .tick li::after{
   content:"";position:absolute;left:4.5px;top:12.5px;width:6px;height:3.5px;
@@ -371,12 +374,7 @@ html.dark footer .links a:hover{color:var(--c-brand-3)}
 <header class="nav">
   <div class="container">
     <a class="brand" href="#top">
-      <svg viewBox="0 0 32 32" aria-hidden="true">
-        <rect width="32" height="32" rx="8" fill="currentColor" style="color:var(--c-brand-1)"/>
-        <path d="M6 11h20" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
-        <rect x="9" y="13" width="6" height="9" rx="1.4" fill="#fff" opacity=".92"/>
-        <rect x="17" y="15" width="6" height="7" rx="1.4" fill="#fff" opacity=".55"/>
-      </svg>
+      <img src="app.ico" alt="图绳 PicRope 图标" width="26" height="26">
       <span>图绳 <small>PicRope</small></span>
     </a>
     <nav class="nav-links">
