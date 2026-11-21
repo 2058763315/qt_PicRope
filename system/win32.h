@@ -58,8 +58,8 @@ public:
 
     bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result) override;
 
-    // 显示/收起热键（固定 Ctrl+Alt+T）
-    bool registerToggleHotkey();
+    // 显示/收起热键（可在设置中自定义，默认 Ctrl+Alt+T）
+    bool registerToggleHotkey(const QString &sequence);
     void unregisterToggleHotkey();
     bool toggleAvailable() const { return toggleOk_; }
 

@@ -19,12 +19,22 @@
         <translation>The installer will launch automatically after download. The app will exit during installation.</translation>
     </message>
     <message>
-        <location filename="../app.cpp" line="268"/>
+        <location filename="../app.cpp" line="345"/>
+        <source>快捷键</source>
+        <translation>Shortcuts</translation>
+    </message>
+    <message>
+        <location filename="../app.cpp" line="346"/>
+        <source>快捷键 %1 注册失败，可能已被其它程序占用。</source>
+        <translation>Failed to register hotkey %1. It may already be in use by another program.</translation>
+    </message>
+    <message>
+        <location filename="../app.cpp" line="271"/>
         <source>保存图片副本</source>
         <translation>Save Image Copy</translation>
     </message>
     <message>
-        <location filename="../app.cpp" line="270"/>
+        <location filename="../app.cpp" line="273"/>
         <source>图片 (*.png *.jpg *.jpeg *.bmp);;所有文件 (*)</source>
         <translation>Images (*.png *.jpg *.jpeg *.bmp);;All files (*)</translation>
     </message>
@@ -252,117 +262,258 @@
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../ui/settings.cpp" line="302"/>
+        <location filename="../ui/settings.cpp" line="304"/>
         <source>设置</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="330"/>
+        <location filename="../ui/settings.cpp" line="334"/>
+        <location filename="../ui/settings.cpp" line="338"/>
         <source>当前已是最新版</source>
         <translation>You&apos;re up to date</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="335"/>
-        <location filename="../ui/settings.cpp" line="544"/>
-        <location filename="../ui/settings.cpp" line="610"/>
-        <location filename="../ui/settings.cpp" line="622"/>
+        <location filename="../ui/settings.cpp" line="344"/>
+        <location filename="../ui/settings.cpp" line="745"/>
+        <location filename="../ui/settings.cpp" line="787"/>
+        <location filename="../ui/settings.cpp" line="799"/>
         <source>检查更新</source>
         <translation>Check for Updates</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="342"/>
+        <location filename="../ui/settings.cpp" line="351"/>
         <source>发现新版本</source>
         <translation>New Version Available</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="343"/>
+        <location filename="../ui/settings.cpp" line="352"/>
         <source>发现新版本 %1，但该版本没有可自动安装的安装包，请前往发布页下载。</source>
         <translation>Version %1 is available, but there&apos;s no auto-installable package. Please download from the release page.</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="353"/>
+        <location filename="../ui/settings.cpp" line="362"/>
         <source>%1%</source>
         <translation>%1%</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="384"/>
+        <location filename="../ui/settings.cpp" line="413"/>
         <source>功能</source>
         <translation>Features</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="390"/>
-        <source>鼠标移到屏幕顶部自动弹出挂绳（快捷键 Ctrl+Alt+T 弹出或关闭挂绳）</source>
-        <translation>Auto-show the rope when the mouse reaches the top of the screen (hotkey Ctrl+Alt+T to toggle)</translation>
+        <location filename="../ui/settings.cpp" line="419"/>
+        <source>鼠标移到屏幕顶部自动弹出挂绳</source>
+        <translation>Auto-show the rope when the mouse reaches the top of the screen</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="410"/>
+        <location filename="../ui/settings.cpp" line="616"/>
+        <source>快捷键</source>
+        <translation>Shortcuts</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="623"/>
+        <source>显示 / 收起挂绳</source>
+        <translation>Show / hide rope</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="649"/>
+        <source>全局热键需要包含 Ctrl、Alt、Shift 或 Win 修饰键。</source>
+        <translation>The global hotkey must include Ctrl, Alt, Shift or Win.</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="441"/>
+        <source>剪贴板收集 · 图片</source>
+        <translation>Clipboard Capture · Images</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="449"/>
+        <source>剪贴板收集 · 文字</source>
+        <translation>Clipboard Capture · Text</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="457"/>
+        <source>新图片自动上绳</source>
+        <translation>Auto-hang new images</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="470"/>
         <source>开机时自动启动图绳</source>
         <translation>Start PicRope at login</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="427"/>
-        <location filename="../ui/settings.cpp" line="448"/>
+        <location filename="../ui/settings.cpp" line="487"/>
+        <location filename="../ui/settings.cpp" line="508"/>
         <source>界面语言</source>
         <translation>Interface Language</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="433"/>
+        <location filename="../ui/settings.cpp" line="493"/>
         <source>简体中文</source>
         <translation>Simplified Chinese</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="449"/>
+        <location filename="../ui/settings.cpp" line="509"/>
         <source>界面语言将在重启后生效，是否立即重启图绳？</source>
         <translation>The interface language will take effect after restart. Restart PicRope now?</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="481"/>
+        <location filename="../ui/settings.cpp" line="541"/>
         <source>外观</source>
         <translation>Appearance</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="515"/>
+        <location filename="../ui/settings.cpp" line="594"/>
+        <source>卡片尺寸</source>
+        <translation>Card Size</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="595"/>
+        <source>小</source>
+        <translation>Small</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="595"/>
+        <source>中</source>
+        <translation>Medium</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="595"/>
+        <source>大</source>
+        <translation>Large</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="597"/>
+        <source>挂绳不透明度</source>
+        <translation>Rope Opacity</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="602"/>
+        <source>收起延迟</source>
+        <translation>Auto-hide Delay</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="603"/>
+        <source>300 毫秒</source>
+        <translation>300 ms</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="603"/>
+        <source>800 毫秒</source>
+        <translation>800 ms</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="604"/>
+        <source>1200 毫秒</source>
+        <translation>1200 ms</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="604"/>
+        <source>1500 毫秒</source>
+        <translation>1500 ms</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="612"/>
+        <source>数据</source>
+        <translation>Data</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="618"/>
+        <source>导出数据备份…</source>
+        <translation>Export Data Backup…</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="619"/>
+        <source>打开数据目录</source>
+        <translation>Open Data Folder</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="620"/>
+        <source>恢复默认设置…</source>
+        <translation>Reset to Defaults…</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="638"/>
+        <location filename="../ui/settings.cpp" line="650"/>
+        <location filename="../ui/settings.cpp" line="653"/>
+        <source>导出数据备份</source>
+        <translation>Export Data Backup</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="638"/>
+        <source>Zip 压缩包 (*.zip)</source>
+        <translation>Zip Archive (*.zip)</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="651"/>
+        <source>备份已保存到：
+%1</source>
+        <translation>Backup saved to:
+%1</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="654"/>
+        <source>备份失败：%1</source>
+        <translation>Backup failed: %1</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="661"/>
+        <location filename="../ui/settings.cpp" line="675"/>
+        <source>恢复默认设置</source>
+        <translation>Reset to Defaults</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="662"/>
+        <source>所有设置项将恢复为默认值（图片、文字笔记与收集的文件都会保留），是否继续？</source>
+        <translation>All settings will be restored to their defaults (images, text notes, and collected files are kept). Continue?</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="676"/>
+        <source>已恢复默认设置，重启后完全生效，是否立即重启图绳？</source>
+        <translation>Settings have been reset to defaults and take full effect after a restart. Restart PicRope now?</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="687"/>
         <source>关于</source>
         <translation>About</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="520"/>
+        <location filename="../ui/settings.cpp" line="692"/>
         <source>自动检查更新</source>
         <translation>Check for updates automatically</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="539"/>
+        <location filename="../ui/settings.cpp" line="713"/>
         <source>当前版本为 %1</source>
         <translation>Current version: %1</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="568"/>
-        <location filename="../ui/settings.cpp" line="595"/>
+        <location filename="../ui/settings.cpp" line="738"/>
+        <location filename="../ui/settings.cpp" line="772"/>
         <source>0%</source>
         <translation>0%</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="584"/>
+        <location filename="../ui/settings.cpp" line="758"/>
         <source>检查中…</source>
         <translation>Checking…</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="593"/>
+        <location filename="../ui/settings.cpp" line="770"/>
         <source>下载中…</source>
         <translation>Downloading…</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="603"/>
+        <location filename="../ui/settings.cpp" line="780"/>
         <source>100%</source>
         <translation>100%</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="605"/>
+        <location filename="../ui/settings.cpp" line="782"/>
         <source>正在安装…</source>
         <translation>Installing…</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="611"/>
+        <location filename="../ui/settings.cpp" line="788"/>
         <source>无法启动安装程序：%1</source>
         <translation>Cannot launch installer: %1</translation>
     </message>
@@ -370,49 +521,49 @@
 <context>
     <name>ShelfWindow</name>
     <message>
-        <location filename="../ui/shelf.cpp" line="186"/>
-        <location filename="../ui/shelf.cpp" line="236"/>
+        <location filename="../ui/shelf.cpp" line="190"/>
+        <location filename="../ui/shelf.cpp" line="240"/>
         <source>图片篮子</source>
         <translation>Image Basket</translation>
     </message>
     <message>
-        <location filename="../ui/shelf.cpp" line="189"/>
-        <location filename="../ui/shelf.cpp" line="241"/>
+        <location filename="../ui/shelf.cpp" line="193"/>
+        <location filename="../ui/shelf.cpp" line="245"/>
         <source>文字笔记</source>
         <translation>Text Notes</translation>
     </message>
     <message>
-        <location filename="../ui/shelf.cpp" line="192"/>
+        <location filename="../ui/shelf.cpp" line="196"/>
         <source>设置</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../ui/shelf.cpp" line="195"/>
+        <location filename="../ui/shelf.cpp" line="199"/>
         <source>收起绳子</source>
         <translation>Hide Rope</translation>
     </message>
     <message>
-        <location filename="../ui/shelf.cpp" line="235"/>
+        <location filename="../ui/shelf.cpp" line="239"/>
         <source>图片篮子 · %1 张待挂</source>
         <translation>Image Basket · %1 to hang</translation>
     </message>
     <message>
-        <location filename="../ui/shelf.cpp" line="240"/>
+        <location filename="../ui/shelf.cpp" line="244"/>
         <source>文字笔记 · %1 条</source>
         <translation>Text Notes · %1 items</translation>
     </message>
     <message>
-        <location filename="../ui/shelf.cpp" line="678"/>
+        <location filename="../ui/shelf.cpp" line="698"/>
         <source>当前没有图片</source>
         <translation>No images yet</translation>
     </message>
     <message>
-        <location filename="../ui/shelf.cpp" line="686"/>
+        <location filename="../ui/shelf.cpp" line="706"/>
         <source>截图或复制图片后，会自动挂到这里</source>
         <translation>Images will appear here after you screenshot or copy them</translation>
     </message>
     <message>
-        <location filename="../ui/shelf.cpp" line="693"/>
+        <location filename="../ui/shelf.cpp" line="713"/>
         <source>Win + Shift + S 截图 · 单击图片即复制</source>
         <translation>Win + Shift + S to screenshot · click an image to copy</translation>
     </message>
@@ -655,17 +806,17 @@
         <translation>Latest release is missing a version number</translation>
     </message>
     <message>
-        <location filename="../core/updater.cpp" line="139"/>
+        <location filename="../core/updater.cpp" line="138"/>
         <source>没有可下载的安装包</source>
         <translation>No downloadable installer</translation>
     </message>
     <message>
-        <location filename="../core/updater.cpp" line="150"/>
+        <location filename="../core/updater.cpp" line="149"/>
         <source>无法写入临时文件：</source>
         <translation>Cannot write to temp file:</translation>
     </message>
     <message>
-        <location filename="../core/updater.cpp" line="196"/>
+        <location filename="../core/updater.cpp" line="195"/>
         <source>下载安装包失败：</source>
         <translation>Failed to download installer:</translation>
     </message>

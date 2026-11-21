@@ -32,8 +32,17 @@ public:
     void setHovered(bool on);       // 由绳子窗口轮询驱动（窗口点击穿透时也能正确显示悬停）
 
     QSize sizeHint() const override;
-    static constexpr int cardW = 170;
-    static constexpr int cardH = 178;
+    // 卡片尺寸：小 / 中 / 大，运行时由设置界面调整
+    static inline int cardW = 170;
+    static inline int cardH = 178;
+    static void setCardSize(int level)
+    {
+        switch (level) {
+        case 0:  cardW = 130; cardH = 136; break;   // 小
+        case 2:  cardW = 210; cardH = 220; break;   // 大
+        default: cardW = 170; cardH = 178; break;   // 中（默认）
+        }
+    }
 
     enum Batch { BatchLeft = 0, BatchRight, BatchOthers, BatchAll, BatchSelf };
 

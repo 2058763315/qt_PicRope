@@ -27,7 +27,6 @@ namespace {
 constexpr int kShelfH = 236;
 constexpr int kPeekMs = 2200;
 constexpr int kEdgeMs = 320;
-constexpr int kAwayMs = 1200;
 const QColor kInk("#3C4654");
 
 QIcon glyphIcon(const QString &kind)
@@ -151,6 +150,12 @@ ShelfWindow::ShelfWindow(Gallery *gallery, StateStore *store, QWidget *parent)
     setAttribute(Qt::WA_TranslucentBackground);
     setAttribute(Qt::WA_NoSystemBackground);
 
+    // 应用持久化的卡片尺寸 / 不透明度 / 自动收起延迟
+    ShotCard::setCardSize(store->state.cardSize);
+    shelfH_ = qMax(kShelfH, ShotCard::cardH + 34);   // 大卡片时窗口随之加高，避免底部被裁切
+    setWindowOpacity(store->state.shelfOpacity / 100.0);
+    awayMs_ = store->state.hideDelayMs;
+
     auto *root = new QHBoxLayout(this);
     root->setContentsMargins(24, 14, 12, 18);
     root->setSpacing(6);
@@ -266,6 +271,27 @@ void ShelfWindow::setEdgePopupEnabled(bool on)
     if (!on) edgeSince_ = -1;
 }
 
+void ShelfWindow::setCardSize(int level)
+{
+    ShotCard::setCardSize(level);
+    shelfH_ = qMax(kShelfH, ShotCard::cardH + 34);
+    if (isVisible() && !placedGeom_.isEmpty()) {
+        // 已展开时同步窗口高度，位置保持上沿不变
+        setFixedSize(placedGeom_.width(), shelfH_);
+    }
+    rebuild();   // 重建卡片并重新排布，尺寸立即生效
+}
+
+void ShelfWindow::setOpacityPercent(int pct)
+{
+    setWindowOpacity(qBound(20, pct, 100) / 100.0);
+}
+
+void ShelfWindow::setHideDelay(int ms)
+{
+    awayMs_ = ms;
+}
+
 void ShelfWindow::edgeTick()
 {
     const QPoint cur = Win32::cursorPos();
@@ -346,7 +372,7 @@ void ShelfWindow::edgeTick()
         awaySince_ = -1;
     } else if (awaySince_ < 0) {
         awaySince_ = now;
-    } else if (now - awaySince_ > kAwayMs) {
+    } else if (now - awaySince_ > awayMs_) {
         slideOut();
     }
 }
@@ -382,8 +408,8 @@ void ShelfWindow::placeOnScreen()
 {
     QRect g = screenGeom_;
     if (g.isEmpty()) g = Win32::primaryScreen().bounds;
-    setFixedSize(g.width(), kShelfH);
-    if (!isVisible()) move(g.x(), g.top() - kShelfH - 6);
+    setFixedSize(g.width(), shelfH_);
+    if (!isVisible()) move(g.x(), g.top() - shelfH_ - 6);
     placedGeom_ = g;
 }
 
@@ -419,7 +445,7 @@ void ShelfWindow::slideIn(int peekMs)
     edgeSince_ = -1;
     placeOnScreen();
     if (!isVisible()) {
-        move(g.x(), g.top() - kShelfH - 6);
+        move(g.x(), g.top() - shelfH_ - 6);
         show();
     }
     animateTo(QPoint(g.x(), g.top()), false);
@@ -435,7 +461,7 @@ void ShelfWindow::slideOut()
     awaySince_ = -1;
     emit retracted();
     const QRect g = placedGeom_.isEmpty() ? screenGeom_ : placedGeom_;
-    animateTo(QPoint(g.x(), g.top() - kShelfH - 6), true);
+    animateTo(QPoint(g.x(), g.top() - shelfH_ - 6), true);
 }
 
 bool ShelfWindow::toggleShelf()
@@ -489,10 +515,10 @@ void ShelfWindow::layoutCards()
     const int n = cards_.size();
     const int avail = qMax(200, scroll_->viewport()->width() - 4);
 
-    // 少量卡片时正常平铺；图片一多就一直保持交叠，每张最多推进 150px，
+    // 少量卡片时正常平铺；图片一多或卡片变宽放不下时保持交叠，每张最多推进 150px，
     // 且整排宽度 = (n-1)*推进量 + 一张完整卡宽，必须据此反推才不会超宽
     int advance = ShotCard::cardW + 10;
-    if (n > 7)
+    if (n > 7 || (n - 1) * advance + ShotCard::cardW > avail)
         advance = qBound(40, (avail - ShotCard::cardW) / qMax(1, n - 1), 150);
 
     int x = 2;

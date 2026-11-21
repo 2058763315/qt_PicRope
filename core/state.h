@@ -27,6 +27,10 @@ struct SavedState {
     QString language             = QStringLiteral("zh_CN");   // 界面语言
     bool   hoverPreview          = true;
     QString theme                = QStringLiteral("classic");
+    int    cardSize               = 1;     // 卡片尺寸：0 小 / 1 中 / 2 大
+    int    shelfOpacity           = 100;   // 挂绳不透明度（20~100%）
+    int    hideDelayMs            = 1200;  // 鼠标离开后自动收起延迟（毫秒）
+    QString toggleHotkey          = QStringLiteral("Ctrl+Alt+T");  // 显示/收起挂绳的全局热键
     QString displayDevice;                 // 空 = 跟随鼠标
     QString lastUpdateNotification;
     unsigned captureModifiers = 3;         // Ctrl+Alt

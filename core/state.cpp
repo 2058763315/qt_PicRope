@@ -42,6 +42,10 @@ QJsonObject toJson(const SavedState &s)
     o["Language"] = s.language;
     o["HoverPreview"] = s.hoverPreview;
     o["Theme"] = s.theme;
+    o["CardSize"] = s.cardSize;
+    o["ShelfOpacity"] = s.shelfOpacity;
+    o["HideDelayMs"] = s.hideDelayMs;
+    o["ToggleHotkey"] = s.toggleHotkey;
     o["DisplayDevice"] = s.displayDevice;
     o["LastUpdateNotification"] = s.lastUpdateNotification;
     o["CaptureModifiers"] = static_cast<int>(s.captureModifiers);
@@ -71,6 +75,13 @@ bool fromJson(const QJsonObject &o, SavedState &s)
     s.language = o["Language"].toString(QStringLiteral("zh_CN"));
     s.hoverPreview = o["HoverPreview"].toBool(true);
     s.theme = o["Theme"].toString(QStringLiteral("classic"));
+    s.cardSize = qBound(0, o["CardSize"].toInt(1), 2);
+    // 不透明度档位为 20/40/60/80/100，旧配置里的其它值就近归到档位上
+    s.shelfOpacity = qBound(20, ((o["ShelfOpacity"].toInt(100) + 10) / 20) * 20, 100);
+    s.hideDelayMs = o["HideDelayMs"].toInt(1200);
+    s.toggleHotkey = o["ToggleHotkey"].toString(QStringLiteral("Ctrl+Alt+T"));
+    if (s.toggleHotkey.trimmed().isEmpty())
+        s.toggleHotkey = QStringLiteral("Ctrl+Alt+T");
     s.displayDevice = o["DisplayDevice"].toString();
     s.lastUpdateNotification = o["LastUpdateNotification"].toString();
     s.captureModifiers = static_cast<unsigned>(o["CaptureModifiers"].toInt(3));

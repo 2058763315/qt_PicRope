@@ -2,6 +2,7 @@
 
 #include <QGuiApplication>
 #include <QCursor>
+#include <QKeySequence>
 #include <QScreen>
 #include <QWindow>
 #include <QDir>
@@ -221,11 +222,38 @@ bool SystemEvents::nativeEventFilter(const QByteArray &eventType, void *message,
     return false;
 }
 
-bool SystemEvents::registerToggleHotkey()
+bool SystemEvents::registerToggleHotkey(const QString &sequence)
 {
     unregisterToggleHotkey();
-    // MOD_CONTROL(2) | MOD_ALT(1) = 3，key = 'T'
-    toggleOk_ = RegisterHotKey(nullptr, toggleId_, MOD_CONTROL | MOD_ALT, 'T') != FALSE;
+
+    // 支持「修饰键 + 字母/数字/功能键/方向键/空格」形式的全局热键
+    const QKeySequence ks(sequence);
+    if (ks.isEmpty()) return false;
+
+    const QKeyCombination kc = ks[0];
+    const Qt::KeyboardModifiers qm = kc.keyboardModifiers();
+    unsigned mods = 0;
+    if (qm & Qt::ControlModifier) mods |= MOD_CONTROL;
+    if (qm & Qt::AltModifier)     mods |= MOD_ALT;
+    if (qm & Qt::ShiftModifier)   mods |= MOD_SHIFT;
+    if (qm & Qt::MetaModifier)    mods |= MOD_WIN;
+    if (mods == 0) return false;     // 不允许无修饰键的裸键做全局热键
+
+    const Qt::Key key = kc.key();
+    UINT vk = 0;
+    if (key >= Qt::Key_A && key <= Qt::Key_Z)
+        vk = UINT('A' + (key - Qt::Key_A));
+    else if (key >= Qt::Key_0 && key <= Qt::Key_9)
+        vk = UINT('0' + (key - Qt::Key_0));
+    else if (key >= Qt::Key_F1 && key <= Qt::Key_F24)
+        vk = VK_F1 + UINT(key - Qt::Key_F1);
+    else if (key >= Qt::Key_Left && key <= Qt::Key_Down)
+        vk = VK_LEFT + UINT(key - Qt::Key_Left);
+    else if (key == Qt::Key_Space)
+        vk = VK_SPACE;
+    if (vk == 0) return false;
+
+    toggleOk_ = RegisterHotKey(nullptr, toggleId_, mods | 0x4000, vk) != FALSE;
     lastErr_ = toggleOk_ ? 0 : GetLastError();
     return toggleOk_;
 }

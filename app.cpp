@@ -115,11 +115,13 @@ bool AppController::start()
 
     // 全局热键：等事件循环启动后再注册（更稳），并记录 Windows 错误码
     QTimer::singleShot(0, this, [this]{
-        events_->registerToggleHotkey();
-        if (!events_->toggleAvailable())
-            store_->logError(QStringLiteral("Ctrl+Alt+T 热键注册失败（错误码 %1），"
+        if (!events_->registerToggleHotkey(store_->state.toggleHotkey))
+            store_->logError(QStringLiteral("%1 热键注册失败（错误码 %2），"
                                             "可能已被其它程序占用")
+                             .arg(store_->state.toggleHotkey)
                              .arg(events_->lastError()));
+        else
+            activeHotkey_ = store_->state.toggleHotkey;
         if (!events_->registerCaptureHotkey(store_->state.captureModifiers,
                                             store_->state.captureKey))
             store_->logError(QStringLiteral("区域截图热键注册失败（错误码 %1）")
@@ -198,12 +200,15 @@ void AppController::connectAll()
     });
     connect(tray_, &TrayController::collectClipboardChanged, this, [this](bool on){
         capture_->setCollectClipboard(on);
+        if (settings_) settings_->syncFromState();
     });
     connect(tray_, &TrayController::collectTextClipboardChanged, this, [this](bool on){
         texts_->setCollectClipboard(on);
+        if (settings_) settings_->syncFromState();
     });
     connect(tray_, &TrayController::autoHangChanged, this, [this](bool on){
         capture_->setAutoHang(on);
+        if (settings_) settings_->syncFromState();
     });
     connect(tray_, &TrayController::settingsRequested, this, &AppController::onSettings);
     connect(tray_, &TrayController::captureRequested, this, &AppController::onCaptureShortcut);
@@ -306,6 +311,50 @@ void AppController::onSettings()
             store_->state.edgePopup = enabled;
             store_->save();
             tray_->refresh();
+        });
+        // 设置界面的收集开关 → 收集管线/文字库，同时刷新托盘勾选状态
+        connect(settings_, &SettingsDialog::collectClipboardChanged, this, [this](bool on){
+            capture_->setCollectClipboard(on);
+            tray_->refresh();
+        });
+        connect(settings_, &SettingsDialog::collectTextClipboardChanged, this, [this](bool on){
+            texts_->setCollectClipboard(on);
+            tray_->refresh();
+        });
+        connect(settings_, &SettingsDialog::autoHangChanged, this, [this](bool on){
+            capture_->setAutoHang(on);
+            tray_->refresh();
+        });
+        // 卡片尺寸 / 不透明度 / 收起延迟：持久化并立即应用到挂绳
+        connect(settings_, &SettingsDialog::cardSizeChanged, this, [this](int level){
+            store_->state.cardSize = level;
+            store_->save();
+            if (shelf_) shelf_->setCardSize(level);
+        });
+        connect(settings_, &SettingsDialog::shelfOpacityChanged, this, [this](int pct){
+            store_->state.shelfOpacity = pct;
+            store_->save();
+            if (shelf_) shelf_->setOpacityPercent(pct);
+        });
+        connect(settings_, &SettingsDialog::hideDelayChanged, this, [this](int ms){
+            store_->state.hideDelayMs = ms;
+            store_->save();
+            if (shelf_) shelf_->setHideDelay(ms);
+        });
+        // 显示/收起挂绳的全局热键：重新注册；失败（多半被别的程序占用）则回滚
+        connect(settings_, &SettingsDialog::toggleHotkeyChanged, this, [this](const QString &seq){
+            if (events_->registerToggleHotkey(seq)) {
+                activeHotkey_ = seq;
+                return;
+            }
+            QMessageBox::warning(nullptr, tr("快捷键"),
+                tr("快捷键 %1 注册失败，可能已被其它程序占用。").arg(seq));
+            // 回滚到上一个可用热键，避免设置里显示成功、实际却唤不出挂绳
+            store_->state.toggleHotkey = activeHotkey_.isEmpty()
+                ? QStringLiteral("Ctrl+Alt+T") : activeHotkey_;
+            store_->save();
+            events_->registerToggleHotkey(store_->state.toggleHotkey);
+            if (settings_) settings_->syncFromState();
         });
     }
     settings_->showCentered();

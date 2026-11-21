@@ -46,7 +46,7 @@
   <div class="container doc-hero">
     <div class="crumb"><a href="index.html">首页</a> / 使用文档</div>
     <h1>使用文档</h1>
-    <p>从安装到日常使用，按顺序读一遍大约十分钟。适用于 1.1.3 版本，Windows 10 / 11 64 位。</p>
+    <p>从安装到日常使用，按顺序读一遍大约十分钟。适用于 1.1.4 版本，Windows 10 / 11 64 位。</p>
   </div>
 
   <div class="container doc-shell">
@@ -84,8 +84,8 @@
       <table>
         <thead><tr><th>版本</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>安装版</td><td>双击 <code>PicRope-1.1.3-Setup.exe</code> 按向导安装，可选开机自启；升级与卸载都会保留 <code>data</code> <span data-i18n="folder">目录</span></td></tr>
-          <tr><td>绿色版</td><td>解压 <code>PicRope-1.1.3-win64.zip</code> 后直接运行 <code>PicRope.exe</code>，不写系统目录</td></tr>
+          <tr><td>安装版</td><td>双击 <code>PicRope-1.1.4-Setup.exe</code> 按向导安装，可选开机自启；升级与卸载都会保留 <code>data</code> <span data-i18n="folder">目录</span></td></tr>
+          <tr><td>绿色版</td><td>解压 <code>PicRope-1.1.4-win64.zip</code> 后直接运行 <code>PicRope.exe</code>，不写系统目录</td></tr>
         </tbody>
       </table>
 
@@ -145,21 +145,46 @@
       </ul>
 
       <h2 id="settings">设置项</h2>
-      <p>托盘菜单<code>设置…</code>打开。设置分为三组：</p>
-
-      <h3>外观</h3>
-      <p>内置五套主题：经典 · 银灰、棉麻 · 木夹、奶白 · 轻盈、柔彩 · 日常、石墨 · 金属。切换后界面与卡片风格同步变化。</p>
+      <p>托盘菜单<code>设置…</code>打开。设置分为五组：</p>
 
       <h3>功能</h3>
       <table>
         <thead><tr><th>设置</th><th>说明</th></tr></thead>
         <tbody>
           <tr><td>鼠标移到屏幕顶部自动弹出挂绳</td><td>与托盘菜单的<code>自动弹出</code>实时双向同步，状态会保存</td></tr>
+          <tr><td>剪贴板收集 · 图片</td><td>与托盘菜单同步；关闭后复制的新图片不再收集</td></tr>
+          <tr><td>剪贴板收集 · 文字</td><td>与托盘菜单同步；关闭后复制的新文字不再收集</td></tr>
+          <tr><td>新图片自动上绳</td><td>与托盘菜单同步；关闭后新图先收进图片篮子，需要时再挂上绳子</td></tr>
           <tr><td>界面语言</td><td>简体中文 / English，切换后提示重启，重启生效</td></tr>
           <tr><td>开机时自动启动图绳</td><td>绿色版可直接勾选；与安装包写入同一注册表项，安装时勾选的自启也能在这里关闭</td></tr>
         </tbody>
       </table>
       <div class="callout">若注册表里的自启项指向旧版本路径，取消勾选再重新勾选一次，即可更新为当前程序的路径。</div>
+
+      <h3>快捷键</h3>
+      <p>「显示 / 收起挂绳」的热键可以自定义：点进输入框，按下新的组合键即可，默认 <span class="kbd">Ctrl</span> <span class="kbd">Alt</span> <span class="kbd">T</span>。</p>
+      <p>热键必须包含 Ctrl、Alt、Shift 或 Win 之一；修改后立即生效并保存。若与其它程序冲突，会提示并回滚到上一个可用热键。</p>
+
+      <h3>外观</h3>
+      <p>内置五套主题：经典 · 银灰、棉麻 · 木夹、奶白 · 轻盈、柔彩 · 日常、石墨 · 金属。切换后界面与卡片风格同步变化。</p>
+      <table>
+        <thead><tr><th>设置</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>卡片尺寸</td><td>小 / 中 / 大，改变挂绳上缩略图的大小，切换后立即生效</td></tr>
+          <tr><td>挂绳不透明度</td><td>20% ~ 100%，每档 20%；调低后对桌面内容的遮挡更少</td></tr>
+          <tr><td>收起延迟</td><td>鼠标离开顶部后 300 / 800 / 1200 / 1500 毫秒自动收起，默认 1200 毫秒</td></tr>
+        </tbody>
+      </table>
+
+      <h3>数据</h3>
+      <table>
+        <thead><tr><th>设置</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>导出数据备份…</td><td>把 <code>data</code> 目录打包成 zip，方便迁移到另一台电脑</td></tr>
+          <tr><td>打开数据目录</td><td>直接打开 <code>data</code> 文件夹，查看图片与配置</td></tr>
+          <tr><td>恢复默认设置…</td><td>重置所有设置项，保留图片与文字笔记；可选择立即重启</td></tr>
+        </tbody>
+      </table>
 
       <h3>关于</h3>
       <p>显示当前版本号，并可手动<code>检查更新</code>。勾选<code>自动检查更新</code>后，启动时会自动查询新版本；发现新版本时可下载并启动安装程序。</p>
@@ -168,7 +193,7 @@
       <table>
         <thead><tr><th>快捷键</th><th>作用</th></tr></thead>
         <tbody>
-          <tr><td><span class="kbd">Ctrl</span> <span class="kbd">Alt</span> <span class="kbd">T</span></td><td>呼出 / 收起挂绳</td></tr>
+          <tr><td><span class="kbd">Ctrl</span> <span class="kbd">Alt</span> <span class="kbd">T</span></td><td>呼出 / 收起挂绳（默认，可在设置 →「快捷键」中修改）</td></tr>
           <tr><td><span class="kbd">←</span> <span class="kbd">→</span></td><td>查看器切换图片</td></tr>
           <tr><td><span class="kbd">0</span></td><td>查看器缩放复位到 100%</td></tr>
           <tr><td><span class="kbd">Esc</span></td><td>关闭查看器</td></tr>
@@ -187,6 +212,7 @@
 
       <h2 id="changelog">更新记录</h2>
       <ul>
+        <li><strong>1.1.4</strong> 设置新增剪贴板收集、新图片自动上绳、卡片尺寸、挂绳不透明度、收起延迟、自定义挂绳热键，以及数据备份 / 打开目录 / 恢复默认设置；设置界面支持上下滚动</li>
         <li><strong>1.1.3</strong> 新增英文界面；设置新增「功能」栏目（自动弹出、界面语言、开机自启）；托盘与设置状态同步；修复语言下拉取消后状态错位</li>
         <li><strong>1.1.2</strong> 稳定性与细节优化</li>
         <li><strong>1.1.1</strong> 内置图片查看器；图片篮子支持搜索与重命名；截图按内容去重</li>

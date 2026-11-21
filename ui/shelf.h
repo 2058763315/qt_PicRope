@@ -48,6 +48,9 @@ public:
     QRect toolDockRect() const;         // 三个工具按钮在屏幕上的矩形
     void setHoldOpen(bool hold);        // 面板打开期间保持展开，不自动收起
     void setEdgePopupEnabled(bool on);  // 鼠标移到屏幕顶部是否自动展开
+    void setCardSize(int level);        // 卡片尺寸：0 小 / 1 中 / 2 大
+    void setOpacityPercent(int pct);    // 挂绳不透明度（80~100）
+    void setHideDelay(int ms);          // 鼠标离开后自动收起延迟
 
 signals:
     void copyRequested(CaptureItem *item);
@@ -108,4 +111,6 @@ private:
     qint64 edgeSince_ = -1;
     qint64 awaySince_ = -1;
     qint64 peekUntil_ = -1;
+    int awayMs_ = 1200;              // 鼠标离开后多久自动收起（可在设置中调整）
+    int shelfH_ = 236;               // 挂绳窗口高度，随卡片尺寸变化
 };

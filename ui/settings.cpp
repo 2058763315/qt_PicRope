@@ -6,12 +6,15 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QCoreApplication>
+#include <QDateTime>
 #include <QDesktopServices>
 #include <QDir>
+#include <QFileDialog>
 #include <QGridLayout>
 #include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QIcon>
+#include <QKeySequenceEdit>
 #include <QLabel>
 #include <QLinearGradient>
 #include <QMessageBox>
@@ -22,6 +25,7 @@
 #include <QProgressBar>
 #include <QPushButton>
 #include <QScreen>
+#include <QScrollArea>
 #include <QSettings>
 #include <QSignalBlocker>
 #include <QTimer>
@@ -40,19 +44,37 @@ class WhiteCheckBox : public QCheckBox
 public:
     explicit WhiteCheckBox(QWidget *parent = nullptr) : QCheckBox(parent)
     {
-        setFixedSize(20, 20);
         setCursor(Qt::PointingHandCursor);
         setAttribute(Qt::WA_Hover, true);
+        QFont f = font();
+        f.setPixelSize(14);
+        setFont(f);
     }
 
+    // 勾选框 + 右侧文字：有文字时宽度按文字实际宽度扩展
+    QSize sizeHint() const override
+    {
+        const int tw = text().isEmpty() ? 0 : kTextGap + fontMetrics().horizontalAdvance(text());
+        return QSize(20 + tw, qMax(20, fontMetrics().height() + 2));
+    }
+    QSize minimumSizeHint() const override { return sizeHint(); }
+
 protected:
+    bool event(QEvent *e) override
+    {
+        if (e->type() == QEvent::HoverEnter || e->type() == QEvent::HoverLeave)
+            update();
+        return QCheckBox::event(e);
+    }
+
     void paintEvent(QPaintEvent *) override
     {
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
 
         const bool on = isChecked();
-        const QRectF box(0.8, 0.8, 18.4, 18.4);
+        const qreal top = (height() - 18.4) / 2.0;
+        const QRectF box(0.8, top + 0.8, 18.4, 18.4);
 
         QColor border = QColor("#C6D0DF");
         if (on) border = QColor("#2F6BFF");
@@ -63,6 +85,9 @@ protected:
         p.drawRoundedRect(box, 5, 5);
 
         if (on) {
+            // 对号按勾选框中心垂直居中
+            p.save();
+            p.translate(0, top);
             QPainterPath check;
             check.moveTo(5.0, 10.2);
             check.lineTo(8.4, 13.5);
@@ -70,8 +95,19 @@ protected:
             p.setPen(QPen(Qt::white, 2.0, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
             p.setBrush(Qt::NoBrush);
             p.drawPath(check);
+            p.restore();
+        }
+
+        // 文字由本类自行绘制（不调用基类 paintEvent）
+        if (!text().isEmpty()) {
+            p.setPen(QColor("#33405A"));
+            p.drawText(QRectF(kTextGap, 0, width() - kTextGap, height()),
+                       Qt::AlignLeft | Qt::AlignVCenter, text());
         }
     }
+
+private:
+    static constexpr int kTextGap = 26;
 };
 
 // 外观缩略图：按真实挂绳的样子画——一根轻微下垂的绳子，挂着三张带木夹的图片卡
@@ -85,8 +121,14 @@ QPixmap themePreview(const LineTheme &t, const QSize &size)
     p.setRenderHint(QPainter::Antialiasing);
     p.setRenderHint(QPainter::SmoothPixmapTransform);
 
-    const qreal w = size.width();
-    const qreal h = size.height();
+    // 缩略图按 172×90 的设计尺寸绘制，再整体缩放到目标大小，
+    // 这样小卡片里绳子、木夹和三张图片的相对位置不会错乱。
+    const qreal dw = 172.0;
+    const qreal dh = 90.0;
+    p.scale(size.width() / dw, size.height() / dh);
+
+    const qreal w = dw;
+    const qreal h = dh;
     const QRectF r(0, 0, w, h);
 
     // 背景：像桌面一样的暖灰
@@ -227,7 +269,7 @@ public:
         setCheckable(true);
         setCursor(Qt::PointingHandCursor);
         setAttribute(Qt::WA_Hover, true);
-        setFixedSize(196, 150);
+        setFixedSize(150, 116);   // 一行四个外观
         setAccessibleName(name);
     }
 
@@ -248,19 +290,19 @@ protected:
 
         p.setPen(QPen(border, isChecked() ? 2.0 : 1.0));
         p.setBrush(isChecked() ? QColor("#F7FAFF") : QColor("#FFFFFF"));
-        p.drawRoundedRect(r, 14, 14);
+        p.drawRoundedRect(r, 12, 12);
 
-        const QSize iconSize(172, 90);
+        const QSize iconSize(130, 68);
         const int ix = (width() - iconSize.width()) / 2;
-        const int iy = 10;
+        const int iy = 8;
         p.drawPixmap(QRect(ix, iy, iconSize.width(), iconSize.height()), preview_);
 
         QFont f = font();
-        f.setPixelSize(13);
+        f.setPixelSize(12);
         f.setBold(isChecked());
         p.setFont(f);
         p.setPen(isChecked() ? QColor("#173A70") : QColor("#3A4557"));
-        p.drawText(QRect(6, iy + iconSize.height() + 7, width() - 12, 22),
+        p.drawText(QRect(6, iy + iconSize.height() + 4, width() - 12, 20),
                    Qt::AlignHCenter | Qt::AlignVCenter, name_);
     }
 
@@ -301,7 +343,7 @@ void setAutoStartEnabled(bool on)
 SettingsDialog::SettingsDialog(StateStore *store, QWidget *parent)
     : PanelWindow(tr("设置"), parent), store_(store)
 {
-    setFixedSize(720, 740);
+    setFixedSize(720, 740);   // 与加入本次新功能前的设置窗口尺寸一致
     setStyleSheet(styleSheet() + QStringLiteral(
         "QLabel#section{font-size:24px;font-weight:700;color:#1B2330;}"
         "QLabel#rowLabel{font-size:14px;color:#33405A;}"
@@ -312,16 +354,57 @@ SettingsDialog::SettingsDialog(StateStore *store, QWidget *parent)
         "QComboBox:hover{border-color:#C9D3E2;}"
         "QComboBox QAbstractItemView{background:#FFFFFF;border:1px solid #DCE2EC;"
         "selection-background-color:#E7EFFC;selection-color:#16345F;outline:none;}"
+        "QKeySequenceEdit QLineEdit{background:#FFFFFF;border:1px solid #DCE2EC;"
+        "border-radius:8px;padding:4px 10px;color:#33405A;}"
         "QProgressBar{background:#EEF2F8;border:1px solid #E1E7F0;border-radius:6px;}"
-        "QProgressBar::chunk{background:#2F6BFF;border-radius:5px;}"));
+        "QProgressBar::chunk{background:#2F6BFF;border-radius:5px;}"
+        "QScrollArea{background:#FDFEFF;border:none;}"
+        "QScrollArea > QWidget > QWidget{background:#FDFEFF;}"
+        "QWidget#settingsBody{background:#FDFEFF;}"
+        "QScrollBar:vertical{background:transparent;width:8px;margin:2px 0;}"
+        "QScrollBar::handle:vertical{background:#D2DAE8;border-radius:4px;min-height:30px;}"
+        "QScrollBar::handle:vertical:hover{background:#BFC9DA;}"
+        "QScrollBar::add-line:vertical,QScrollBar::sub-line:vertical{height:0;}"
+        "QScrollBar::add-page:vertical,QScrollBar::sub-page:vertical{background:transparent;}"));
 
-    QVBoxLayout *root = contentLayout();
+    // 内容放进滚动区：窗口高度不够时上下滑动，不再为了塞下内容拉高窗口
+    auto *scroll = new QScrollArea(this);
+    scroll->setObjectName(QStringLiteral("settingsScroll"));
+    scroll->setWidgetResizable(true);
+    scroll->setFrameShape(QFrame::NoFrame);
+    scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scroll->viewport()->setAutoFillBackground(false);
+    // 设置窗口本身是透明窗口：滚动区、内容容器都必须画白底，否则会透出桌面
+    scroll->setAutoFillBackground(true);
+    QPalette scrollPal = scroll->palette();
+    scrollPal.setColor(QPalette::Window, QColor("#FDFEFF"));
+    scroll->setPalette(scrollPal);
+
+    auto *body = new QWidget;
+    body->setObjectName(QStringLiteral("settingsBody"));
+    // 只对容器自身设背景，避免级联把下拉弹层也刷成透明
+    body->setAutoFillBackground(true);
+    QPalette bodyPal = body->palette();
+    bodyPal.setColor(QPalette::Window, QColor("#FDFEFF"));
+    body->setPalette(bodyPal);
+    auto *root = new QVBoxLayout(body);
+    root->setContentsMargins(0, 0, 10, 0);   // 右侧留出滚动条位置
+    root->setSpacing(12);
+
     buildFeatures(root);
+    root->addSpacing(10);
+    buildShortcuts(root);
     root->addSpacing(10);
     buildAppearance(root);
     root->addSpacing(10);
+    buildData(root);
+    root->addSpacing(10);
     buildAbout(root);
     root->addStretch(1);
+
+    scroll->setWidget(body);
+    contentLayout()->addWidget(scroll, 1);
 
     updater_ = new UpdateChecker(this);
 
@@ -366,7 +449,7 @@ void SettingsDialog::showCentered()
     syncFromState();   // 设置界面复用，打开前同步托盘那边可能已改过的开关
     QScreen *s = QGuiApplication::primaryScreen();
     const QRect wa = s ? s->availableGeometry() : QRect(0, 0, 1280, 800);
-    move(wa.center() - QPoint(width() / 2, height() / 2));
+    move(wa.center() - QPoint(width() / 2, height() / 2));   // 固定尺寸，居中即可
     show();
     raise();
     activateWindow();
@@ -382,6 +465,40 @@ void SettingsDialog::syncFromState()
     if (!edgeCheck_) return;
     const QSignalBlocker block(edgeCheck_);   // 仅同步显示，不触发保存与信号
     edgeCheck_->setChecked(store_->state.edgePopup);
+
+    // 托盘侧可能改过的开关与下拉，这里一并同步（不触发回写）
+    auto syncCheck = [](QCheckBox *box, bool on){
+        if (!box) return;
+        const QSignalBlocker b(box);
+        box->setChecked(on);
+    };
+    syncCheck(clipCheck_, store_->state.collectClipboard);
+    syncCheck(textCheck_, store_->state.collectTextClipboard);
+    syncCheck(hangCheck_, store_->state.autoHang);
+
+    auto syncCombo = [](QComboBox *combo, int value){
+        if (!combo) return;
+        const QSignalBlocker b(combo);
+        int idx = combo->findData(value);
+        if (idx < 0 && combo->count() > 0) {
+            int best = 0;
+            int bestDiff = -1;
+            for (int i = 0; i < combo->count(); ++i) {
+                const int d = qAbs(combo->itemData(i).toInt() - value);
+                if (bestDiff < 0 || d < bestDiff) { bestDiff = d; best = i; }
+            }
+            idx = best;
+        }
+        combo->setCurrentIndex(idx >= 0 ? idx : 0);
+    };
+    syncCombo(sizeCombo_, store_->state.cardSize);
+    syncCombo(opacityCombo_, store_->state.shelfOpacity);
+    syncCombo(delayCombo_, store_->state.hideDelayMs);
+
+    if (hotkeyEdit_) {
+        const QSignalBlocker b(hotkeyEdit_);
+        hotkeyEdit_->setKeySequence(QKeySequence(store_->state.toggleHotkey));
+    }
 }
 
 void SettingsDialog::buildFeatures(QVBoxLayout *root)
@@ -392,7 +509,7 @@ void SettingsDialog::buildFeatures(QVBoxLayout *root)
     auto *edgeRow = new QHBoxLayout;
     edgeRow->setContentsMargins(0, 0, 0, 0);
     auto *edgeLabel = new QLabel(
-        tr("鼠标移到屏幕顶部自动弹出挂绳（快捷键 Ctrl+Alt+T 弹出或关闭挂绳）"), this);
+        tr("鼠标移到屏幕顶部自动弹出挂绳"), this);
     edgeLabel->setObjectName(QStringLiteral("rowLabel"));
     edgeRow->addWidget(edgeLabel);
     edgeRow->addStretch(1);
@@ -407,6 +524,36 @@ void SettingsDialog::buildFeatures(QVBoxLayout *root)
         emit edgePopupChanged(on);
     });
     root->addLayout(edgeRow);
+
+    // 剪贴板收集与新图片自动上绳：一行一项，标签在左、勾选框在右，与其它开关样式一致
+    auto addSwitchRow = [this, root](const QString &text, bool on) {
+        auto *row = new QHBoxLayout;
+        row->setContentsMargins(0, 0, 0, 0);
+        auto *lab = new QLabel(text, this);
+        lab->setObjectName(QStringLiteral("rowLabel"));
+        row->addWidget(lab);
+        row->addStretch(1);
+        auto *box = new WhiteCheckBox(this);
+        box->setChecked(on);
+        row->addWidget(box);
+        root->addLayout(row);
+        return box;
+    };
+
+    clipCheck_ = addSwitchRow(tr("剪贴板收集 · 图片"), store_->state.collectClipboard);
+    connect(clipCheck_, &QCheckBox::toggled, this, [this](bool on){
+        emit collectClipboardChanged(on);
+    });
+
+    textCheck_ = addSwitchRow(tr("剪贴板收集 · 文字"), store_->state.collectTextClipboard);
+    connect(textCheck_, &QCheckBox::toggled, this, [this](bool on){
+        emit collectTextClipboardChanged(on);
+    });
+
+    hangCheck_ = addSwitchRow(tr("新图片自动上绳"), store_->state.autoHang);
+    connect(hangCheck_, &QCheckBox::toggled, this, [this](bool on){
+        emit autoHangChanged(on);
+    });
 
     // 开机自启：状态以注册表 Run 项为准，因此安装版在安装向导里勾选的自启
     // 在这里会显示为已勾选，取消勾选即可关闭；绿色版也能直接用这里开启。
@@ -481,14 +628,58 @@ void SettingsDialog::buildFeatures(QVBoxLayout *root)
     root->addLayout(langRow);
 }
 
+void SettingsDialog::buildShortcuts(QVBoxLayout *root)
+{
+    root->addWidget(makeSectionTitle(tr("快捷键"), this));
+
+    // 显示/收起挂绳：默认 Ctrl+Alt+T，点进输入框按下组合键即可修改
+    auto *row = new QHBoxLayout;
+    row->setContentsMargins(0, 0, 0, 0);
+    auto *lab = new QLabel(tr("显示 / 收起挂绳"), this);
+    lab->setObjectName(QStringLiteral("rowLabel"));
+    row->addWidget(lab);
+    row->addStretch(1);
+
+    auto *edit = new QKeySequenceEdit(this);
+    hotkeyEdit_ = edit;
+    edit->setMaximumSequenceLength(1);
+    edit->setClearButtonEnabled(false);
+    edit->setFixedWidth(170);
+    edit->setCursor(Qt::PointingHandCursor);
+    edit->setKeySequence(QKeySequence(store_->state.toggleHotkey));
+    row->addWidget(edit);
+    root->addLayout(row);
+
+    connect(edit, &QKeySequenceEdit::editingFinished, this, [this, edit]{
+        const QKeySequence seq = edit->keySequence();
+        auto restore = [this, edit]{
+            const QSignalBlocker b(edit);
+            edit->setKeySequence(QKeySequence(store_->state.toggleHotkey));
+        };
+        if (seq.isEmpty()) { restore(); return; }   // 清空视为取消，保持原热键可用
+        if (!(seq[0].keyboardModifiers() & (Qt::ControlModifier | Qt::AltModifier
+                                            | Qt::ShiftModifier | Qt::MetaModifier))) {
+            QMessageBox::warning(this, tr("快捷键"),
+                                 tr("全局热键需要包含 Ctrl、Alt、Shift 或 Win 修饰键。"));
+            restore();
+            return;
+        }
+        const QString text = seq.toString(QKeySequence::PortableText);
+        if (text == store_->state.toggleHotkey) return;
+        store_->state.toggleHotkey = text;
+        store_->save();
+        emit toggleHotkeyChanged(text);
+    });
+}
+
 void SettingsDialog::buildAppearance(QVBoxLayout *root)
 {
     root->addWidget(makeSectionTitle(tr("外观"), this));
 
     auto *grid = new QGridLayout;
     grid->setContentsMargins(0, 0, 0, 0);
-    grid->setHorizontalSpacing(14);
-    grid->setVerticalSpacing(14);
+    grid->setHorizontalSpacing(10);
+    grid->setVerticalSpacing(10);
 
     themeGroup_ = new QButtonGroup(this);
     themeGroup_->setExclusive(true);
@@ -496,11 +687,11 @@ void SettingsDialog::buildAppearance(QVBoxLayout *root)
     const QVector<LineTheme> themes = LineTheme::all();
     for (int i = 0; i < themes.size(); ++i) {
         const LineTheme &t = themes.at(i);
-        auto *card = new ThemeCard(t.id, t.name, themePreview(t, QSize(172, 90)), this);
+        auto *card = new ThemeCard(t.id, t.name, themePreview(t, QSize(130, 68)), this);
         card->setToolTip(t.description);
         if (t.id == store_->state.theme) card->setChecked(true);
         themeGroup_->addButton(card, i);
-        grid->addWidget(card, i / 3, i % 3);
+        grid->addWidget(card, i / 4, i % 4);   // 一行四个外观
     }
     root->addLayout(grid);
 
@@ -512,6 +703,125 @@ void SettingsDialog::buildAppearance(QVBoxLayout *root)
         store_->state.theme = themeId;
         store_->save();
         emit themeSelected(themeId);
+    });
+
+    // 卡片尺寸 / 挂绳不透明度 / 收起延迟：一行一项，改动立即生效并持久化
+    auto addIntCombo = [this, root](const QString &text, QComboBox **member,
+                                    const QVector<QPair<QString, int>> &items,
+                                    int current, void (SettingsDialog::*sig)(int)){
+        auto *row = new QHBoxLayout;
+        row->setContentsMargins(0, 0, 0, 0);
+        auto *lab = new QLabel(text, this);
+        lab->setObjectName(QStringLiteral("rowLabel"));
+        row->addWidget(lab);
+        row->addStretch(1);
+        auto *combo = new QComboBox(this);
+        for (const auto &it : items) combo->addItem(it.first, it.second);
+        int idx = combo->findData(current);
+        if (idx < 0 && combo->count() > 0) {
+            // 旧配置里的值可能不在新档位中（如原来的 85%），选最接近的一档显示
+            int best = 0;
+            int bestDiff = -1;
+            for (int i = 0; i < combo->count(); ++i) {
+                const int d = qAbs(combo->itemData(i).toInt() - current);
+                if (bestDiff < 0 || d < bestDiff) { bestDiff = d; best = i; }
+            }
+            idx = best;
+        }
+        combo->setCurrentIndex(idx);
+        combo->setCursor(Qt::PointingHandCursor);
+        row->addWidget(combo);
+        root->addLayout(row);
+        *member = combo;
+        connect(combo, &QComboBox::currentIndexChanged, this,
+                [this, combo, sig](int i){ emit (this->*sig)(combo->itemData(i).toInt()); });
+    };
+    addIntCombo(tr("卡片尺寸"), &sizeCombo_,
+                {{tr("小"), 0}, {tr("中"), 1}, {tr("大"), 2}},
+                store_->state.cardSize, &SettingsDialog::cardSizeChanged);
+    addIntCombo(tr("挂绳不透明度"), &opacityCombo_,
+                {{QStringLiteral("20%"), 20}, {QStringLiteral("40%"), 40},
+                 {QStringLiteral("60%"), 60}, {QStringLiteral("80%"), 80},
+                 {QStringLiteral("100%"), 100}},
+                store_->state.shelfOpacity, &SettingsDialog::shelfOpacityChanged);
+    addIntCombo(tr("收起延迟"), &delayCombo_,
+                {{tr("300 毫秒"), 300}, {tr("800 毫秒"), 800},
+                 {tr("1200 毫秒"), 1200}, {tr("1500 毫秒"), 1500}},
+                store_->state.hideDelayMs, &SettingsDialog::hideDelayChanged);
+}
+
+void SettingsDialog::buildData(QVBoxLayout *root)
+{
+    root->addWidget(makeSectionTitle(tr("数据"), this));
+
+    auto *row = new QHBoxLayout;
+    row->setContentsMargins(0, 0, 0, 0);
+    row->setSpacing(10);
+
+    auto *backupBtn = new QPushButton(tr("导出数据备份…"), this);
+    auto *openBtn   = new QPushButton(tr("打开数据目录"), this);
+    auto *resetBtn  = new QPushButton(tr("恢复默认设置…"), this);
+    for (QPushButton *b : {backupBtn, openBtn, resetBtn})
+        b->setCursor(Qt::PointingHandCursor);
+    row->addWidget(backupBtn);
+    row->addWidget(openBtn);
+    row->addWidget(resetBtn);
+    row->addStretch(1);
+    root->addLayout(row);
+
+    connect(openBtn, &QPushButton::clicked, this, [this]{
+        QDesktopServices::openUrl(QUrl::fromLocalFile(store_->root));
+    });
+
+    // 导出备份：调用系统 PowerShell 把整个 data/ 压缩成 zip，便于迁移
+    connect(backupBtn, &QPushButton::clicked, this, [this]{
+        const QString defName = QStringLiteral("PicRope-backup-%1.zip")
+            .arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd-HHmmss")));
+        const QString dest = QFileDialog::getSaveFileName(
+            this, tr("导出数据备份"), defName, tr("Zip 压缩包 (*.zip)"));
+        if (dest.isEmpty()) return;
+
+        const QString ps = QStringLiteral(
+            "Compress-Archive -Path '%1\\*' -DestinationPath '%2' -Force")
+            .arg(QDir::toNativeSeparators(store_->root),
+                 QDir::toNativeSeparators(dest));
+        QProcess proc;
+        proc.start(QStringLiteral("powershell"),
+                   {QStringLiteral("-NoProfile"), QStringLiteral("-Command"), ps});
+        const bool ok = proc.waitForFinished(120000) && proc.exitCode() == 0;
+        if (ok) {
+            QMessageBox::information(this, tr("导出数据备份"),
+                                     tr("备份已保存到：\n%1").arg(dest));
+        } else {
+            QMessageBox::warning(this, tr("导出数据备份"),
+                                 tr("备份失败：%1").arg(
+                                     QString::fromLocal8Bit(proc.readAllStandardError())));
+        }
+    });
+
+    // 恢复默认设置：保留图片、文字与收集的文件，其余项还原，重启后完全生效
+    connect(resetBtn, &QPushButton::clicked, this, [this]{
+        QMessageBox box(QMessageBox::Warning, tr("恢复默认设置"),
+                        tr("所有设置项将恢复为默认值（图片、文字笔记与收集的文件都会保留），"
+                           "是否继续？"),
+                        QMessageBox::Yes | QMessageBox::No);
+        box.setDefaultButton(QMessageBox::No);
+        if (box.exec() != QMessageBox::Yes) return;
+
+        SavedState def;
+        def.images = store_->state.images;
+        def.collection = store_->state.collection;
+        def.texts = store_->state.texts;
+        store_->state = def;
+        store_->save();
+
+        QMessageBox done(QMessageBox::Question, tr("恢复默认设置"),
+                         tr("已恢复默认设置，重启后完全生效，是否立即重启图绳？"),
+                         QMessageBox::Yes | QMessageBox::No);
+        done.setDefaultButton(QMessageBox::Yes);
+        if (done.exec() != QMessageBox::Yes) return;
+        QProcess::startDetached(QCoreApplication::applicationFilePath(), QStringList());
+        QCoreApplication::quit();
     });
 }
 

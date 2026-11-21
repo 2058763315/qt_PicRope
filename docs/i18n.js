@@ -34,7 +34,7 @@
 
     /* ---------- 首页 · 英雄区 ---------- */
     "截图 · 上绳": "shot · hang",
-    "新增英文界面 · 支持开机自启": "New: English UI · launch at login",
+    "自定义挂绳热键 · 数据备份": "Customizable hotkey · Data backup",
     "截图，本该随手一放。": "Screenshots, right where you left them.",
     "截图自动收集到屏幕顶部的一条绳子上，鼠标移到顶部即展开，离开自行收起。 单击即可复制，双击用内置查看器打开，暂时用不上的丢进图片篮子。":
       "New screenshots collect on a rope at the top of your screen. Move the cursor up and it unfolds; move away and it hides. Click to copy, double-click to open in the viewer, or park the ones you don't need in the basket.",
@@ -121,6 +121,20 @@
     "全部更新记录 →": "All release notes →",
     "新增英文界面，设置中可切换简体中文 / English，重启生效":
       "New English interface; switch between Chinese and English in Settings, then restart",
+    "设置新增剪贴板收集（图片 / 文字）与新图片自动上绳，和托盘菜单双向同步":
+      "Settings now include clipboard capture (images / text) and auto-hang for new images, kept in sync with the tray menu",
+    "新增卡片尺寸（小 / 中 / 大）、挂绳不透明度（20% ~ 100%）、收起延迟":
+      "New card size (Small / Medium / Large), rope opacity (20%–100%) and auto-hide delay",
+    "新增「快捷键」栏目，呼出 / 收起挂绳的热键可自定义，默认 Ctrl+Alt+T":
+      "New Shortcuts section; the show / hide rope hotkey is customizable, default Ctrl+Alt+T",
+    "新增数据备份（把 data 目录打包成 zip）、打开数据目录与恢复默认设置":
+      "New data backup (packs the data folder into a zip), open data folder and reset to defaults",
+    "设置界面支持上下滚动，窗口高度不再为内容让路":
+      "The Settings window now scrolls instead of growing taller with its content",
+    "呼出 / 收起挂绳（默认，可在设置 →「快捷键」中修改）":
+      "Show / hide rope (default; change it under Settings → Shortcuts)",
+    "设置新增剪贴板收集、新图片自动上绳、卡片尺寸、挂绳不透明度、收起延迟、自定义挂绳热键，以及数据备份 / 打开目录 / 恢复默认设置；设置界面支持上下滚动":
+      "New Settings: clipboard capture, auto-hang, card size, rope opacity, auto-hide delay, customizable hotkey, data backup / open folder / reset. The Settings window now scrolls.",
     "设置新增「功能」栏目：顶部自动弹出、界面语言、开机自启":
       "New Features section in Settings: top-edge auto pop-up, interface language, launch at login",
     "托盘菜单与设置界面的自动弹出状态实时双向同步":
@@ -153,8 +167,8 @@
     "/ 使用文档": "/ Documentation",
     "使用文档": "Documentation",
     "托盘菜单": "Open it from the tray menu's",
-    "从安装到日常使用，按顺序读一遍大约十分钟。适用于 1.1.3 版本，Windows 10 / 11 64 位。":
-      "From install to daily use, about ten minutes read in order. Written for 1.1.3 on Windows 10 / 11 64-bit.",
+    "从安装到日常使用，按顺序读一遍大约十分钟。适用于 1.1.4 版本，Windows 10 / 11 64 位。":
+      "From install to daily use, about ten minutes read in order. Written for 1.1.4 on Windows 10 / 11 64-bit.",
     "目录": "Contents",
     "快速开始": "Quick start",
     "截图收集": "Capturing screenshots",
@@ -239,7 +253,7 @@
     "复位到 100%": "to reset to 100%",
     "未放大时按住图片或底部信息栏，可以拖动整个窗口":
       "At 100%, drag the image or the bottom bar to move the window",
-    "打开。设置分为三组：": "entry. There are three groups:",
+    "打开。设置分为五组：": "entry. There are five sections:",
     "外观": "Appearance",
     "内置五套主题：经典 · 银灰、棉麻 · 木夹、奶白 · 轻盈、柔彩 · 日常、石墨 · 金属。切换后界面与卡片风格同步变化。":
       "Five built-in themes: Classic silver, Linen with wooden pegs, Porcelain, Soft colour and Graphite metal. Interface and cards change together.",
@@ -247,6 +261,12 @@
     "鼠标移到屏幕顶部自动弹出挂绳": "Pop the rope open when the cursor reaches the top edge",
     "与托盘菜单的": "Stays in sync with the tray menu's",
     "实时双向同步，状态会保存": "in both directions; the state is saved",
+    "与托盘菜单同步；关闭后复制的新图片不再收集":
+      "Synced with the tray menu; when off, newly copied images are not collected",
+    "与托盘菜单同步；关闭后复制的新文字不再收集":
+      "Synced with the tray menu; when off, newly copied text is not collected",
+    "与托盘菜单同步；关闭后新图先收进图片篮子，需要时再挂上绳子":
+      "Synced with the tray menu; when off, new images go to the basket first and can be hung on demand",
     "界面语言": "Interface language",
     "简体中文 / English，切换后提示重启，重启生效":
       "Chinese / English. You'll be asked to restart; the change takes effect after that",
@@ -255,6 +275,30 @@
       "Portable builds can tick it directly. It writes the same registry entry as the installer, so a launch-at-login choice made during setup can be turned off here too",
     "若注册表里的自启项指向旧版本路径，取消勾选再重新勾选一次，即可更新为当前程序的路径。":
       "If the entry still points at an older install, untick and tick it again to repoint it at the current program.",
+    "「显示 / 收起挂绳」的热键可以自定义：点进输入框，按下新的组合键即可，默认 ":
+      "The Show / hide rope hotkey is customizable: click the field and press a new combination; the default is",
+    "热键必须包含 Ctrl、Alt、Shift 或 Win 之一；修改后立即生效并保存。若与其它程序冲突，会提示并回滚到上一个可用热键。":
+      "The hotkey must include Ctrl, Alt, Shift or Win; changes apply immediately and are saved. If another program already uses it, PicRope warns you and restores the previous one.",
+    "卡片尺寸": "Card size",
+    "小 / 中 / 大，改变挂绳上缩略图的大小，切换后立即生效":
+      "Small / Medium / Large; changes the thumbnail size on the rope and applies immediately",
+    "挂绳不透明度": "Rope opacity",
+    "20% ~ 100%，每档 20%；调低后对桌面内容的遮挡更少":
+      "20% to 100% in 20% steps; lower values block less of the desktop",
+    "收起延迟": "Auto-hide delay",
+    "鼠标离开顶部后 300 / 800 / 1200 / 1500 毫秒自动收起，默认 1200 毫秒":
+      "Hides 300 / 800 / 1200 / 1500 ms after the cursor leaves the top edge; the default is 1200 ms",
+    "数据": "Data",
+    "导出数据备份…": "Export data backup…",
+    "把": "Pack the",
+    "目录打包成 zip，方便迁移到另一台电脑":
+      "folder into a zip archive for moving to another computer",
+    "打开数据目录": "Open data folder",
+    "直接打开": "Open the",
+    "文件夹，查看图片与配置": "folder to browse images and settings",
+    "恢复默认设置…": "Reset to defaults…",
+    "重置所有设置项，保留图片与文字笔记；可选择立即重启":
+      "Resets every setting but keeps images and text notes; you can restart right away",
     "关于": "About",
     "显示当前版本号，并可手动": "Shows the current version and lets you",
     "后，启动时会自动查询新版本；发现新版本时可下载并启动安装程序。":

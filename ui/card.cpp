@@ -81,12 +81,15 @@ void ShotCard::flashCopied()
 
 QSizeF ShotCard::photoSize() const
 {
+    // 以“中”号卡片为基准等比缩放，卡片尺寸改变时缩略图跟着放大/缩小
+    const qreal k = cardW / 170.0;
     if (item_ && !item_->image.thumbnail.isNull()) {
         const QSize s = item_->image.thumbnail.size();
-        const double scale = qMin(142.0 / qMax(1, s.width()), 98.0 / qMax(1, s.height()));
+        const double scale = qMin(142.0 * k / qMax(1, s.width()),
+                                  98.0 * k / qMax(1, s.height()));
         return QSizeF(s.width() * scale, s.height() * scale);
     }
-    return QSizeF(142, 98);
+    return QSizeF(142 * k, 98 * k);
 }
 
 QRectF ShotCard::surfaceRect() const
@@ -254,15 +257,18 @@ void ShotCard::paintEvent(QPaintEvent *)
         p.drawLine(QPointF(c.x() + r, c.y() - r), QPointF(c.x() - r, c.y() + r));
     }
 
-    // “已复制”提示
+    // “已复制”提示（随卡片尺寸等比缩放）
     if (copiedFlash_) {
-        const QRectF pill(cardW / 2.0 - 42, s.bottom() + 10, 84, 24);
+        const qreal k = cardW / 170.0;
+        const qreal pw = qMax<qreal>(64, 84 * k);
+        const qreal ph = qMax<qreal>(20, 24 * k);
+        const QRectF pill(cardW / 2.0 - pw / 2.0, s.bottom() + 8 * k, pw, ph);
         p.setPen(QPen(QColor("#DDE3EC"), 1));
         p.setBrush(QColor(255, 255, 255, 246));
-        p.drawRoundedRect(pill, 12, 12);
+        p.drawRoundedRect(pill, ph / 2.0, ph / 2.0);
         p.setPen(QColor("#20408E"));
         QFont f = font();
-        f.setPixelSize(11);
+        f.setPixelSize(qMax(9, int(11 * k)));
         f.setBold(true);
         p.setFont(f);
         p.drawText(pill, Qt::AlignCenter, tr("✓ 已复制"));

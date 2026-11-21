@@ -63,5 +63,6 @@ private:
     SettingsDialog *settings_ = nullptr;
     UpdateChecker *updater_ = nullptr;
     ImageViewer *viewer_ = nullptr;
+    QString activeHotkey_;      // 当前已成功注册的显示/收起热键（注册失败时用于回滚）
     bool running_ = false;
 };
