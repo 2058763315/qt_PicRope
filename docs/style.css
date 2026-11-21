@@ -192,6 +192,8 @@ html.dark .btn-light:hover{color:var(--c-brand-3)}
     radial-gradient(ellipse at 50% -30%,rgba(79,195,247,.14),transparent 62%),
     linear-gradient(180deg,var(--c-surface),var(--c-bg));
   box-shadow:var(--shadow-2);overflow:hidden;
+  display:flex;justify-content:center;align-items:flex-start;gap:16px;
+  padding:40px 24px 0;
 }
 .rope-stage::after{
   content:"鼠标移到屏幕顶部，绳子自动展开";
@@ -207,7 +209,7 @@ html[lang="en"] .rope-stage::after{content:"Move the cursor to the top edge to u
 }
 html.dark .rope-line{color:#3a3a3e}
 .shot{
-  position:absolute;top:40px;width:168px;border-radius:10px;overflow:hidden;
+  position:relative;top:0;flex:0 0 auto;width:168px;border-radius:10px;overflow:hidden;
   background:var(--c-surface);border:1px solid var(--c-border);
   box-shadow:0 10px 26px -12px rgba(16,24,40,.35);
   transform-origin:50% 0;transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s;
@@ -226,14 +228,14 @@ html.dark .shot::after{background:#3a3a3e}
 .shot-art{height:96px;display:block;width:100%}
 .shot-cap{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;font-size:11px;color:var(--c-text-3)}
 .shot-cap b{font-weight:600;color:var(--c-text-2)}
-.shot:nth-child(2){left:8%;--rot:-2.4deg}
-.shot:nth-child(3){left:27%;--rot:1.6deg}
-.shot:nth-child(4){left:46%;--rot:-1.2deg}
-.shot:nth-child(5){left:65%;--rot:2.2deg}
-.shot:nth-child(6){left:84%;--rot:-1.8deg}
+.shot:nth-child(2){--rot:-2.4deg}
+.shot:nth-child(3){--rot:1.6deg}
+.shot:nth-child(4){--rot:-1.2deg}
+.shot:nth-child(5){--rot:2.2deg}
+.shot:nth-child(6){--rot:-1.8deg}
 @media (max-width:1080px){.shot:nth-child(6){display:none}}
 @media (max-width:900px){.shot:nth-child(5){display:none}.shot{width:150px}}
-@media (max-width:720px){.rope-stage{height:250px}.shot:nth-child(3),.shot:nth-child(4){display:none}.shot:nth-child(2){left:16%}.shot{width:136px}}
+@media (max-width:720px){.rope-stage{height:250px;padding-left:16px;padding-right:16px}.shot:nth-child(3),.shot:nth-child(4){display:none}.shot{width:136px}}
 
 /* ============ 通用区块 ============ */
 section{padding:88px 0;scroll-margin-top:var(--nav-h)}

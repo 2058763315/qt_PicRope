@@ -63,7 +63,9 @@
   // 下载按钮：自动指向最新发行版的安装包 / 压缩包，无需改版本号
   var dlLinks = document.querySelectorAll('a[data-asset]');
   if (dlLinks.length && window.fetch) {
-    fetch('https://api.github.com/repos/2058763315/qt_PicRope/releases/latest')
+    // 加时间戳 + no-store，避免浏览器或中间代理缓存到旧的最新版本号
+    fetch('https://api.github.com/repos/2058763315/qt_PicRope/releases/latest?t=' + Date.now(),
+          { cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (rel) {
         if (!rel || !rel.tag_name) return;
