@@ -60,7 +60,8 @@
     }, { rootMargin: '-20% 0px -70% 0px' });
     heads.forEach(function (h) { sideIO.observe(h); });
   }
-  // 下载按钮：自动指向最新发行版的安装包 / 压缩包，无需改版本号
+
+  // 下载按钮：自动取 GitHub 最新发行版，拼出安装包 / 压缩包直链，后续发版无需改代码
   var dlLinks = document.querySelectorAll('a[data-asset]');
   if (dlLinks.length && window.fetch) {
     // 加时间戳 + no-store，避免浏览器或中间代理缓存到旧的最新版本号
@@ -72,6 +73,7 @@
         var ver = String(rel.tag_name).replace(/^v/, '');
         dlLinks.forEach(function (a) {
           var suffix = a.getAttribute('data-asset') === 'setup' ? '-Setup.exe' : '-win64.zip';
+          // 直接指向发行版附件，点击即开始下载
           a.href = 'https://github.com/2058763315/qt_PicRope/releases/download/' +
             encodeURIComponent(rel.tag_name) + '/PicRope-' + encodeURIComponent(ver) + suffix;
         });
