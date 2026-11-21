@@ -126,7 +126,6 @@ void UpdateChecker::onCheckFinished()
     }
     if (setupUrl.isEmpty()) setupUrl = anyExe;
 
-    // 【临时改为颠倒判断，用于模拟更新下载；验证后请恢复为 > 0】
     if (compareVersions(tag, currentVersion()) > 0)
         emit updateAvailable(tag, setupUrl, QUrl(pageUrl));
     else

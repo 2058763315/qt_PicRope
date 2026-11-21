@@ -4,7 +4,7 @@
 //  - items      ：挂绳上的图片（最近 50）
 //  - collected  ：已收集的全部图片（含篮子中待挂的）
 //
-//  为了让卡片、贴图窗口在列表增删时不会持有失效指针，条目统一用
+//  为了让卡片在列表增删时不会持有失效指针，条目统一用
 //  QSharedPointer 管理：两个列表共享同一对象，界面侧也能安全延长生命周期。
 // =====================================================================
 
@@ -52,8 +52,6 @@ public:
     // 挂上绳子；已存在则忽略
     ItemPtr add(const QString &path, const ImageContent &img);
 
-    // 按原始指针找到共享条目（贴图窗口需要延长生命周期）
-    ItemPtr ptrOf(const CaptureItem *item) const;
     // 按路径查找（先挂绳后篮子）
     ItemPtr byPath(const QString &path) const;
 

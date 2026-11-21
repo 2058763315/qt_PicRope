@@ -10,7 +10,6 @@
 #include <shellscalingapi.h>
 #include <dwmapi.h>
 #include <shlobj.h>
-#include <tlhelp32.h>
 #include <utility>
 #include <algorithm>
 
@@ -69,11 +68,6 @@ Display primaryScreen()
     return fromScreen(QGuiApplication::primaryScreen());
 }
 
-double scaleFactor(const QString &deviceName)
-{
-    return screenByName(deviceName).scale;
-}
-
 QPoint cursorPos()
 {
     // 返回 Qt 逻辑坐标：高分屏下与窗口几何、QScreen 保持一致
@@ -98,27 +92,6 @@ QString screenshotsFolder()
     return QDir::homePath() + "/Pictures/Screenshots";
 }
 
-QString clipboardOwnerName()
-{
-    HWND owner = GetClipboardOwner();
-    if (!owner) return QString();
-    DWORD pid = 0;
-    GetWindowThreadProcessId(owner, &pid);
-    if (pid == 0) return QString();
-    HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    if (snap == INVALID_HANDLE_VALUE) return QString();
-    PROCESSENTRY32W entry;
-    entry.dwSize = sizeof(entry);
-    QString name;
-    if (Process32FirstW(snap, &entry)) {
-        do {
-            if (entry.th32ProcessID == pid) { name = QString::fromWCharArray(entry.szExeFile); break; }
-        } while (Process32NextW(snap, &entry));
-    }
-    CloseHandle(snap);
-    return name;
-}
-
 void prepareOverlay(QWindow *w)
 {
     HWND h = hwndOf(w);
@@ -135,16 +108,6 @@ void setMousePassthrough(QWindow *w, bool pass)
     LONG_PTR style = GetWindowLongPtrW(h, GWL_EXSTYLE);
     LONG_PTR next = pass ? (style | WS_EX_TRANSPARENT) : (style & ~WS_EX_TRANSPARENT);
     if (next != style) SetWindowLongPtrW(h, GWL_EXSTYLE, next);
-}
-
-void placeTopmost(QWindow *w, const QRect &geom)
-{
-    Q_UNUSED(geom)
-    HWND h = hwndOf(w);
-    if (!h) return;
-    // 只重新置顶，位置与大小交给 Qt（SetWindowPos 用物理像素，直接传逻辑几何会错位）
-    SetWindowPos(h, HWND_TOPMOST, 0, 0, 0, 0,
-                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 }
 
 // ---- 检测前台窗口是否铺满某块屏幕 ----
@@ -226,14 +189,6 @@ bool overCaptionButtons(QWindow *overlay)
     const int top = qMax<LONG>(r.top, mb.top);
     return pt.x >= right - bandW && pt.x < right
         && pt.y >= top && pt.y < top + bandH;
-}
-
-QString windowTitle(void *hwnd)
-{
-    if (!hwnd) return QString();
-    WCHAR buf[1024];
-    GetWindowTextW(reinterpret_cast<HWND>(hwnd), buf, 1024);
-    return QString::fromWCharArray(buf);
 }
 
 } // namespace Win32

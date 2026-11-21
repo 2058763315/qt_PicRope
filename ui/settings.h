@@ -12,6 +12,7 @@ class StateStore;
 class UpdateChecker;
 class QButtonGroup;
 class QCheckBox;
+class QHBoxLayout;
 class QLabel;
 class QProgressBar;
 class QPushButton;
@@ -47,6 +48,8 @@ private:
     QProgressBar *progress_ = nullptr;
     QLabel *percent_ = nullptr;
     QLabel *status_ = nullptr;
+    QHBoxLayout *updateRow_ = nullptr;   // 版本号所在行，用于切换弹簧/进度条的拉伸
+    int updateSpacerIndex_ = -1;         // 行内弹簧的索引
     UpdateChecker *updater_ = nullptr;
     bool downloading_ = false;
 };

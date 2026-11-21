@@ -329,6 +329,11 @@ SettingsDialog::SettingsDialog(StateStore *store, QWidget *parent)
         resetUpdateUi();
         status_->setText(tr("当前已是最新版"));
         status_->setVisible(true);
+        // 仅作短暂提示，3 秒后自动消失；若期间又开始检查/下载则不清空新状态
+        QTimer::singleShot(3000, status_, [this]{
+            if (status_->text() == tr("当前已是最新版"))
+                status_->setVisible(false);
+        });
     });
     connect(updater_, &UpdateChecker::failed, this, [this](const QString &msg){
         resetUpdateUi();
@@ -534,6 +539,7 @@ void SettingsDialog::buildAbout(QVBoxLayout *root)
 
     // 当前版本 + 检查结果 + 下载进度 + 检查更新，全部排在同一行
     auto *verRow = new QHBoxLayout;
+    updateRow_ = verRow;
     verRow->setContentsMargins(0, 0, 0, 0);
     verRow->setSpacing(8);
     auto *verLabel = new QLabel(
@@ -547,7 +553,9 @@ void SettingsDialog::buildAbout(QVBoxLayout *root)
     status_->setVisible(false);
     verRow->addWidget(status_);
 
+    // 平时的弹簧：把「检查更新」按钮顶到最右；下载时让位给进度条
     verRow->addStretch(1);
+    updateSpacerIndex_ = verRow->count() - 1;
 
     // 下载进度与百分比：显示在当前版本与「检查更新」按钮之间
     progress_ = new QProgressBar(this);
@@ -555,7 +563,8 @@ void SettingsDialog::buildAbout(QVBoxLayout *root)
     progress_->setValue(0);
     progress_->setTextVisible(false);
     progress_->setFixedHeight(12);
-    progress_->setFixedWidth(140);
+    progress_->setMinimumWidth(140);
+    progress_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     progress_->setVisible(false);
     verRow->addWidget(progress_);
 
@@ -587,6 +596,9 @@ void SettingsDialog::beginDownload(const QUrl &url)
 {
     downloading_ = true;
     status_->setVisible(false);
+    // 下载时弹簧让位，进度条拉伸占满版本号与按钮之间的全部空间
+    updateRow_->setStretch(updateSpacerIndex_, 0);
+    updateRow_->setStretch(updateRow_->indexOf(progress_), 1);
     checkBtn_->setEnabled(false);
     checkBtn_->setText(tr("下载中…"));
     progress_->setValue(0);
@@ -618,6 +630,9 @@ void SettingsDialog::resetUpdateUi()
     status_->setVisible(false);
     checkBtn_->setEnabled(true);
     checkBtn_->setText(tr("检查更新"));
+    // 恢复弹簧：按钮回到最右，进度条不再占位
+    updateRow_->setStretch(updateSpacerIndex_, 1);
+    updateRow_->setStretch(updateRow_->indexOf(progress_), 0);
     progress_->setVisible(false);
     percent_->setVisible(false);
 }

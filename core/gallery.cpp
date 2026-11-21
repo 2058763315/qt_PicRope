@@ -37,16 +37,6 @@ int Gallery::indexOf(const QVector<ItemPtr> &list, const QString &path) const
     return -1;
 }
 
-Gallery::ItemPtr Gallery::ptrOf(const CaptureItem *item) const
-{
-    if (!item) return ItemPtr();
-    for (const ItemPtr &p : items)
-        if (p.data() == item || samePath(p->path, item->path)) return p;
-    for (const ItemPtr &p : collected)
-        if (p.data() == item || samePath(p->path, item->path)) return p;
-    return ItemPtr();
-}
-
 Gallery::ItemPtr Gallery::byPath(const QString &path) const
 {
     int i = indexOf(items, path);

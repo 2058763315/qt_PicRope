@@ -29,7 +29,6 @@ namespace Win32 {
     Display screenAt(const QPoint &cursor);               // 光标所在屏
     Display screenByName(const QString &deviceName);      // 按设备名找，找不到回主屏
     Display primaryScreen();
-    double  scaleFactor(const QString &deviceName);
 
     // ---- 输入 / 光标 ----
     QPoint cursorPos();
@@ -37,17 +36,14 @@ namespace Win32 {
 
     // ---- 系统路径 / 剪贴板 ----
     QString screenshotsFolder();    // SHGetKnownFolderPath(Screenshots)
-    QString clipboardOwnerName();   // 当前剪贴板拥有者进程名
 
     // ---- 窗口工具 ----
     void prepareOverlay(QWindow *w);              // 置顶工具窗口（不抢焦点、不进任务栏）
     void setMousePassthrough(QWindow *w, bool pass); // WS_EX_TRANSPARENT
-    void placeTopmost(QWindow *w, const QRect &geom); // SetWindowPos 置顶定位
 
     // ---- 状态检测 ----
     bool foregroundFullscreen(QWindow *overlay);  // 前台窗口是否铺满当前屏
     bool overCaptionButtons(QWindow *overlay);    // 光标是否压在最大化窗口的标题按钮上
-    QString windowTitle(void *hwnd);
 }
 
 // =====================================================================
