@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>使用文档 · 图绳 PicRope</title>
+<meta name="description" content="图绳 PicRope 使用文档：安装与启动、截图收集、顶部绳子、图片篮子、文字笔记、内置查看器、设置项与快捷键。">
+<meta name="theme-color" content="#f3f6fa">
+<link rel="icon" href="./app.ico" type="image/x-icon">
+<link rel="apple-touch-icon" href="./app.ico">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ================= 导航 ================= -->
+<header class="nav">
+  <div class="container">
+    <a class="brand" href="index.html">
+      <img src="./app.ico" alt="图绳 PicRope 图标" width="26" height="26">
+      <span>图绳 <small>PicRope</small></span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html#features">功能</a>
+      <a href="index.html#basket">篮子</a>
+      <a href="guide.html" class="active">文档</a>
+      <a href="index.html#download">下载</a>
+      <a href="index.html#faq">常见问题</a>
+      <a href="https://github.com/2058763315/qt_PicRope" target="_blank" rel="noreferrer">GitHub</a>
+    </nav>
+    <div class="nav-right">
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="切换外观">
+        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.3 4.3l1.6 1.6M18.1 18.1l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.3 19.7l1.6-1.6M18.1 5.9l1.6-1.6"/>
+        </svg>
+      </button>
+      <a class="btn btn-sm" href="index.html#download">下载</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="container doc-hero">
+    <div class="crumb"><a href="index.html">首页</a> / 使用文档</div>
+    <h1>使用文档</h1>
+    <p>从安装到日常使用，按顺序读一遍大约十分钟。适用于 1.1.3 版本，Windows 10 / 11 64 位。</p>
+  </div>
+
+  <div class="container doc-shell">
+    <!-- 侧栏 -->
+    <aside class="doc-side">
+      <p class="side-title">目录</p>
+      <nav>
+        <a href="#start" class="active">快速开始</a>
+        <a href="#collect">截图收集</a>
+        <a href="#rope">顶部绳子</a>
+        <a href="#basket">图片篮子</a>
+        <a href="#notes">文字笔记</a>
+        <a href="#viewer">内置查看器</a>
+        <a href="#settings">设置项</a>
+        <a href="#shortcuts">快捷键</a>
+        <a href="#trouble">常见问题</a>
+        <a href="#changelog">更新记录</a>
+      </nav>
+      <p class="side-foot">没找到答案？可以到 GitHub 提 issue。</p>
+    </aside>
+
+    <!-- 正文 -->
+    <article class="doc">
+
+      <h2 id="start">快速开始</h2>
+      <p>图绳由托盘图标常驻运行，界面主要是一条贴在屏幕顶部的绳子。启动后：</p>
+      <ul>
+        <li>托盘区出现图绳图标，右键可打开全部菜单</li>
+        <li>把鼠标移到屏幕上边缘，绳子自动展开</li>
+        <li>之后每次截图，图片会自动挂到绳子上</li>
+      </ul>
+
+      <h3>安装版与绿色版</h3>
+      <p>两种包功能完全一致，任选其一：</p>
+      <table>
+        <thead><tr><th>版本</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>安装版</td><td>双击 <code>PicRope-1.1.3-Setup.exe</code> 按向导安装，可选开机自启；升级与卸载都会保留 <code>data</code> 目录</td></tr>
+          <tr><td>绿色版</td><td>解压 <code>PicRope-1.1.3-win64.zip</code> 后直接运行 <code>PicRope.exe</code>，不写系统目录</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        图绳使用单实例锁。已经有一个实例在运行时，再次启动会提示「图绳已在运行」，不会有第二个图标出现。
+      </div>
+
+      <h2 id="collect">截图收集</h2>
+      <p>图绳不替换系统截图工具，它负责截图之后的部分。目前会从两个来源收集图片：</p>
+      <ul>
+        <li><strong>剪贴板</strong>：复制图片、或用 <span class="kbd">Win</span> <span class="kbd">Shift</span> <span class="kbd">S</span> 截图后，图片自动保存并挂上绳子</li>
+        <li><strong>「屏幕截图」文件夹</strong>：系统截图工具存入的图片同样会被收集</li>
+      </ul>
+      <p>同一张图片经多个来源出现时，图绳按<strong>图片内容</strong>去重，只保留一张，不会重复挂两次。</p>
+      <p>收集行为可以在托盘菜单里分别关闭：<code>剪贴板收集 · 图片</code>、<code>剪贴板收集 · 文字</code>。</p>
+
+      <h2 id="rope">顶部绳子</h2>
+      <p>绳子贴在屏幕顶部边缘，平时隐藏。鼠标移到上边缘时展开，离开后自动收起，也可以通过托盘菜单的<code>显示/收起</code>或快捷键 <span class="kbd">Ctrl</span> <span class="kbd">Alt</span> <span class="kbd">T</span> 手动切换。</p>
+
+      <h3>卡片操作</h3>
+      <p>单击卡片复制图片；双击用内置查看器打开；右键菜单包含：</p>
+      <table>
+        <thead><tr><th>菜单项</th><th>作用</th></tr></thead>
+        <tbody>
+          <tr><td>复制图片</td><td>把图片放入剪贴板</td></tr>
+          <tr><td>打开图片</td><td>调用系统默认看图软件打开</td></tr>
+          <tr><td>保存副本…</td><td>另存到指定位置</td></tr>
+          <tr><td>在文件夹中显示</td><td>在资源管理器中定位文件</td></tr>
+          <tr><td>编辑…</td><td>用系统图片编辑器打开</td></tr>
+          <tr><td>取下 / 取下左侧 / 取下右侧 / 取下其他 / 全部取下</td><td>从绳子移除卡片，文件仍保留</td></tr>
+          <tr><td>删除（移入回收站）</td><td>删除磁盘文件并移入回收站</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">「取下」只影响绳子上的卡片，源文件不会被删除；需要真正删除文件时用最后一项。</div>
+
+      <h2 id="basket">图片篮子</h2>
+      <p>绳子只放当前要用的图片，其余的可以先收进篮子。从托盘菜单打开<code>图片篮子…</code>。</p>
+      <ul>
+        <li>标题栏搜索框按文件名实时筛选，右侧叉号一键清空</li>
+        <li>鼠标拖动可框选，<span class="kbd">Ctrl</span> / <span class="kbd">Shift</span> 点击可多选</li>
+        <li>右键<code>重命名…</code>直接改磁盘文件名，收藏记录与绳子卡片同步更新</li>
+        <li><code>挂上绳子</code>把选中的图片送回绳子，<code>取下绳子</code>则相反</li>
+        <li>底部状态栏显示总数与选中数，左侧<code>打开文件夹</code>直接定位图片目录</li>
+      </ul>
+
+      <h2 id="notes">文字笔记</h2>
+      <p>复制过的文字也会被收集，从托盘菜单的<code>文字笔记…</code>打开。左侧是列表，选中后在右侧查看全文；支持搜索、多选后一次性复制或删除。</p>
+
+      <h2 id="viewer">内置查看器</h2>
+      <p>双击绳子上的卡片即可打开，查看器会自动读取同目录下的图片，方便前后翻看。</p>
+      <ul>
+        <li><span class="kbd">←</span> <span class="kbd">→</span> 切换上一张 / 下一张</li>
+        <li>滚轮以鼠标位置为中心缩放，范围 100% ~ 800%</li>
+        <li>放大后按住图片拖动平移，按 <span class="kbd">0</span> 复位到 100%</li>
+        <li>未放大时按住图片或底部信息栏，可以拖动整个窗口</li>
+        <li><span class="kbd">Esc</span> 关闭查看器</li>
+      </ul>
+
+      <h2 id="settings">设置项</h2>
+      <p>托盘菜单<code>设置…</code>打开。设置分为三组：</p>
+
+      <h3>外观</h3>
+      <p>内置五套主题：经典 · 银灰、棉麻 · 木夹、奶白 · 轻盈、柔彩 · 日常、石墨 · 金属。切换后界面与卡片风格同步变化。</p>
+
+      <h3>功能</h3>
+      <table>
+        <thead><tr><th>设置</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>鼠标移到屏幕顶部自动弹出挂绳</td><td>与托盘菜单的<code>自动弹出</code>实时双向同步，状态会保存</td></tr>
+          <tr><td>界面语言</td><td>简体中文 / English，切换后提示重启，重启生效</td></tr>
+          <tr><td>开机时自动启动图绳</td><td>绿色版可直接勾选；与安装包写入同一注册表项，安装时勾选的自启也能在这里关闭</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">若注册表里的自启项指向旧版本路径，取消勾选再重新勾选一次，即可更新为当前程序的路径。</div>
+
+      <h3>关于</h3>
+      <p>显示当前版本号，并可手动<code>检查更新</code>。勾选<code>自动检查更新</code>后，启动时会自动查询新版本；发现新版本时可下载并启动安装程序。</p>
+
+      <h2 id="shortcuts">快捷键</h2>
+      <table>
+        <thead><tr><th>快捷键</th><th>作用</th></tr></thead>
+        <tbody>
+          <tr><td><span class="kbd">Ctrl</span> <span class="kbd">Alt</span> <span class="kbd">T</span></td><td>呼出 / 收起挂绳</td></tr>
+          <tr><td><span class="kbd">←</span> <span class="kbd">→</span></td><td>查看器切换图片</td></tr>
+          <tr><td><span class="kbd">0</span></td><td>查看器缩放复位到 100%</td></tr>
+          <tr><td><span class="kbd">Esc</span></td><td>关闭查看器</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="trouble">常见问题</h2>
+      <h3>绳子没有自动弹出？</h3>
+      <p>确认托盘菜单里的<code>自动弹出</code>已勾选；也可以在设置 →「功能」中检查同一项。部分全屏应用会独占屏幕边缘，退出全屏后再试。</p>
+      <h3>截图没有出现在绳子上？</h3>
+      <p>检查<code>剪贴板收集 · 图片</code>是否被关闭。若图片来自其他程序的文件复制（而非图片数据），系统不会写入剪贴板图片，此时需要把文件拖入或在篮子中打开所在文件夹。</p>
+      <h3>切换语言后界面没变？</h3>
+      <p>语言切换为重启生效。在设置中选择语言后按提示立即重启，或手动退出（托盘菜单<code>退出图绳</code>）再启动。</p>
+      <h3>数据存在哪里？</h3>
+      <p>程序目录下的 <code>data</code> 文件夹，包含配置与收集的图片、文字。升级与卸载都会保留。</p>
+
+      <h2 id="changelog">更新记录</h2>
+      <ul>
+        <li><strong>1.1.3</strong> 新增英文界面；设置新增「功能」栏目（自动弹出、界面语言、开机自启）；托盘与设置状态同步；修复语言下拉取消后状态错位</li>
+        <li><strong>1.1.2</strong> 稳定性与细节优化</li>
+        <li><strong>1.1.1</strong> 内置图片查看器；图片篮子支持搜索与重命名；截图按内容去重</li>
+      </ul>
+
+      <div class="doc-pager">
+        <a href="index.html" class="prev"><span>返回</span>功能总览</a>
+        <a href="index.html#download" class="next"><span>下一步</span>下载安装包</a>
+      </div>
+    </article>
+  </div>
+</main>
+
+<!-- ================= 页脚 ================= -->
+<footer>
+  <div class="container">
+    <div class="left">Copyright © 图绳 PicRope · 基于 Qt 6 重构</div>
+    <div class="links">
+      <a href="index.html">首页</a>
+      <a href="guide.html">文档</a>
+      <a href="https://github.com/2058763315/qt_PicRope" target="_blank" rel="noreferrer">GitHub</a>
+      <a href="index.html#download">更新记录</a>
+    </div>
+  </div>
+</footer>
+
+<script src="site.js"></script>
+</body>
+</html>
