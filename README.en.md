@@ -11,7 +11,7 @@ English | [简体中文](README.md)
 
 ---
 
-## 1. Origin & Notes
+## 1. Origin
 
 - **Upstream repository (original)**： <https://github.com/Renly1994/PicRope> (Windows screenshot staging and desktop-pin tool, C#/WPF)
 - **This repository (Qt secondary development)**： <https://github.com/2058763315/qt_PicRope>
@@ -28,16 +28,19 @@ English | [简体中文](README.md)
 | **Screenshot collection** | Automatically scans the Windows Screenshots folder for new images; also supports clipboard images and text, plus manual import |
 | **Rope staging** | New images go onto the rope (up to 50 most recent) or into the image basket according to the "auto-hang" switch; cards overlap automatically to fit the visible width when there are many |
 | **Copy & drag** | Click an image to copy it and drag it into a target app (drag copies only); right-click to "take off the rope" or batch take-off |
-| **Built-in viewer** | Double-click opens the built-in viewer: switch among images in the same folder with ← / →, zoom with the wheel, pan when zoomed, close with Esc; the bottom bar shows the file name, zoom and index |
-| **Image basket** | Search by file name, right-click to rename, open the containing folder; "hang on rope / take off rope", "delete selected", double-click preview, rubber-band or Ctrl/Shift multi-select |
+| **Built-in viewer** | Double-click opens the built-in viewer: switch among images in the same folder with ← / →, zoom with the wheel, press `0` to reset zoom, close with Esc; the bottom bar shows the file name, zoom and index |
+| **Image basket** | Search by file name, right-click to rename, open the containing folder; right-click "copy to clipboard", "open with the system editor", "hang on rope / take off rope", "delete"; double-click preview, rubber-band or Ctrl/Shift multi-select |
 | **Text notes** | Collects clipboard text (called "text envelope" in the original); supports search, full-text view, copy and multi-delete, preserving original line breaks and indentation |
-| **Settings** | Opened from the tray "Settings…", centered on screen: **Features** (auto pop-up at top edge, launch at startup, UI language) + **Appearance** (five theme cards with previews) + **About** (auto check for updates, version info, manual check for updates and download progress) |
+| **Settings** | Opened from the tray "Settings…", centered on screen, with five sections: **Features / Shortcuts / Appearance / Data / About** |
 | **UI language** | Simplified Chinese / English, applied by an automatic restart; UI strings are loaded from Qt translation files (`translations/PicRope_en.qm`) |
+| **Custom hotkey** | The show/hide global hotkey can be changed (default `Ctrl+Alt+T`) and must include Ctrl/Alt/Shift/Win; a failed registration is reported and rolls back automatically |
+| **Appearance tuning** | Card size small / medium / large, rope opacity 20%–100%, and auto-collapse delay 300 / 800 / 1200 / 1500 ms, applied immediately |
+| **Data management** | Export / import a data backup (Zip with settings, images and text notes), open the data folder, restore default settings (keeping images and notes) |
 | **Launch at startup** | A switch in Settings that writes the current user's registry Run key; the auto-start option ticked in the installer wizard is reflected here as well |
 | **In-app update** | Silently checks the latest GitHub release after startup; when a new version is found it asks, then automatically downloads the installer and launches it (auto check can be disabled in Settings) |
-| **Global hotkeys** | `Ctrl+Alt+T` show/hide; `Ctrl+Alt+S` region capture (the capture shortcut is customizable) |
+| **Region capture** | Launches the system screenshot tool (`ms-screenclip:`, default shortcut `Win + Shift + S`); the tray "More → Region capture…" item also triggers it |
 | **Tray control** | Show/hide, Image basket…, Text notes…, clipboard image/text collection switches, auto pop-up, auto-hang new images, Settings, More (region capture / open collection folder / clear the rope keeping files), Exit |
-| **Desktop adaptation** | Five themes, multi-monitor selection (follow mouse or fixed), auto-collapse at the top, click-through |
+| **Multi-monitor** | Monitor selection (follow mouse or fixed), panels shown on the monitor under the cursor, auto-collapse at the top, click-through |
 
 ---
 
@@ -51,13 +54,13 @@ qt_PicRope/
 │                         by setting, start controller
 ├── app.h / app.cpp       Desktop controller (AppController): assembles modules, handles
 │                         actions, listens to clipboard, binds tray/settings/hotkeys, update scheduling
-├── widget.h/.cpp/.ui     Skeleton window (Qt default window, can be ignored)
 ├── system/               Windows platform capability wrappers
-│   ├── win32.h/.cpp      Global hotkey (RegisterHotKey), monitor info, topmost/click-through
-│   │                     window, cursor position, foreground-window state detection
+│   ├── win32.h/.cpp      Global hotkey (RegisterHotKey, custom combinations), monitor info,
+│   │                     topmost/click-through window, cursor position, foreground-window detection
 │   └── clipboard.h/.cpp  Clipboard read/write: image, text, file references, own-format marker
 ├── core/                 Core business logic
-│   ├── state.h/.cpp      State persistence: settings, language and collection paths in data/state.json
+│   ├── state.h/.cpp      State persistence: settings, language, card size, opacity, hide delay
+│   │                     and collection paths in data/state.json
 │   ├── image.h/.cpp      Image read/validation, thumbnail generation, pixel fingerprint (dedup)
 │   ├── gallery.h/.cpp    Collection management: rope items + collected list, shared items
 │   │                     managed with QSharedPointer
@@ -69,14 +72,20 @@ qt_PicRope/
 ├── ui/                   UI layer
 │   ├── themes.h/.cpp     Five themes (Classic Silver / Linen / Porcelain / Soft Color / Graphite)
 │   ├── shelf.h/.cpp      Rope main window: topmost transparent strip, auto expand/collapse at
-│   │                     the edge, click-through on non-interactive areas, card overlap layout, tool dock
+│   │                     the edge, click-through areas, card overlap layout, size/opacity/delay
 │   ├── card.h/.cpp       Single image card: click to copy, double-click to open, long-press to edit,
 │   │                     context menu, drag
-│   ├── viewer.h/.cpp     Built-in image viewer: ←/→ in same folder, wheel zoom, drag pan
+│   ├── viewer.h/.cpp     Built-in viewer: ←/→ browsing, wheel zoom, 0 to reset, drag pan
 │   ├── pinned.h/.cpp     Desktop pin window (source kept, currently not compiled)
 │   ├── panels.h/.cpp     Image basket + text notes (rounded borderless panels)
-│   ├── settings.h/.cpp   Settings: feature switches/language + themes + about/update check
+│   ├── settings.h/.cpp   Settings: Features / Shortcuts / Appearance / Data / About
 │   └── tray.h/.cpp       System tray menu and switches
+├── docs/                 Project website (static, can be hosted on GitHub Pages)
+│   ├── index.html        Home page: feature overview and download entry
+│   ├── guide.html        User guide: installer/portable, operations
+│   ├── style.css         Site styles
+│   ├── site.js           Page interactions
+│   └── i18n.js           Chinese/English copy and language switch
 ├── resources.qrc         Resource manifest (app.ico)
 ├── app.ico               Application icon
 ├── translations/         UI translations (Qt Linguist project)
@@ -101,10 +110,12 @@ qt_PicRope/
 - **Shared item model**：`Gallery` uses `QSharedPointer<CaptureItem>` so the "rope" and "collected" lists share the same objects; cards and the built-in viewer can safely extend an item's lifetime, avoiding dangling pointers.
 - **Clipboard echo prevention**：images written back to the clipboard carry a "PicRope own format" marker, so the collector skips its own writes; a pixel fingerprint (sampled SHA-256) is used for image deduplication.
 - **Atomic persistence**：`state.json` is written atomically with `QSaveFile`; every image is copied into the `data/Captures` inbox next to the program.
-- **Card overlap layout**：the rope lays cards out with overlap as needed within the container width (each card advances by a bounded distance), so the whole row fits the visible width without horizontal scrolling.
-- **Built-in viewer**：`ImageViewer` is a fixed-size window that browses images in the same folder in order, zooms with the wheel, pans when zoomed, and shows the file name, zoom and index in its bottom bar.
-- **Panel pre-creation**：the image basket / text notes panels are pre-created while idle after startup (with native window handles pre-created), eliminating jank on first open.
+- **Card overlap layout**：the rope lays cards out with overlap as needed within the container width (each card advances by a bounded distance), so the whole row fits the visible width without horizontal scrolling; changing card size recomputes the rope height.
+- **Built-in viewer**：`ImageViewer` is a fixed-size window that browses images in the same folder in order, zooms with the wheel, resets with `0`, pans when zoomed, and shows the file name, zoom and index in its bottom bar.
+- **Panel pre-creation & multi-monitor placement**：the basket / text notes panels are pre-created while idle after startup (with native handles pre-created); when shown, they anchor to the rope tool dock if it is on the monitor under the cursor, otherwise to that monitor's top-right corner.
+- **Custom hotkey with rollback**：`registerToggleHotkey(sequence)` maps a Qt key combination to Win32 modifiers and a virtual key code, accepting only combinations with modifiers; if registration fails it warns and rolls back to the last working hotkey, so Settings never shows a hotkey that cannot actually summon the rope.
 - **UI language**：the UI language is stored as `Language` in `state.json` (default `zh_CN`); at startup, if it is `en`, a `QTranslator` loads `translations/PicRope_en.qm` next to the program, and switching the language in Settings restarts the app automatically.
+- **Data backup & restore**：export packs `data/` into a Zip; import overwrites current settings and data and prompts for a restart; "restore default settings" only resets settings and keeps images, text notes and collected files.
 - **Launch at startup**：the Settings switch reads/writes the current user's registry key `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`; installer and portable builds share the same state.
 - **In-app update**：`UpdateChecker` requests this repository's latest release JSON, compares versions segment by segment, prefers an exe whose asset name contains `Setup`, downloads it to a temp folder and then launches the installer; it checks silently about 4 seconds after startup (controlled by `autoCheckUpdate`, enabled by default).
 - **Single instance & fault tolerance**：`QLockFile` guarantees a single instance and stale locks left by a crash can be cleaned up; startup failures are written to `data/error.log`.
@@ -134,25 +145,26 @@ make          # MinGW: mingw32-make; MSVC: nmake / jom
 
 **Runtime directory layout**
 
-- State & settings：`data/state.json` next to the program (settings, theme, UI language, rope and collection paths, text notes)
+- State & settings：`data/state.json` next to the program (settings, theme, UI language, card size, opacity, hide delay, hotkey, rope and collection paths, text notes)
 - Image inbox：`data/Captures/` next to the program (copies of collected and manually imported images)
 - UI translation：`translations/PicRope_en.qm` next to the program
 - Error log：`data/error.log` (hotkey registration failures, update errors, etc.)
 
-**Release & update**
+**Release, website & update**
 
 - Windows installers (`*Setup*.exe`) are published via GitHub Releases; the in-app updater reads that release and launches the installer after download.
+- `docs/` is the accompanying project website (home page + user guide, Chinese/English switch); it is fully static and can be hosted directly, e.g. on GitHub Pages.
 
 **Shortcuts & operations**
 
 | Operation | How |
 | --- | --- |
-| Show / hide the rope | `Ctrl+Alt+T`, or click the tray icon |
-| Region capture | `Ctrl+Alt+S` (launches the system screenshot tool; the result goes to the clipboard) |
-| Open an image | Double-click a card to use the built-in viewer (← / → in the same folder, wheel zoom, Esc to close) |
+| Show / hide the rope | Default `Ctrl+Alt+T` (changeable in Settings → Shortcuts), or click the tray icon |
+| Region capture | `Win + Shift + S` (default shortcut of the system screenshot tool, not editable in the app; the tray "More → Region capture…" item also triggers it); the result goes to the clipboard |
+| Open an image | Double-click a card to use the built-in viewer (← / → in the same folder, wheel zoom, `0` to reset, Esc to close) |
 | Copy / edit | Click to copy; long-press or right-click → "Edit" (system default image editor) |
-| Image basket | Search by name, right-click rename, open folder, hang/take off the rope, double-click preview, rubber-band or Ctrl/Shift multi-select, "delete selected" |
+| Image basket | Search by name, right-click rename, open folder, copy to clipboard, open with the system editor, hang/take off the rope, double-click preview, rubber-band or Ctrl/Shift multi-select, delete |
 | Text notes | Search, full-text view, copy, rubber-band multi-select, "delete selected" |
-| Settings / theme / language | Tray "Settings…" or the gear button on the rope tool dock; switch themes, and under "Features" toggle auto pop-up / launch at startup and switch the UI language (the language change requires a restart) |
+| Settings / theme / language | Tray "Settings…" or the gear button on the rope tool dock; switch themes, adjust card size / opacity / hide delay, change the hotkey, and switch the UI language (a language change restarts the app) |
+| Data management | Settings → Data: export/import a backup, open the data folder, restore default settings |
 | Tray management | Show/hide, Image basket…, Text notes…, clipboard image/text collection switches, auto pop-up (persisted), auto-hang, Settings, under "More": region capture / open collection folder / clear the rope (keeping files), Exit |
-
