@@ -442,8 +442,15 @@ void BasketWindow::showListMenu(const QPoint &pos)
         "QMenu{background:#FFFFFF;border:1px solid #E1E6EE;border-radius:10px;padding:6px;}"
         "QMenu::item{padding:6px 26px 6px 14px;border-radius:6px;color:#2A303A;}"
         "QMenu::item:selected{background:#EEF3FB;color:#12233E;}");
+    QAction *copy = menu.addAction(tr("复制"));
+    QAction *edit = menu.addAction(tr("编辑"));
     QAction *rename = menu.addAction(tr("重命名…"));
-    if (menu.exec(list_->viewport()->mapToGlobal(pos)) == rename) renameItem(it);
+    QAction *chosen = menu.exec(list_->viewport()->mapToGlobal(pos));
+    if (!chosen) return;
+    const QStringList paths{it->data(Qt::UserRole).toString()};
+    if (chosen == copy) emit copyRequested(paths);
+    else if (chosen == edit) emit editRequested(paths);
+    else if (chosen == rename) renameItem(it);
 }
 
 void BasketWindow::renameItem(QListWidgetItem *item)

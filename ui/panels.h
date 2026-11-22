@@ -66,6 +66,8 @@ signals:
     void hangRequested(const QStringList &paths);
     void unhangRequested(const QStringList &paths);
     void deleteRequested(const QStringList &paths);
+    void copyRequested(const QStringList &paths);   // 右键复制到剪贴板
+    void editRequested(const QStringList &paths);   // 右键用系统默认编辑器打开
     void openFolderRequested();          // 打开篮子图片所在文件夹
 
 private:

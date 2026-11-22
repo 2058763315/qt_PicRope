@@ -63,25 +63,15 @@ public:
     void unregisterToggleHotkey();
     bool toggleAvailable() const { return toggleOk_; }
 
-    // 区域截图热键（可自定义组合）
-    bool registerCaptureHotkey(unsigned mods, unsigned key);
-    void unregisterCaptureHotkey();
-    bool captureAvailable() const { return captureOk_; }
-
     // 最近一次 RegisterHotKey 失败时的 GetLastError（0 表示成功）
     unsigned lastError() const { return lastErr_; }
 
 signals:
     void toggleRequested();
-    void captureRequested();
     void exitRequested();
 
 private:
     int  toggleId_ = 1;
-    int  captureId_ = 2;
     bool toggleOk_ = false;
-    bool captureOk_ = false;
     unsigned lastErr_ = 0;
-    unsigned captureMods_ = 0;
-    unsigned captureKey_ = 0;
 };

@@ -16,6 +16,7 @@ class QComboBox;
 class QHBoxLayout;
 class QLabel;
 class QKeySequenceEdit;
+class QLineEdit;
 class QProgressBar;
 class QPushButton;
 class QVBoxLayout;
@@ -40,9 +41,13 @@ signals:
     void hideDelayChanged(int ms);         // 自动收起延迟
     void toggleHotkeyChanged(const QString &seq);  // 显示/收起挂绳的全局热键
 
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;   // 可修改快捷键：点击聚焦后提示“请按下组合键”
+
 private:
     void buildFeatures(QVBoxLayout *root);
     void buildShortcuts(QVBoxLayout *root);
+    void applyHotkeyPlaceholder();   // 使用独立标签居中显示等待提示，避免 Qt 占位提示限制
     void buildAppearance(QVBoxLayout *root);
     void buildData(QVBoxLayout *root);
     void buildAbout(QVBoxLayout *root);
@@ -62,6 +67,8 @@ private:
     QComboBox *opacityCombo_ = nullptr;  // 挂绳不透明度
     QComboBox *delayCombo_ = nullptr;    // 自动收起延迟
     QKeySequenceEdit *hotkeyEdit_ = nullptr;  // 显示/收起挂绳热键
+    QLineEdit *hotkeyLine_ = nullptr;         // hotkeyEdit_ 内部的输入框，用于显示按键
+    QLabel *hotkeyHint_ = nullptr;            // 独立居中的“请按下快捷键”提示层
     QPushButton *checkBtn_ = nullptr;
     QProgressBar *progress_ = nullptr;
     QLabel *percent_ = nullptr;

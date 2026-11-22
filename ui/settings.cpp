@@ -6,16 +6,20 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QCoreApplication>
+#include <QCursor>
 #include <QDateTime>
 #include <QDesktopServices>
 #include <QDir>
+#include <QEvent>
 #include <QFileDialog>
 #include <QGridLayout>
 #include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QIcon>
+#include <QKeyEvent>
 #include <QKeySequenceEdit>
 #include <QLabel>
+#include <QLineEdit>
 #include <QLinearGradient>
 #include <QMessageBox>
 #include <QPainter>
@@ -28,6 +32,7 @@
 #include <QScrollArea>
 #include <QSettings>
 #include <QSignalBlocker>
+#include <QStringList>
 #include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -447,7 +452,9 @@ SettingsDialog::SettingsDialog(StateStore *store, QWidget *parent)
 void SettingsDialog::showCentered()
 {
     syncFromState();   // 设置界面复用，打开前同步托盘那边可能已改过的开关
-    QScreen *s = QGuiApplication::primaryScreen();
+    // 多屏下以鼠标所在屏幕居中，而不是固定主屏
+    QScreen *s = QGuiApplication::screenAt(QCursor::pos());
+    if (!s) s = QGuiApplication::primaryScreen();
     const QRect wa = s ? s->availableGeometry() : QRect(0, 0, 1280, 800);
     move(wa.center() - QPoint(width() / 2, height() / 2));   // 固定尺寸，居中即可
     show();
@@ -628,18 +635,123 @@ void SettingsDialog::buildFeatures(QVBoxLayout *root)
     root->addLayout(langRow);
 }
 
+bool SettingsDialog::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == hotkeyEdit_ && event->type() == QEvent::FocusIn) {
+        // 点击聚焦后清空，居中提示等待用户按下新键
+        const QSignalBlocker blocker(hotkeyEdit_);
+        hotkeyEdit_->clear();
+        applyHotkeyPlaceholder();
+    } else if (watched == hotkeyEdit_ && event->type() == QEvent::FocusOut) {
+        QTimer::singleShot(0, this, [this]{ applyHotkeyPlaceholder(); });
+    } else if (watched == hotkeyLine_ && event->type() == QEvent::Resize) {
+        if (hotkeyHint_) hotkeyHint_->setGeometry(hotkeyLine_->rect());
+    } else if (watched == hotkeyEdit_
+               && (event->type() == QEvent::KeyPress
+                   || event->type() == QEvent::KeyRelease)) {
+        auto *keyEvent = static_cast<QKeyEvent *>(event);
+        Qt::KeyboardModifier modifier = Qt::NoModifier;
+        switch (keyEvent->key()) {
+        case Qt::Key_Control: modifier = Qt::ControlModifier; break;
+        case Qt::Key_Alt:     modifier = Qt::AltModifier; break;
+        case Qt::Key_Shift:   modifier = Qt::ShiftModifier; break;
+        case Qt::Key_Meta:    modifier = Qt::MetaModifier; break;
+        default: break;
+        }
+
+        if (modifier != Qt::NoModifier) {
+            // QKeySequenceEdit 默认不显示单独的修饰键，先让原逻辑处理，再补充实时预览。
+            Qt::KeyboardModifiers modifiers = keyEvent->modifiers();
+            if (event->type() == QEvent::KeyPress)
+                modifiers |= modifier;
+            else
+                modifiers &= ~modifier;
+            QTimer::singleShot(0, this, [this, modifiers]{
+                if (!hotkeyLine_ || !hotkeyEdit_->hasFocus()
+                    || !hotkeyEdit_->keySequence().isEmpty()) return;
+                QStringList keys;
+                if (modifiers & Qt::ControlModifier) keys << QStringLiteral("Ctrl");
+                if (modifiers & Qt::AltModifier)     keys << QStringLiteral("Alt");
+                if (modifiers & Qt::ShiftModifier)   keys << QStringLiteral("Shift");
+                if (modifiers & Qt::MetaModifier)    keys << QStringLiteral("Win");
+                hotkeyLine_->setText(keys.join(QStringLiteral("+")));
+                applyHotkeyPlaceholder();
+            });
+        } else if (event->type() == QEvent::KeyPress
+                   && keyEvent->key() != Qt::Key_unknown) {
+            // 等 QKeySequenceEdit 收下主键后立即退出编辑，后续按键不再被录入。
+            QTimer::singleShot(0, hotkeyEdit_, [this]{ hotkeyEdit_->clearFocus(); });
+        }
+    }
+    return PanelWindow::eventFilter(watched, event);
+}
+
+void SettingsDialog::applyHotkeyPlaceholder()
+{
+    if (!hotkeyEdit_) return;
+    if (!hotkeyLine_) {
+        hotkeyLine_ = hotkeyEdit_->findChild<QLineEdit *>();
+        if (hotkeyLine_)
+            hotkeyLine_->installEventFilter(this);
+    }
+    if (!hotkeyLine_) return;
+
+    if (!hotkeyHint_) {
+        // Qt 在聚焦且居中对齐时不绘制 QLineEdit 占位提示，因此用透明子标签绘制。
+        hotkeyHint_ = new QLabel(tr("请按下快捷键…"), hotkeyLine_);
+        hotkeyHint_->setAlignment(Qt::AlignCenter);
+        hotkeyHint_->setFocusPolicy(Qt::NoFocus);
+        hotkeyHint_->setAttribute(Qt::WA_TransparentForMouseEvents);
+        hotkeyHint_->setStyleSheet(QStringLiteral(
+            "QLabel{background:transparent;color:#98A2B3;}"));
+    }
+    hotkeyLine_->setPlaceholderText(QString());
+    hotkeyLine_->setAlignment(Qt::AlignCenter);
+    hotkeyHint_->setFont(hotkeyLine_->font());
+    hotkeyHint_->setGeometry(hotkeyLine_->rect());
+    const bool showHint = hotkeyLine_->text().isEmpty() && hotkeyEdit_->hasFocus();
+    hotkeyHint_->setVisible(showHint);
+    if (showHint) hotkeyHint_->raise();
+}
+
 void SettingsDialog::buildShortcuts(QVBoxLayout *root)
 {
     root->addWidget(makeSectionTitle(tr("快捷键"), this));
 
-    // 显示/收起挂绳：默认 Ctrl+Alt+T，点进输入框按下组合键即可修改
-    auto *row = new QHBoxLayout;
-    row->setContentsMargins(0, 0, 0, 0);
-    auto *lab = new QLabel(tr("显示 / 收起挂绳"), this);
-    lab->setObjectName(QStringLiteral("rowLabel"));
-    row->addWidget(lab);
-    row->addStretch(1);
+    auto addRow = [this, root](const QString &name, QWidget *value) {
+        auto *r = new QHBoxLayout;
+        r->setContentsMargins(0, 2, 0, 2);
+        auto *n = new QLabel(name, this);
+        n->setObjectName(QStringLiteral("rowLabel"));
+        r->addWidget(n);
+        r->addStretch(1);
+        r->addWidget(value);
+        root->addLayout(r);
+    };
 
+    // 不可修改的快捷键：只读按键框 + 锁标，鼠标悬停给出说明提示
+    auto keyBox = [this](const QString &keys, const QString &tip) -> QWidget * {
+        auto *wrap = new QWidget(this);
+        auto *h = new QHBoxLayout(wrap);
+        h->setContentsMargins(0, 0, 0, 0);
+        h->setSpacing(6);
+        auto *lab = new QLabel(keys, wrap);
+        lab->setAlignment(Qt::AlignCenter);
+        lab->setMinimumWidth(150);
+        lab->setStyleSheet(QStringLiteral(
+            "QLabel{background:#F4F7FC;border:1px solid #E1E6EE;border-radius:8px;"
+            "padding:4px 12px;color:#6B7486;}"));
+        auto *lock = new QLabel(QStringLiteral("\U0001F512"), wrap);
+        lock->setStyleSheet(QStringLiteral("color:#9AA4B2;"));
+        h->addWidget(lab);
+        h->addWidget(lock);
+        wrap->setToolTip(tip);
+        lab->setToolTip(tip);
+        lock->setToolTip(tip);
+        return wrap;
+    };
+
+    // 可修改：显示/收起挂绳（默认 Ctrl+Alt+T）
     auto *edit = new QKeySequenceEdit(this);
     hotkeyEdit_ = edit;
     edit->setMaximumSequenceLength(1);
@@ -647,14 +759,27 @@ void SettingsDialog::buildShortcuts(QVBoxLayout *root)
     edit->setFixedWidth(170);
     edit->setCursor(Qt::PointingHandCursor);
     edit->setKeySequence(QKeySequence(store_->state.toggleHotkey));
-    row->addWidget(edit);
-    root->addLayout(row);
+    applyHotkeyPlaceholder();
+    edit->installEventFilter(this);
+    addRow(tr("显示 / 收起挂绳"), edit);
+
+    // 不可修改：系统默认与查看器内置
+    addRow(tr("区域截图"), keyBox(QStringLiteral("Win + Shift + S"),
+        tr("系统默认截图快捷键，无法在此修改，可在 Windows 设置中更改。")));
+    addRow(tr("图片查看器 · 切换图片"), keyBox(QStringLiteral("← / →"),
+        tr("图片查看器内置快捷键，无法在此修改。")));
+    addRow(tr("图片查看器 · 缩放复位"), keyBox(QStringLiteral("0"),
+        tr("图片查看器内置快捷键，无法在此修改。")));
+    addRow(tr("图片查看器 · 关闭"), keyBox(QStringLiteral("Esc"),
+        tr("图片查看器内置快捷键，无法在此修改。")));
 
     connect(edit, &QKeySequenceEdit::editingFinished, this, [this, edit]{
+        edit->clearFocus();   // 完整组合键或取消录入后均退出编辑，避免继续捕获按键
         const QKeySequence seq = edit->keySequence();
         auto restore = [this, edit]{
             const QSignalBlocker b(edit);
             edit->setKeySequence(QKeySequence(store_->state.toggleHotkey));
+            applyHotkeyPlaceholder();
         };
         if (seq.isEmpty()) { restore(); return; }   // 清空视为取消，保持原热键可用
         if (!(seq[0].keyboardModifiers() & (Qt::ControlModifier | Qt::AltModifier
@@ -665,10 +790,11 @@ void SettingsDialog::buildShortcuts(QVBoxLayout *root)
             return;
         }
         const QString text = seq.toString(QKeySequence::PortableText);
-        if (text == store_->state.toggleHotkey) return;
+        if (text == store_->state.toggleHotkey) { applyHotkeyPlaceholder(); return; }
         store_->state.toggleHotkey = text;
         store_->save();
         emit toggleHotkeyChanged(text);
+        applyHotkeyPlaceholder();
     });
 }
 
@@ -759,11 +885,13 @@ void SettingsDialog::buildData(QVBoxLayout *root)
     row->setSpacing(10);
 
     auto *backupBtn = new QPushButton(tr("导出数据备份…"), this);
+    auto *importBtn = new QPushButton(tr("导入数据备份…"), this);
     auto *openBtn   = new QPushButton(tr("打开数据目录"), this);
     auto *resetBtn  = new QPushButton(tr("恢复默认设置…"), this);
-    for (QPushButton *b : {backupBtn, openBtn, resetBtn})
+    for (QPushButton *b : {backupBtn, importBtn, openBtn, resetBtn})
         b->setCursor(Qt::PointingHandCursor);
     row->addWidget(backupBtn);
+    row->addWidget(importBtn);
     row->addWidget(openBtn);
     row->addWidget(resetBtn);
     row->addStretch(1);
@@ -797,6 +925,51 @@ void SettingsDialog::buildData(QVBoxLayout *root)
                                  tr("备份失败：%1").arg(
                                      QString::fromLocal8Bit(proc.readAllStandardError())));
         }
+    });
+
+    // 导入备份：解压到临时目录，定位含 state.json 的根，再合并覆盖到 data/；
+    // 兼容本应用导出的包（内容直接在根）与带顶层文件夹的压缩包
+    connect(importBtn, &QPushButton::clicked, this, [this]{
+        const QString src = QFileDialog::getOpenFileName(
+            this, tr("导入数据备份"), QString(), tr("Zip 压缩包 (*.zip)"));
+        if (src.isEmpty()) return;
+
+        QMessageBox confirm(QMessageBox::Warning, tr("导入数据备份"),
+            tr("导入将用备份中的内容覆盖当前设置与数据（图片、文字笔记等），"
+               "建议先导出一份当前备份。是否继续？"),
+            QMessageBox::Yes | QMessageBox::No);
+        confirm.setDefaultButton(QMessageBox::No);
+        if (confirm.exec() != QMessageBox::Yes) return;
+
+        const QString ps = QStringLiteral(
+            "$tmp = Join-Path $env:TEMP ('PicRope_import_' + [guid]::NewGuid().ToString());"
+            "Expand-Archive -Path '%1' -DestinationPath $tmp -Force;"
+            "$d = $tmp;"
+            "if (-not (Test-Path (Join-Path $d 'state.json'))) {"
+            " $sub = Get-ChildItem -Path $tmp -Directory | Select-Object -First 1;"
+            " if ($sub) { $d = $sub.FullName }"
+            "};"
+            "Copy-Item -Path (Join-Path $d '*') -Destination '%2' -Recurse -Force;"
+            "Remove-Item -Path $tmp -Recurse -Force")
+            .arg(QDir::toNativeSeparators(src),
+                 QDir::toNativeSeparators(store_->root));
+        QProcess proc;
+        proc.start(QStringLiteral("powershell"),
+                   {QStringLiteral("-NoProfile"), QStringLiteral("-Command"), ps});
+        const bool ok = proc.waitForFinished(120000) && proc.exitCode() == 0;
+        if (!ok) {
+            QMessageBox::warning(this, tr("导入数据备份"),
+                                 tr("导入失败：%1").arg(
+                                     QString::fromLocal8Bit(proc.readAllStandardError())));
+            return;
+        }
+        QMessageBox done(QMessageBox::Question, tr("导入数据备份"),
+                         tr("数据已导入，需要重启图绳才能完全生效，是否立即重启？"),
+                         QMessageBox::Yes | QMessageBox::No);
+        done.setDefaultButton(QMessageBox::Yes);
+        if (done.exec() != QMessageBox::Yes) return;
+        QProcess::startDetached(QCoreApplication::applicationFilePath(), QStringList());
+        QCoreApplication::quit();
     });
 
     // 恢复默认设置：保留图片、文字与收集的文件，其余项还原，重启后完全生效

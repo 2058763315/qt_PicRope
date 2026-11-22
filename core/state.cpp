@@ -48,8 +48,6 @@ QJsonObject toJson(const SavedState &s)
     o["ToggleHotkey"] = s.toggleHotkey;
     o["DisplayDevice"] = s.displayDevice;
     o["LastUpdateNotification"] = s.lastUpdateNotification;
-    o["CaptureModifiers"] = static_cast<int>(s.captureModifiers);
-    o["CaptureKey"] = static_cast<int>(s.captureKey);
 
     QJsonArray imgs;
     for (const QString &p : s.images) imgs.append(p);
@@ -84,8 +82,6 @@ bool fromJson(const QJsonObject &o, SavedState &s)
         s.toggleHotkey = QStringLiteral("Ctrl+Alt+T");
     s.displayDevice = o["DisplayDevice"].toString();
     s.lastUpdateNotification = o["LastUpdateNotification"].toString();
-    s.captureModifiers = static_cast<unsigned>(o["CaptureModifiers"].toInt(3));
-    s.captureKey = static_cast<unsigned>(o["CaptureKey"].toInt('S'));
 
     s.images.clear();
     for (const QJsonValue &v : o["Images"].toArray()) s.images.append(v.toString());

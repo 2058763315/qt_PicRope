@@ -122,10 +122,6 @@ bool AppController::start()
                              .arg(events_->lastError()));
         else
             activeHotkey_ = store_->state.toggleHotkey;
-        if (!events_->registerCaptureHotkey(store_->state.captureModifiers,
-                                            store_->state.captureKey))
-            store_->logError(QStringLiteral("区域截图热键注册失败（错误码 %1）")
-                             .arg(events_->lastError()));
     });
 
     running_ = true;
@@ -138,7 +134,6 @@ void AppController::stop()
     running_ = false;
     if (shelf_) shelf_->forceHidden();
     events_->unregisterToggleHotkey();
-    events_->unregisterCaptureHotkey();
     if (basket_) { basket_->hide(); basket_->deleteLater(); basket_ = nullptr; }
     if (textsWin_) { textsWin_->hide(); textsWin_->deleteLater(); textsWin_ = nullptr; }
     if (settings_) { settings_->hide(); settings_->deleteLater(); settings_ = nullptr; }
@@ -182,7 +177,6 @@ void AppController::connectAll()
     connect(events_, &SystemEvents::toggleRequested, this, [this]{
         if (shelf_) shelf_->toggleShelf();
     });
-    connect(events_, &SystemEvents::captureRequested, this, &AppController::onCaptureShortcut);
 
     // 托盘
     connect(tray_, &TrayController::toggleRequested, this, [this]{
@@ -254,6 +248,26 @@ void AppController::onEdit(CaptureItem *item)
 {
     // 内置图片编辑器：后续迭代提供，当前先交给系统默认编辑器
     QDesktopServices::openUrl(QUrl::fromLocalFile(item->path));
+}
+
+void AppController::onCopyPaths(const QStringList &paths)
+{
+    if (paths.isEmpty()) return;
+    const QString path = paths.first();
+    QImage full(path);
+    if (full.isNull()) {
+        Gallery::ItemPtr ptr = gallery_->byPath(path);
+        if (ptr && !ptr->image.thumbnail.isNull())
+            full = ptr->image.thumbnail.toImage();
+    }
+    if (!full.isNull()) Clip::writeImage(path, full);
+}
+
+void AppController::onEditPaths(const QStringList &paths)
+{
+    for (const QString &p : paths)
+        if (!p.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(p));
 }
 
 void AppController::onTrash(CaptureItem *item)
@@ -378,6 +392,8 @@ void AppController::ensurePanels()
             if (!viewer_) viewer_ = new ImageViewer(nullptr);
             viewer_->openFile(paths.first());
         });
+        connect(basket_, &BasketWindow::copyRequested, this, &AppController::onCopyPaths);
+        connect(basket_, &BasketWindow::editRequested, this, &AppController::onEditPaths);
         connect(basket_, &BasketWindow::hangRequested, this, [this](const QStringList &paths){
             for (const QString &path : paths) {
                 Gallery::ItemPtr ptr = gallery_->byPath(path);
@@ -421,15 +437,21 @@ void AppController::showPanelBesideDock(PanelWindow *panel)
     if (basket_ && basket_ != panel) basket_->hide();
     if (textsWin_ && textsWin_ != panel) textsWin_->hide();
 
-    // 锚点取工具托板（三个按钮）；绳子收起时按屏幕右上角同一位置兜底
+    // 以鼠标所在屏幕为基准：绳子恰好在该屏展开时贴在工具托板旁，
+    // 否则在该屏右上角兜底，保证多屏下呼出的面板落在鼠标当前所在的屏幕
+    QScreen *target = QGuiApplication::screenAt(Win32::cursorPos());
+    if (!target) target = QGuiApplication::primaryScreen();
+    const QRect wa = target ? target->availableGeometry() : QRect(0, 0, 1280, 800);
+
     QRect anchor;
     if (shelf_ && shelf_->isShownNow()) {
-        anchor = shelf_->toolDockRect();
-    } else {
-        QScreen *s = QGuiApplication::screenAt(Win32::cursorPos());
-        const QRect wa = s ? s->availableGeometry() : QRect(0, 0, 1280, 800);
-        anchor = QRect(wa.right() - 72, wa.top() + 48, 40, 120);
+        const QRect dock = shelf_->toolDockRect();
+        if (!dock.isEmpty() && QGuiApplication::screenAt(dock.center()) == target)
+            anchor = dock;
     }
+    if (anchor.isEmpty())
+        anchor = QRect(wa.right() - 72, wa.top() + 48, 40, 120);
+
     panel->showPanel(anchor);
     syncShelfHold();
 }

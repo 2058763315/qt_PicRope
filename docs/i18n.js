@@ -59,8 +59,8 @@
     "内置查看器": "Built-in viewer",
     "双击卡片直接用内置查看器打开，自动读取同目录图片，方向键翻页，滚轮缩放，按 0 复位。":
       "Double-click a card to open it in the built-in viewer. It reads the rest of the folder, flips with the arrow keys, zooms with the wheel and resets with 0.",
-    "暂时不用的图片收进篮子，按文件名搜索、拖框多选、右键重命名，要用时一键挂回绳子。":
-      "Park images you don't need yet: search by name, drag to select, rename from the context menu, then hang them back with one click.",
+    "暂时不用的图片收进篮子，按文件名搜索、拖框多选、右键复制 / 编辑 / 重命名，要用时一键挂回绳子。":
+      "Park images you don't need yet: search by name, drag to select, copy / edit / rename from the context menu, then hang them back with one click.",
     "复制的文字也会被收集，和图片一起管理：搜索、多选、一键复制，临时素材不再散落各处。":
       "Copied text is captured too and managed alongside images: search, multi-select, copy in one go, so scratch material stops scattering.",
     "五套外观主题": "Five themes",
@@ -73,7 +73,7 @@
       "Keep only what you need right now on the rope; everything else waits in the basket until it's needed.",
     "按文件名实时搜索，支持清空": "Search by file name as you type, clear in one click",
     "鼠标拖动框选，Ctrl / Shift 多选": "Drag to box-select, Ctrl / Shift to multi-select",
-    "右键重命名，同步更新卡片与记录": "Rename from the context menu; cards and records follow",
+    "右键复制、编辑、重命名，同步更新卡片与记录": "Copy, edit or rename from the context menu; cards and records follow",
     "底部状态栏实时显示张数与选中数": "The status bar shows the total and the selection count",
     "搜索图片文件名…": "Search image file name…",
     "复制过的文字，也一并收好": "Copied text, kept in the same place",
@@ -119,6 +119,12 @@
     "下载压缩包": "Download ZIP",
     "本次更新": "What's new",
     "全部更新记录 →": "All release notes →",
+    "图片篮子右键新增复制与编辑，未挂 / 已挂通用":
+      "Basket context menu now offers Copy and Edit, on both un-hung and hung tabs",
+    "设置 → 数据新增导入数据备份，可从备份 zip 恢复":
+      "New Import data backup under Settings → Data, restoring from a backup zip",
+    "快捷键栏目列出全部快捷键，可修改项点击后等待输入，不可修改项悬停说明":
+      "The Shortcuts section lists every shortcut: click a customizable one and press a new combination; locked ones explain themselves on hover",
     "新增英文界面，设置中可切换简体中文 / English，重启生效":
       "New English interface; switch between Chinese and English in Settings, then restart",
     "设置新增剪贴板收集（图片 / 文字）与新图片自动上绳，和托盘菜单双向同步":
@@ -167,8 +173,8 @@
     "/ 使用文档": "/ Documentation",
     "使用文档": "Documentation",
     "托盘菜单": "Open it from the tray menu's",
-    "从安装到日常使用，按顺序读一遍大约十分钟。适用于 1.1.4 版本，Windows 10 / 11 64 位。":
-      "From install to daily use, about ten minutes read in order. Written for 1.1.4 on Windows 10 / 11 64-bit.",
+    "从安装到日常使用，按顺序读一遍大约十分钟。适用于 1.1.5 版本，Windows 10 / 11 64 位。":
+      "From install to daily use, about ten minutes read in order. Written for 1.1.5 on Windows 10 / 11 64-bit.",
     "目录": "Contents",
     "快速开始": "Quick start",
     "截图收集": "Capturing screenshots",
@@ -236,8 +242,10 @@
     "鼠标拖动可框选，": "Drag to box-select,",
     "点击可多选": "+ click to multi-select",
     "右键": "Right-click",
+    "放进剪贴板、": "to copy it to the clipboard,",
+    "用系统默认程序打开；": "to open it in the default app;",
     "直接改磁盘文件名，收藏记录与绳子卡片同步更新":
-      "to rename the file on disk; records and cards update with it",
+      "renames the file on disk; records and cards update with it",
     "把选中的图片送回绳子，": "returns the selected images to the rope;",
     "则相反": "does the reverse",
     "底部状态栏显示总数与选中数，左侧": "The status bar shows the total and the selection count;",
@@ -279,6 +287,8 @@
       "The Show / hide rope hotkey is customizable: click the field and press a new combination; the default is",
     "热键必须包含 Ctrl、Alt、Shift 或 Win 之一；修改后立即生效并保存。若与其它程序冲突，会提示并回滚到上一个可用热键。":
       "The hotkey must include Ctrl, Alt, Shift or Win; changes apply immediately and are saved. If another program already uses it, PicRope warns you and restores the previous one.",
+    "栏目中会列出全部快捷键：灰色带锁标记的是系统或查看器内置，鼠标移上去会说明来源，无法在此修改。":
+      "Every shortcut is listed here. Grey entries with a lock belong to Windows or the viewer; hover to see where they come from — they can't be changed here.",
     "卡片尺寸": "Card size",
     "小 / 中 / 大，改变挂绳上缩略图的大小，切换后立即生效":
       "Small / Medium / Large; changes the thumbnail size on the rope and applies immediately",
@@ -293,6 +303,9 @@
     "把": "Pack the",
     "目录打包成 zip，方便迁移到另一台电脑":
       "folder into a zip archive for moving to another computer",
+    "导入数据备份…": "Import data backup…",
+    "从备份 zip 恢复设置与数据，导入后会提示重启":
+      "Restore settings and data from a backup zip; you'll be asked to restart afterwards",
     "打开数据目录": "Open data folder",
     "直接打开": "Open the",
     "文件夹，查看图片与配置": "folder to browse images and settings",
@@ -304,6 +317,7 @@
     "后，启动时会自动查询新版本；发现新版本时可下载并启动安装程序。":
       "makes it look for a new release at startup; when one is found you can download it and start the installer.",
     "快捷键": "Shortcuts",
+    "区域截图（Windows 系统默认）": "Region screenshot (Windows default)",
     "查看器缩放复位到 100%": "Reset viewer zoom to 100%",
     "绳子没有自动弹出？": "The rope doesn't pop up?",
     "确认托盘菜单里的": "Make sure the tray menu's",

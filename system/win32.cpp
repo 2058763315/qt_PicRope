@@ -205,7 +205,6 @@ SystemEvents::SystemEvents(QObject *parent) : QObject(parent)
 SystemEvents::~SystemEvents()
 {
     unregisterToggleHotkey();
-    unregisterCaptureHotkey();
     qApp->removeNativeEventFilter(this);
 }
 
@@ -217,7 +216,6 @@ bool SystemEvents::nativeEventFilter(const QByteArray &eventType, void *message,
     if (msg->message == WM_HOTKEY) {
         const int id = static_cast<int>(msg->wParam);
         if (id == toggleId_) { emit toggleRequested(); return true; }
-        if (id == captureId_) { emit captureRequested(); return true; }
     }
     return false;
 }
@@ -261,20 +259,4 @@ bool SystemEvents::registerToggleHotkey(const QString &sequence)
 void SystemEvents::unregisterToggleHotkey()
 {
     if (toggleOk_) { UnregisterHotKey(nullptr, toggleId_); toggleOk_ = false; }
-}
-
-bool SystemEvents::registerCaptureHotkey(unsigned mods, unsigned key)
-{
-    if (mods == 0 || (mods & ~15u) != 0 || key < 0x20 || key > 0xFE) return false;
-    unregisterCaptureHotkey();
-    // MOD_NOREPEAT = 0x4000
-    captureOk_ = RegisterHotKey(nullptr, captureId_, mods | 0x4000, key) != FALSE;
-    lastErr_ = captureOk_ ? 0 : GetLastError();
-    if (captureOk_) { captureMods_ = mods; captureKey_ = key; }
-    return captureOk_;
-}
-
-void SystemEvents::unregisterCaptureHotkey()
-{
-    if (captureOk_) { UnregisterHotKey(nullptr, captureId_); captureOk_ = false; }
 }

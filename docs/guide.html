@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#f3f6fa">
 <link rel="icon" href="./app.ico" type="image/x-icon">
 <link rel="apple-touch-icon" href="./app.ico">
-<link rel="stylesheet" href="style.css?v=1.1.4">
+<link rel="stylesheet" href="style.css?v=1.1.5">
 </head>
 <body>
 
@@ -46,7 +46,7 @@
   <div class="container doc-hero">
     <div class="crumb"><a href="index.html">首页</a> / 使用文档</div>
     <h1>使用文档</h1>
-    <p>从安装到日常使用，按顺序读一遍大约十分钟。适用于 1.1.4 版本，Windows 10 / 11 64 位。</p>
+    <p>从安装到日常使用，按顺序读一遍大约十分钟。适用于 1.1.5 版本，Windows 10 / 11 64 位。</p>
   </div>
 
   <div class="container doc-shell">
@@ -84,8 +84,8 @@
       <table>
         <thead><tr><th>版本</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>安装版</td><td>双击 <code>PicRope-1.1.4-Setup.exe</code> 按向导安装，可选开机自启；升级与卸载都会保留 <code>data</code> <span data-i18n="folder">目录</span></td></tr>
-          <tr><td>绿色版</td><td>解压 <code>PicRope-1.1.4-win64.zip</code> 后直接运行 <code>PicRope.exe</code>，不写系统目录</td></tr>
+          <tr><td>安装版</td><td>双击 <code>PicRope-1.1.5-Setup.exe</code> 按向导安装，可选开机自启；升级与卸载都会保留 <code>data</code> <span data-i18n="folder">目录</span></td></tr>
+          <tr><td>绿色版</td><td>解压 <code>PicRope-1.1.5-win64.zip</code> 后直接运行 <code>PicRope.exe</code>，不写系统目录</td></tr>
         </tbody>
       </table>
 
@@ -126,7 +126,7 @@
       <ul>
         <li>标题栏搜索框按文件名实时筛选，右侧叉号一键清空</li>
         <li>鼠标拖动可框选，<span class="kbd">Ctrl</span> / <span class="kbd">Shift</span> 点击可多选</li>
-        <li>右键<code>重命名…</code>直接改磁盘文件名，收藏记录与绳子卡片同步更新</li>
+        <li>右键<code>复制</code>放进剪贴板、<code>编辑</code>用系统默认程序打开；<code>重命名…</code>直接改磁盘文件名，收藏记录与绳子卡片同步更新</li>
         <li><code>挂上绳子</code>把选中的图片送回绳子，<code>取下绳子</code>则相反</li>
         <li>底部状态栏显示总数与选中数，左侧<code>打开文件夹</code>直接定位图片目录</li>
       </ul>
@@ -164,6 +164,7 @@
       <h3>快捷键</h3>
       <p>「显示 / 收起挂绳」的热键可以自定义：点进输入框，按下新的组合键即可，默认 <span class="kbd">Ctrl</span> <span class="kbd">Alt</span> <span class="kbd">T</span>。</p>
       <p>热键必须包含 Ctrl、Alt、Shift 或 Win 之一；修改后立即生效并保存。若与其它程序冲突，会提示并回滚到上一个可用热键。</p>
+      <p>栏目中会列出全部快捷键：灰色带锁标记的是系统或查看器内置，鼠标移上去会说明来源，无法在此修改。</p>
 
       <h3>外观</h3>
       <p>内置五套主题：经典 · 银灰、棉麻 · 木夹、奶白 · 轻盈、柔彩 · 日常、石墨 · 金属。切换后界面与卡片风格同步变化。</p>
@@ -181,6 +182,7 @@
         <thead><tr><th>设置</th><th>说明</th></tr></thead>
         <tbody>
           <tr><td>导出数据备份…</td><td>把 <code>data</code> 目录打包成 zip，方便迁移到另一台电脑</td></tr>
+          <tr><td>导入数据备份…</td><td>从备份 zip 恢复设置与数据，导入后会提示重启</td></tr>
           <tr><td>打开数据目录</td><td>直接打开 <code>data</code> 文件夹，查看图片与配置</td></tr>
           <tr><td>恢复默认设置…</td><td>重置所有设置项，保留图片与文字笔记；可选择立即重启</td></tr>
         </tbody>
@@ -194,6 +196,7 @@
         <thead><tr><th>快捷键</th><th>作用</th></tr></thead>
         <tbody>
           <tr><td><span class="kbd">Ctrl</span> <span class="kbd">Alt</span> <span class="kbd">T</span></td><td>呼出 / 收起挂绳（默认，可在设置 →「快捷键」中修改）</td></tr>
+          <tr><td><span class="kbd">Win</span> <span class="kbd">Shift</span> <span class="kbd">S</span></td><td>区域截图（Windows 系统默认）</td></tr>
           <tr><td><span class="kbd">←</span> <span class="kbd">→</span></td><td>查看器切换图片</td></tr>
           <tr><td><span class="kbd">0</span></td><td>查看器缩放复位到 100%</td></tr>
           <tr><td><span class="kbd">Esc</span></td><td>关闭查看器</td></tr>
@@ -212,6 +215,7 @@
 
       <h2 id="changelog">更新记录</h2>
       <ul>
+        <li><strong>1.1.5</strong> 移除冗余的区域截图全局快捷键（系统自带 Win+Shift+S 已覆盖）；优化多屏环境，呼出的图片篮子、文字笔记与设置窗口跟随鼠标所在屏幕；图片篮子右键新增复制与编辑（未挂 / 已挂通用）；设置新增导入数据备份；快捷键栏目列出全部快捷键</li>
         <li><strong>1.1.4</strong> 设置新增剪贴板收集、新图片自动上绳、卡片尺寸、挂绳不透明度、收起延迟、自定义挂绳热键，以及数据备份 / 打开目录 / 恢复默认设置；设置界面支持上下滚动</li>
         <li><strong>1.1.3</strong> 新增英文界面；设置新增「功能」栏目（自动弹出、界面语言、开机自启）；托盘与设置状态同步；修复语言下拉取消后状态错位</li>
         <li><strong>1.1.2</strong> 稳定性与细节优化</li>
@@ -239,7 +243,7 @@
   </div>
 </footer>
 
-<script src="site.js?v=1.1.4d"></script>
-<script src="i18n.js?v=1.1.4"></script>
+<script src="site.js?v=1.1.5d"></script>
+<script src="i18n.js?v=1.1.5"></script>
 </body>
 </html>

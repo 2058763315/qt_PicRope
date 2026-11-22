@@ -6,6 +6,7 @@
 
 #include <QObject>
 #include <QVector>
+#include <QStringList>
 
 class StateStore;
 class Gallery;
@@ -40,6 +41,8 @@ private:
     void onOpen(CaptureItem *item);
     void onEdit(CaptureItem *item);
     void onTrash(CaptureItem *item);
+    void onCopyPaths(const QStringList &paths);   // 篮子右键：复制图片到剪贴板
+    void onEditPaths(const QStringList &paths);   // 篮子右键：用系统编辑器打开
     void onSave(CaptureItem *item);
     void onLocate(CaptureItem *item);
     void onBasket();
