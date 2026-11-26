@@ -29,9 +29,9 @@
   --font-mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
 }
 html.dark{
-  --c-bg:#07090b;
-  --c-bg-alt:#0e1114;
-  --c-surface:#10151a;
+  --c-bg:#191919;
+  --c-bg-alt:#202020;
+  --c-surface:#242424;
   --c-border:#232c35;
   --c-text-1:#f2f6fa;
   --c-text-2:#aebbc8;
@@ -41,7 +41,7 @@ html.dark{
   --c-brand-3:#4fc3f7;
   --c-brand-soft:rgba(79,195,247,.16);
   --c-accent:#e0a45c;
-  --c-code-bg:#151b21;
+  --c-code-bg:#2a2a2a;
   --c-btn-bg:#f5f7fb;
   --c-btn-bg-hover:#ffffff;
   --c-btn-fg:#0b0b0d;
