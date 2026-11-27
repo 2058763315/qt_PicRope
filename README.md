@@ -3,6 +3,9 @@
 # qt_PicRope · 图绳（Qt 重构版）
 简体中文 | [English](README.en.md)
 
+[![GitHub release](https://img.shields.io/github/v/release/2058763315/qt_PicRope?label=release)](https://github.com/2058763315/qt_PicRope/releases)
+[![License](https://img.shields.io/github/license/2058763315/qt_PicRope)](https://github.com/2058763315/qt_PicRope/blob/main/LICENSE)
+
 </div>
 
 > **Qt 二次开发版本**，源自作者 [Renly1994](https://github.com/Renly1994) 的 [PicRope](https://github.com/Renly1994/PicRope)（Windows 截图暂存与桌面贴图工具）。本仓库使用 **C++ / Qt Widgets** 对原 **C# / WPF** 项目进行重构与二次开发。

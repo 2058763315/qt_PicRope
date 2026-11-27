@@ -3,6 +3,9 @@
 # qt_PicRope · PicRope (Qt Rebuild)
 English | [简体中文](README.md)
 
+[![GitHub release](https://img.shields.io/github/v/release/2058763315/qt_PicRope?label=release)](https://github.com/2058763315/qt_PicRope/releases)
+[![License](https://img.shields.io/github/license/2058763315/qt_PicRope)](https://github.com/2058763315/qt_PicRope/blob/main/LICENSE)
+
 </div>
 
 > **Qt secondary-development version**, based on [PicRope](https://github.com/Renly1994/PicRope) by [Renly1994](https://github.com/Renly1994) — a Windows screenshot staging and desktop-pin tool. This repository rebuilds and extends the original **C# / WPF** project in **C++ / Qt Widgets**.
