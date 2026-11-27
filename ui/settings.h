@@ -60,6 +60,9 @@ private:
     void applyLimitChange(bool images);   // 保存上限；低于当前数量时询问是否立即清理
     void buildAppearance(QVBoxLayout *root);
     void buildData(QVBoxLayout *root);
+    void startStorageScan();          // 存储空间：异步统计 data 目录占用
+    void refreshStorageDetail();      // 按缓存结果刷新明细（上限仅在勾选自动清理时显示）
+    QString formatBytes(qint64 bytes) const;
     void buildOther(QVBoxLayout *root);
     void buildAbout(QVBoxLayout *root);
     void startManualCheck();
@@ -109,4 +112,24 @@ private:
     QTimer *exportTimer_ = nullptr;
     QString exportPath_;
     qint64 exportTotal_ = 0;
+
+    // 数据 → 存储空间（点击标题行展开明细）
+    QWidget *storageHeader_ = nullptr;
+    QWidget *storageDetail_ = nullptr;
+    QLabel *storageSummary_ = nullptr;
+    QPushButton *storageBtn_ = nullptr;
+    QLabel *storageImg_ = nullptr;
+    QLabel *storageTxt_ = nullptr;
+    QLabel *storageOther_ = nullptr;
+    QLabel *storageTotal_ = nullptr;
+    QProcess *storageProc_ = nullptr;
+    bool storageExpanded_ = false;
+    bool storageScanned_ = false;
+    qint64 storageImgBytes_ = 0;
+    qint64 storageTotalBytes_ = 0;
+
+    // 数据导入（异步，无进度条）
+    QPushButton *importBtn_ = nullptr;
+    QLabel *importStatus_ = nullptr;
+    QProcess *importProc_ = nullptr;
 };

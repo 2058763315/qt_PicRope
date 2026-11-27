@@ -21,6 +21,7 @@ English | [简体中文](README.md)
 - **Positioning**： a Qt secondary-development version of the author's C#/WPF implementation, rewritten in C++17, with UI and interactions aligned to the original and reusing its feature design (screenshot collection, rope, basket, text notes, built-in viewer, tray, multi-monitor, UI language and themes).
 - Comments at the top of each source file state the mapping to the original module (e.g. `app.h ↔ App.cs DesktopController`, `ui/shelf.h ↔ ShelfWindow`, `core/gallery.h ↔ Gallery`), making it easy to compare against the original design.
 - The in-app update check is based on this repository's GitHub Releases (`2058763315/qt_PicRope`).
+- **License**： GNU General Public License v3.0; the full text is in `LICENSE.md`.
 
 ---
 
@@ -34,11 +35,12 @@ English | [简体中文](README.md)
 | **Built-in viewer** | Double-click opens the built-in viewer: switch among images in the same folder with ← / →, zoom with the wheel, press `0` to reset zoom, close with Esc; the bottom bar shows the file name, zoom and index |
 | **Image basket** | Search by file name, right-click to rename, open the containing folder; right-click "copy to clipboard", "open with the system editor", "hang on rope / take off rope", "delete"; double-click preview, rubber-band or Ctrl/Shift multi-select |
 | **Text notes** | Collects clipboard text (called "text envelope" in the original); supports search, full-text view, copy and multi-delete, preserving original line breaks and indentation |
-| **Settings** | Opened from the tray "Settings…", centered on screen, with five sections: **Features / Shortcuts / Appearance / Data / About** |
+| **Settings** | Opened from the tray "Settings…", centered on screen; two columns — a section list on the left (click to jump, auto-highlights while scrolling) and scrollable content on the right — with six sections: **Features / Shortcuts / Appearance / Data / Other / About**; the Shortcuts section lists every shortcut (only show/hide the rope is editable) |
 | **UI language** | Simplified Chinese / English, applied by an automatic restart; UI strings are loaded from Qt translation files (`translations/PicRope_en.qm`) |
 | **Custom hotkey** | The show/hide global hotkey can be changed (default `Ctrl+Alt+T`) and must include Ctrl/Alt/Shift/Win; a failed registration is reported and rolls back automatically |
 | **Appearance tuning** | Card size small / medium / large, rope opacity 20%–100%, and auto-collapse delay 300 / 800 / 1200 / 1500 ms, applied immediately |
-| **Data management** | Export / import a data backup (Zip with settings, images and text notes), open the data folder, restore default settings (keeping images and notes) |
+| **Auto cleanup** | A switch under Settings → Features; separate limits for images (rope + basket combined) and text notes, 200 each by default, oldest entries removed once exceeded; lowering a limit below the current count asks for confirmation first |
+| **Data management** | Export / import a data backup (Zip with settings, images and text notes; both run asynchronously, with inline progress and result for export), storage usage report (click to expand the breakdown, scanned asynchronously for images / text notes / config and other / total), open the data folder |
 | **Launch at startup** | A switch in Settings that writes the current user's registry Run key; the auto-start option ticked in the installer wizard is reflected here as well |
 | **In-app update** | Silently checks the latest GitHub release after startup; when a new version is found it asks, then automatically downloads the installer and launches it (auto check can be disabled in Settings) |
 | **Region capture** | Launches the system screenshot tool (`ms-screenclip:`, default shortcut `Win + Shift + S`); the tray "More → Region capture…" item also triggers it |
@@ -62,8 +64,8 @@ qt_PicRope/
 │   │                     topmost/click-through window, cursor position, foreground-window detection
 │   └── clipboard.h/.cpp  Clipboard read/write: image, text, file references, own-format marker
 ├── core/                 Core business logic
-│   ├── state.h/.cpp      State persistence: settings, language, card size, opacity, hide delay
-│   │                     and collection paths in data/state.json
+│   ├── state.h/.cpp      State persistence: settings, language, card size, opacity, hide delay,
+│   │                     auto-cleanup switch and image/text limits, collection paths in data/state.json
 │   ├── image.h/.cpp      Image read/validation, thumbnail generation, pixel fingerprint (dedup)
 │   ├── gallery.h/.cpp    Collection management: rope items + collected list, shared items
 │   │                     managed with QSharedPointer
@@ -81,7 +83,8 @@ qt_PicRope/
 │   ├── viewer.h/.cpp     Built-in viewer: ←/→ browsing, wheel zoom, 0 to reset, drag pan
 │   ├── pinned.h/.cpp     Desktop pin window (source kept, currently not compiled)
 │   ├── panels.h/.cpp     Image basket + text notes (rounded borderless panels)
-│   ├── settings.h/.cpp   Settings: Features / Shortcuts / Appearance / Data / About
+│   ├── settings.h/.cpp   Settings: Features / Shortcuts / Appearance / Data / Other / About
+│   │                     (left section list + scrollable content)
 │   └── tray.h/.cpp       System tray menu and switches
 ├── docs/                 Project website (static, can be hosted on GitHub Pages)
 │   ├── index.html        Home page: feature overview and download entry
@@ -89,6 +92,7 @@ qt_PicRope/
 │   ├── style.css         Site styles
 │   ├── site.js           Page interactions
 │   └── i18n.js           Chinese/English copy and language switch
+├── LICENSE.md            License (GNU GPL v3.0)
 ├── resources.qrc         Resource manifest (app.ico)
 ├── app.ico               Application icon
 ├── translations/         UI translations (Qt Linguist project)
@@ -118,7 +122,10 @@ qt_PicRope/
 - **Panel pre-creation & multi-monitor placement**：the basket / text notes panels are pre-created while idle after startup (with native handles pre-created); when shown, they anchor to the rope tool dock if it is on the monitor under the cursor, otherwise to that monitor's top-right corner.
 - **Custom hotkey with rollback**：`registerToggleHotkey(sequence)` maps a Qt key combination to Win32 modifiers and a virtual key code, accepting only combinations with modifiers; if registration fails it warns and rolls back to the last working hotkey, so Settings never shows a hotkey that cannot actually summon the rope.
 - **UI language**：the UI language is stored as `Language` in `state.json` (default `zh_CN`); at startup, if it is `en`, a `QTranslator` loads `translations/PicRope_en.qm` next to the program, and switching the language in Settings restarts the app automatically.
-- **Data backup & restore**：export packs `data/` into a Zip; import overwrites current settings and data and prompts for a restart; "restore default settings" only resets settings and keeps images, text notes and collected files.
+- **Auto cleanup & limits**：once enabled under Settings → Features, images are counted across the rope + basket and text notes by count; when a limit is exceeded the oldest entries are removed first (own copies in the inbox go to the Recycle Bin). Lowering a limit below the current count asks for confirmation first, and the actual trimming happens on the next add/remove.
+- **Settings layout**：a fixed-size window split into two columns — a section list on the left that jumps on click and auto-highlights while scrolling, scrollable content on the right; each section sits in a light rounded card and the page scrolls when the window is too short.
+- **Data backup & restore**：export / import run asynchronously through the system PowerShell, packing or extracting the Zip; export shows progress from the growing zip and reports the result inline (no dialog); import overwrites current settings and data and prompts for a restart; "restore default settings" (under Other) only resets settings and keeps images, text notes and collected files.
+- **Storage usage**：Settings → Data scans the `data/` folder on demand and asynchronously, breaking down images, text notes, config and other, plus the total; with auto cleanup on it also shows current counts and limits.
 - **Launch at startup**：the Settings switch reads/writes the current user's registry key `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`; installer and portable builds share the same state.
 - **In-app update**：`UpdateChecker` requests this repository's latest release JSON, compares versions segment by segment, prefers an exe whose asset name contains `Setup`, downloads it to a temp folder and then launches the installer; it checks silently about 4 seconds after startup (controlled by `autoCheckUpdate`, enabled by default).
 - **Single instance & fault tolerance**：`QLockFile` guarantees a single instance and stale locks left by a crash can be cleaned up; startup failures are written to `data/error.log`.
@@ -148,7 +155,7 @@ make          # MinGW: mingw32-make; MSVC: nmake / jom
 
 **Runtime directory layout**
 
-- State & settings：`data/state.json` next to the program (settings, theme, UI language, card size, opacity, hide delay, hotkey, rope and collection paths, text notes)
+- State & settings：`data/state.json` next to the program (settings, theme, UI language, card size, opacity, hide delay, hotkey, auto-cleanup switch and image/text limits, rope and collection paths, text notes)
 - Image inbox：`data/Captures/` next to the program (copies of collected and manually imported images)
 - UI translation：`translations/PicRope_en.qm` next to the program
 - Error log：`data/error.log` (hotkey registration failures, update errors, etc.)
@@ -168,6 +175,6 @@ make          # MinGW: mingw32-make; MSVC: nmake / jom
 | Copy / edit | Click to copy; long-press or right-click → "Edit" (system default image editor) |
 | Image basket | Search by name, right-click rename, open folder, copy to clipboard, open with the system editor, hang/take off the rope, double-click preview, rubber-band or Ctrl/Shift multi-select, delete |
 | Text notes | Search, full-text view, copy, rubber-band multi-select, "delete selected" |
-| Settings / theme / language | Tray "Settings…" or the gear button on the rope tool dock; switch themes, adjust card size / opacity / hide delay, change the hotkey, and switch the UI language (a language change restarts the app) |
-| Data management | Settings → Data: export/import a backup, open the data folder, restore default settings |
+| Settings / theme / language | Tray "Settings…" or the gear button on the rope tool dock; jump between the six sections; switch themes, adjust card size / opacity / hide delay, change the hotkey, enable auto cleanup and set limits, and switch the UI language (a language change restarts the app) |
+| Data management | Settings → Data: check storage usage (press "Scan"), export/import a backup (asynchronous, progress shown inline); Settings → Other: restore default settings |
 | Tray management | Show/hide, Image basket…, Text notes…, clipboard image/text collection switches, auto pop-up (persisted), auto-hang, Settings, under "More": region capture / open collection folder / clear the rope (keeping files), Exit |

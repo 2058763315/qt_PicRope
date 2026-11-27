@@ -47,7 +47,7 @@
 <div class="hero">
   <div class="hero-watermark" aria-hidden="true">截图 · 上绳</div>
   <div class="container hero-inner">
-    <span class="hero-eyebrow"><i></i>自定义挂绳热键 · 数据备份</span>
+    <span class="hero-eyebrow"><i></i>v1.1.6 · 设置中心重做 · 自动清理与存储空间</span>
     <h1>图绳<span class="latin">PICROPE</span></h1>
     <p class="tagline">截图，本该随手一放。</p>
     <p class="lede">
@@ -305,18 +305,10 @@
         <a class="link-btn log-more" href="https://github.com/2058763315/qt_PicRope/releases" target="_blank" rel="noreferrer">全部更新记录 →</a>
       </div>
       <ul>
-        <li>设置界面改为左右两栏：左侧分区导航点击跳转，滚动时自动高亮，各分区收纳进卡片</li>
-        <li>新增自动清理：可分别设置图片篮子（挂绳 + 篮子合计）与文字笔记上限，默认 200</li>
-        <li>导出数据备份改为异步并显示进度，完成后行内提示，不再弹窗</li>
-        <li>恢复默认设置移至独立「其他」分区，数据区统一为左侧描述 + 右侧按钮</li>
-        <li>图片篮子右键新增复制与编辑，未挂 / 已挂通用</li>
-        <li>设置 → 数据新增导入数据备份，可从备份 zip 恢复</li>
-        <li>快捷键栏目列出全部快捷键，可修改项点击后等待输入，不可修改项悬停说明</li>
-        <li>设置新增剪贴板收集（图片 / 文字）与新图片自动上绳，和托盘菜单双向同步</li>
-        <li>新增卡片尺寸（小 / 中 / 大）、挂绳不透明度（20% ~ 100%）、收起延迟</li>
-        <li>新增「快捷键」栏目，呼出 / 收起挂绳的热键可自定义，默认 Ctrl+Alt+T</li>
-        <li>新增数据备份（把 data 目录打包成 zip）、打开数据目录与恢复默认设置</li>
-        <li>设置界面支持上下滚动，窗口高度不再为内容让路</li>
+        <li>新增自动清理：设置 →「功能」新增开关，可分别设置图片篮子上限（挂绳 + 篮子合计）与文字笔记上限，默认 200，超出时从最早收集的内容开始移除</li>
+        <li>设置界面重构为左右两栏：左侧分区导航点击跳转、滚动时自动高亮，各分区收纳进浅色圆角卡片</li>
+        <li>存储空间：数据区新增「存储空间」，点击展开明细、异步扫描图片 / 文字笔记 / 配置与其它占用，勾选自动清理时同时显示数量与上限</li>
+        <li>数据备份交互优化：导出 / 导入均改为异步，行内显示进度与结果、不再弹窗；恢复默认设置移至「其他」分区</li>
       </ul>
     </div>
   </div>
@@ -374,6 +366,6 @@
 </footer>
 
 <script src="site.js?v=1.1.6d"></script>
-<script src="i18n.js?v=1.1.6d"></script>
+<script src="i18n.js?v=1.1.6h"></script>
 </body>
 </html>

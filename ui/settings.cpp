@@ -24,6 +24,7 @@
 #include <QLineEdit>
 #include <QLinearGradient>
 #include <QMessageBox>
+#include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPixmap>
@@ -814,6 +815,7 @@ void SettingsDialog::buildFeatures(QVBoxLayout *root)
         store_->state.autoClean = on;
         store_->save();
         if (limitBox_) limitBox_->setVisible(on);
+        refreshStorageDetail();   // 自动清理勾选状态决定明细里是否显示上限
     });
     connect(imageLimitSpin_, &QSpinBox::editingFinished, this, [this]{ applyLimitChange(true); });
     connect(textLimitSpin_, &QSpinBox::editingFinished, this, [this]{ applyLimitChange(false); });
@@ -859,6 +861,18 @@ bool SettingsDialog::eventFilter(QObject *watched, QEvent *event)
     // 上限数值框：忽略滚轮，避免在设置页滚动时误改数值
     if ((watched == imageLimitSpin_ || watched == textLimitSpin_)
         && event->type() == QEvent::Wheel) {
+        return true;
+    }
+    // 存储空间标题行：点击展开 / 收起明细；未扫描时点击先扫描
+    if (watched == storageHeader_ && event->type() == QEvent::MouseButtonRelease
+        && static_cast<QMouseEvent *>(event)->button() == Qt::LeftButton) {
+        if (!storageScanned_) {
+            startStorageScan();
+        } else {
+            storageExpanded_ = !storageExpanded_;
+            if (storageExpanded_) refreshStorageDetail();
+            if (storageDetail_) storageDetail_->setVisible(storageExpanded_);
+        }
         return true;
     }
     if (watched == hotkeyEdit_ && event->type() == QEvent::FocusIn) {
@@ -1116,12 +1130,150 @@ void SettingsDialog::buildAppearance(QVBoxLayout *root)
                 store_->state.hideDelayMs, &SettingsDialog::hideDelayChanged);
 }
 
+QString SettingsDialog::formatBytes(qint64 bytes) const
+{
+    if (bytes < 1024)
+        return QStringLiteral("%1 B").arg(bytes);
+    const double kb = double(bytes) / 1024.0;
+    if (kb < 1024.0)
+        return QStringLiteral("%1 KB").arg(QString::number(kb, 'f', 1));
+    const double mb = kb / 1024.0;
+    if (mb < 1024.0)
+        return QStringLiteral("%1 MB").arg(QString::number(mb, 'f', 1));
+    return QStringLiteral("%1 GB").arg(QString::number(mb / 1024.0, 'f', 2));
+}
+
+// 存储空间：异步统计 data 目录（图片单独统计），结果在行内与展开明细中显示
+void SettingsDialog::startStorageScan()
+{
+    if (storageProc_) return;
+    storageSummary_->setStyleSheet(QStringLiteral("color:#8A94A6;"));
+    storageSummary_->setText(tr("扫描中…"));
+    storageSummary_->setToolTip(QString());
+    storageBtn_->setEnabled(false);
+    storageBtn_->setText(tr("扫描中…"));
+
+    const QString ps = QStringLiteral(
+        "$root = '%1';"
+        "$img = Get-ChildItem -LiteralPath (Join-Path $root 'Captures') -Recurse -File "
+        "-ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum;"
+        "$all = Get-ChildItem -LiteralPath $root -Recurse -File "
+        "-ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum;"
+        "'{0}|{1}' -f [int64]$img.Sum, [int64]$all.Sum")
+        .arg(QDir::toNativeSeparators(store_->root));
+
+    storageProc_ = new QProcess(this);
+    connect(storageProc_, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            this, [this](int code, QProcess::ExitStatus st){
+        QProcess *proc = storageProc_;
+        storageProc_ = nullptr;
+        const QString out = QString::fromLocal8Bit(proc->readAllStandardOutput()).trimmed();
+        const QString err = QString::fromLocal8Bit(proc->readAllStandardError()).trimmed();
+        proc->deleteLater();
+
+        storageBtn_->setEnabled(true);
+        storageBtn_->setText(tr("重新扫描"));
+
+        const QStringList parts = out.split(QLatin1Char('|'), Qt::SkipEmptyParts);
+        const bool ok = (st == QProcess::NormalExit && code == 0 && parts.size() == 2);
+        if (!ok) {
+            storageSummary_->setStyleSheet(QStringLiteral("color:#C0392B;"));
+            storageSummary_->setText(tr("扫描失败"));
+            storageSummary_->setToolTip(err);
+            return;
+        }
+
+        storageImgBytes_ = parts.at(0).toLongLong();
+        storageTotalBytes_ = parts.at(1).toLongLong();
+        storageScanned_ = true;
+
+        refreshStorageDetail();
+        storageSummary_->setStyleSheet(QString());
+        storageSummary_->setText(tr("总计 %1").arg(formatBytes(storageTotalBytes_)));
+        storageSummary_->setToolTip(QString());
+
+        storageExpanded_ = true;
+        storageDetail_->setVisible(true);
+    });
+    storageProc_->start(QStringLiteral("powershell"),
+                        {QStringLiteral("-NoProfile"), QStringLiteral("-Command"), ps});
+}
+
+void SettingsDialog::refreshStorageDetail()
+{
+    if (!storageScanned_ || !storageImg_) return;
+    const bool showLimit = cleanCheck_ && cleanCheck_->isChecked();
+
+    QString img = tr("%1 张 · %2")
+                      .arg(store_->state.collection.size())
+                      .arg(formatBytes(storageImgBytes_));
+    if (showLimit)
+        img += tr("（上限 %1 张）").arg(store_->state.imageLimit);
+    storageImg_->setText(img);
+
+    QString txt = tr("%1 条").arg(store_->state.texts.size());
+    if (showLimit)
+        txt += tr("（上限 %1 条）").arg(store_->state.textLimit);
+    storageTxt_->setText(txt);
+
+    storageOther_->setText(formatBytes(qMax<qint64>(0, storageTotalBytes_ - storageImgBytes_)));
+    storageTotal_->setText(formatBytes(storageTotalBytes_));
+}
+
 void SettingsDialog::buildData(QVBoxLayout *root)
 {
     auto *title = makeSectionTitle(tr("数据"), this);
     anchors_.insert(QStringLiteral("data"), title);
     root->addWidget(title);
     root = addSectionCard(root);
+
+    // 存储空间（第一条）：点击标题行展开明细，右侧按钮扫描
+    auto *storageBox = new QWidget(this);
+    auto *storageCol = new QVBoxLayout(storageBox);
+    storageCol->setContentsMargins(0, 0, 0, 0);
+    storageCol->setSpacing(8);
+
+    storageHeader_ = new QWidget(storageBox);
+    storageHeader_->setCursor(Qt::PointingHandCursor);
+    storageHeader_->installEventFilter(this);   // 点击整行展开 / 收起明细
+    auto *storageRow = new QHBoxLayout(storageHeader_);
+    storageRow->setContentsMargins(0, 0, 0, 0);
+    storageRow->setSpacing(8);
+    auto *storageLab = new QLabel(tr("存储空间"), storageHeader_);
+    storageLab->setObjectName(QStringLiteral("rowLabel"));
+    storageRow->addWidget(storageLab);
+    storageRow->addStretch(1);
+    storageSummary_ = new QLabel(tr("未扫描"), storageHeader_);
+    storageSummary_->setStyleSheet(QStringLiteral("color:#8A94A6;font-size:12px;"));
+    storageRow->addWidget(storageSummary_);
+    storageBtn_ = new QPushButton(tr("扫描"), storageHeader_);
+    storageBtn_->setCursor(Qt::PointingHandCursor);
+    storageBtn_->setFixedHeight(28);
+    storageRow->addWidget(storageBtn_);
+    storageCol->addWidget(storageHeader_);
+
+    storageDetail_ = new QWidget(storageBox);
+    auto *detailGrid = new QGridLayout(storageDetail_);
+    detailGrid->setContentsMargins(0, 0, 0, 0);
+    detailGrid->setHorizontalSpacing(16);
+    detailGrid->setVerticalSpacing(6);
+    const QStringList names = {tr("图片"), tr("文字笔记"), tr("配置与其它"), tr("总计")};
+    QLabel **targets[] = {&storageImg_, &storageTxt_, &storageOther_, &storageTotal_};
+    for (int i = 0; i < names.size(); ++i) {
+        auto *name = new QLabel(names.at(i), storageDetail_);
+        name->setStyleSheet(QStringLiteral("color:#7A8699;font-size:12px;"));
+        auto *value = new QLabel(QStringLiteral("—"), storageDetail_);
+        value->setStyleSheet(QStringLiteral("color:#33405A;font-size:12px;"));
+        value->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+        detailGrid->addWidget(name, i, 0);
+        detailGrid->addWidget(value, i, 1);
+        *targets[i] = value;
+    }
+    storageDetail_->setVisible(false);
+    storageCol->addWidget(storageDetail_);
+    root->addWidget(storageBox);
+
+    connect(storageBtn_, &QPushButton::clicked, this, [this]{ startStorageScan(); });
 
     // 每行：左侧描述 + 右侧按钮（导出行另外带状态、进度与百分比）
     auto makeRow = [this](const QString &desc) {
@@ -1169,11 +1321,15 @@ void SettingsDialog::buildData(QVBoxLayout *root)
 
     // 导入
     auto *importRow = makeRow(tr("导入数据备份"));
+    importStatus_ = new QLabel(this);
+    importStatus_->setObjectName(QStringLiteral("status"));
+    importStatus_->setVisible(false);
+    importRow->addWidget(importStatus_);
     importRow->addStretch(1);
-    auto *importBtn = new QPushButton(tr("导入"), this);
-    importBtn->setCursor(Qt::PointingHandCursor);
-    importBtn->setFixedHeight(28);
-    importRow->addWidget(importBtn);
+    importBtn_ = new QPushButton(tr("导入"), this);
+    importBtn_->setCursor(Qt::PointingHandCursor);
+    importBtn_->setFixedHeight(28);
+    importRow->addWidget(importBtn_);
     root->addLayout(importRow);
 
     // 打开数据目录
@@ -1268,9 +1424,10 @@ void SettingsDialog::buildData(QVBoxLayout *root)
                            {QStringLiteral("-NoProfile"), QStringLiteral("-Command"), ps});
     });
 
-    // 导入备份：解压到临时目录，定位含 state.json 的根，再合并覆盖到 data/；
+    // 导入备份：异步解压到临时目录，定位含 state.json 的根，再合并覆盖到 data/；
     // 兼容本应用导出的包（内容直接在根）与带顶层文件夹的压缩包
-    connect(importBtn, &QPushButton::clicked, this, [this]{
+    connect(importBtn_, &QPushButton::clicked, this, [this]{
+        if (importProc_) return;
         const QString src = QFileDialog::getOpenFileName(
             this, tr("导入数据备份"), QString(), tr("Zip 压缩包 (*.zip)"));
         if (src.isEmpty()) return;
@@ -1294,23 +1451,47 @@ void SettingsDialog::buildData(QVBoxLayout *root)
             "Remove-Item -Path $tmp -Recurse -Force")
             .arg(QDir::toNativeSeparators(src),
                  QDir::toNativeSeparators(store_->root));
-        QProcess proc;
-        proc.start(QStringLiteral("powershell"),
-                   {QStringLiteral("-NoProfile"), QStringLiteral("-Command"), ps});
-        const bool ok = proc.waitForFinished(120000) && proc.exitCode() == 0;
-        if (!ok) {
-            QMessageBox::warning(this, tr("导入数据备份"),
-                                 tr("导入失败：%1").arg(
-                                     QString::fromLocal8Bit(proc.readAllStandardError())));
-            return;
-        }
-        QMessageBox done(QMessageBox::Question, tr("导入数据备份"),
-                         tr("数据已导入，需要重启图绳才能完全生效，是否立即重启？"),
-                         QMessageBox::Yes | QMessageBox::No);
-        done.setDefaultButton(QMessageBox::Yes);
-        if (done.exec() != QMessageBox::Yes) return;
-        QProcess::startDetached(QCoreApplication::applicationFilePath(), QStringList());
-        QCoreApplication::quit();
+
+        importStatus_->setVisible(false);
+        importBtn_->setEnabled(false);
+        importBtn_->setText(tr("导入中…"));
+
+        importProc_ = new QProcess(this);
+        connect(importProc_, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+                this, [this](int code, QProcess::ExitStatus st){
+            QProcess *proc = importProc_;
+            importProc_ = nullptr;
+            const QString err = QString::fromLocal8Bit(proc->readAllStandardError());
+            proc->deleteLater();
+
+            importBtn_->setEnabled(true);
+            importBtn_->setText(tr("导入"));
+            const bool ok = (st == QProcess::NormalExit && code == 0);
+
+            importStatus_->setStyleSheet(ok ? QString()
+                                            : QStringLiteral("color:#C0392B;"));
+            const QString msg = ok ? tr("导入完成") : tr("导入失败");
+            importStatus_->setText(msg);
+            importStatus_->setToolTip(ok ? QString() : err);
+            importStatus_->setVisible(true);
+            QTimer::singleShot(ok ? 5000 : 3000, importStatus_, [this, msg]{
+                if (importStatus_->text() == msg)
+                    importStatus_->setVisible(false);
+            });
+            if (!ok) return;   // 失败只在行内提示，不弹窗
+
+            // 导入内容需重启才能完全生效
+            QMessageBox done(QMessageBox::Question, tr("导入数据备份"),
+                             tr("数据已导入，需要重启图绳才能完全生效，是否立即重启？"),
+                             QMessageBox::Yes | QMessageBox::No);
+            done.setDefaultButton(QMessageBox::Yes);
+            if (done.exec() != QMessageBox::Yes) return;
+            QProcess::startDetached(QCoreApplication::applicationFilePath(), QStringList());
+            QCoreApplication::quit();
+        });
+
+        importProc_->start(QStringLiteral("powershell"),
+                           {QStringLiteral("-NoProfile"), QStringLiteral("-Command"), ps});
     });
 
 }

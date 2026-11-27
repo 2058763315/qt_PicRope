@@ -34,7 +34,7 @@
 
     /* ---------- 首页 · 英雄区 ---------- */
     "截图 · 上绳": "shot · hang",
-    "自定义挂绳热键 · 数据备份": "Customizable hotkey · Data backup",
+    "v1.1.6 · 设置中心重做 · 自动清理与存储空间": "v1.1.6 · Settings rebuilt · Auto cleanup and storage usage",
     "截图，本该随手一放。": "Screenshots, right where you left them.",
     "截图自动收集到屏幕顶部的一条绳子上，鼠标移到顶部即展开，离开自行收起。 单击即可复制，双击用内置查看器打开，暂时用不上的丢进图片篮子。":
       "New screenshots collect on a rope at the top of your screen. Move the cursor up and it unfolds; move away and it hides. Click to copy, double-click to open in the viewer, or park the ones you don't need in the basket.",
@@ -331,16 +331,39 @@
       " to open it. The window has a section list on the left (Features / Shortcuts / Appearance / Data / Other / About); click one to jump there, and the current section is highlighted as you scroll.",
     "目录打包成 zip，方便迁移到另一台电脑；导出过程异步进行，界面显示进度与百分比，完成后行内提示「导出完成」，不会弹出窗口打断操作":
       "folder into a zip archive for moving to another computer. The export runs asynchronously with a progress bar and percentage, and shows “Export complete” inline afterwards instead of a popup.",
-    "设置界面改为左右两栏：左侧分区导航点击跳转，滚动时自动高亮，各分区收纳进卡片":
-      "Settings now uses two columns: a section list on the left for quick jumps, auto-highlighted as you scroll, with each section in its own card",
-    "新增自动清理：可分别设置图片篮子（挂绳 + 篮子合计）与文字笔记上限，默认 200":
-      "New auto cleanup: set separate limits for the image basket (rope + basket combined) and text notes, 200 by default",
-    "导出数据备份改为异步并显示进度，完成后行内提示，不再弹窗":
-      "Data export now runs asynchronously with a progress bar and an inline completion message instead of a popup",
-    "恢复默认设置移至独立「其他」分区，数据区统一为左侧描述 + 右侧按钮":
-      "Reset to defaults moved into its own Other section; data actions now use a description on the left and a button on the right",
-    "设置界面改为左右两栏，左侧分区导航点击跳转、滚动高亮，各分区收纳进卡片；新增自动清理（图片篮子与文字笔记上限分开设置，默认 200）；导出数据备份改为异步并显示进度，完成后行内提示不再弹窗；恢复默认设置移至「其他」分区；图片篮子右键新增复制与编辑（未挂 / 已挂通用）；设置新增导入数据备份；快捷键栏目列出全部快捷键":
-      "Two-column Settings with a jump list and scroll highlighting; auto cleanup with separate image and text limits (200 by default); asynchronous export with progress and an inline result; Reset to defaults moved to Other; basket context menu gains Copy and Edit; data import from a backup zip; a complete shortcut list",
+    "新增自动清理：设置 →「功能」新增开关，可分别设置图片篮子上限（挂绳 + 篮子合计）与文字笔记上限，默认 200，超出时从最早收集的内容开始移除":
+      "New auto cleanup: a switch under Settings → Features sets separate limits for images (rope + basket combined) and text notes, 200 by default; once exceeded, the oldest entries are removed",
+    "设置界面重构为左右两栏：左侧分区导航点击跳转、滚动时自动高亮，各分区收纳进浅色圆角卡片":
+      "Settings rebuilt as two columns: a section list on the left jumps on click and auto-highlights while scrolling, and each section sits in a light rounded card",
+    "存储空间：数据区新增「存储空间」，点击展开明细、异步扫描图片 / 文字笔记 / 配置与其它占用，勾选自动清理时同时显示数量与上限":
+      "Storage usage: a new row in Data; click to expand the breakdown, scanning images, text notes and config usage asynchronously, with counts and limits shown when auto cleanup is on",
+    "数据备份交互优化：导出 / 导入均改为异步，行内显示进度与结果、不再弹窗；恢复默认设置移至「其他」分区":
+      "Better data backup flow: export and import both run asynchronously, showing progress and results inline instead of popups; Reset to defaults moved to its own Other section",
+    "设置中心重做：左右两栏布局，左侧分区导航点击跳转、滚动高亮，各分区收纳进卡片；新增自动清理（图片篮子与文字笔记上限分开设置，默认 200）；数据区新增存储空间，异步扫描图片、文字笔记、配置与其它占用；导出 / 导入数据备份改为异步，行内提示结果；恢复默认设置移至「其他」分区":
+      "Settings rebuilt: two-column layout with a jump list on the left, auto-highlighted as you scroll, and each section in its own card; new auto cleanup with separate image and text limits (200 by default); new storage usage in Data, scanned asynchronously; export / import run asynchronously with inline results; Reset to defaults moved to Other",
+    "图片篮子右键新增复制与编辑（未挂 / 已挂通用）；设置新增导入数据备份，可从导出的 zip 恢复；快捷键栏目列出全部快捷键，提示文字支持中文并居中；移除冗余的区域截图全局快捷键；呼出的面板跟随鼠标所在屏幕":
+      "Basket context menu gains Copy and Edit on both tabs; new import data backup under Settings, restoring from an exported zip; the shortcut list shows every shortcut with a localized, centred hint; the redundant region-screenshot hotkey is gone; panels open on the monitor with the cursor",
+    "新增英文界面，设置中可切换简体中文 / English，重启生效；设置新增「功能」栏目（自动弹出、界面语言、开机自启）；托盘菜单与设置状态双向同步":
+      "New English UI, switched in Settings and applied after restart; a new Features section (auto pop-up, interface language, launch at login); tray and Settings stay in sync both ways",
+    "图片超过 7 张后卡片改为交叠排列；图片篮子双击改为内置查看器预览，缩略图固定 6 列铺满；优化首次启动卡片排列与查看器弹出位置":
+      "Cards overlap once there are more than 7 images; double-clicking in the basket previews in the built-in viewer, with thumbnails laid out in 6 columns; fixes for first-launch card layout and viewer placement",
+    "新增内置图片查看器，支持方向键切换、滚轮缩放与拖动平移；图片篮子支持搜索与重命名；截图按内容去重；移除「贴到桌面」置顶浮窗":
+      "New built-in image viewer with arrow-key paging, wheel zoom and drag-to-pan; basket search and rename; screenshots are de-duplicated by content; the pin-to-desktop window is removed",
+    "新增独立设置界面（外观 / 关于）与在线更新；托盘「外观」子菜单迁入设置；挂绳工具区新增设置入口；「文字信封」更名为「文字笔记」":
+      "New standalone Settings window (Appearance / About) and in-app updates; the tray Appearance submenu moves into Settings; a settings entry appears in the rope toolbar; “Text Envelope” is renamed “Text Notes”",
+    "修复单击复制后图片被重复挂绳；托盘菜单新增临时关闭顶部自动弹出（不写入配置）":
+      "Fixed an image being hung twice after click-to-copy; the tray menu gains a temporary switch for top-edge auto pop-up that is not saved to the config",
+    "修复面板首次打开卡顿；图片篮子支持取下绳子与批量操作；文字信封宽度与篮子统一；卸载前询问是否终止运行中的程序":
+      "Fixes sluggish first opening of panels; the basket can take images off the rope and supports batch actions; the text panel matches the basket width; uninstall now asks before closing a running instance",
+    "修复软件运行中卸载失败，安装 / 卸载前自动关闭进程；修复文字信封列表滚轮一次翻整页的问题":
+      "Fixed uninstall failing while the app was running by closing the process first; fixed the text list scrolling a whole page per wheel step",
+    "C++/Qt 重构版首个正式版本：挂绳、剪贴板与截图文件夹自动收集、桌面贴图、图片篮子与文字收藏、多套主题与托盘常驻":
+      "First stable release of the C++/Qt rewrite: the rope, automatic clipboard and screenshot-folder capture, pin-to-desktop, the basket and text collection, multiple themes and a tray-resident workflow",
+    "存储空间": "Storage usage",
+    "点击整行展开明细，右侧按钮扫描；异步统计图片、文字笔记、配置与其它占用，勾选自动清理时同时显示当前数量与上限":
+      "Click the row to expand the breakdown and use the button on the right to scan; images, text notes and config usage are counted asynchronously, and with auto cleanup on the current counts and limits are shown as well",
+    "从备份 zip 恢复设置与数据；导入异步进行，完成后行内提示「导入完成」并询问是否立即重启":
+      "Restore settings and data from a backup zip; the import runs asynchronously and shows “Import complete” inline afterwards, then asks whether to restart",
     "改了自动清理上限，为什么没有立即清理？":
       "Changed the auto cleanup limit, but nothing was cleaned up?",
     "新上限低于当前已存数量时，确认后只会先保存上限；实际清理会在下一次添加或删除图片 / 文字时进行，届时超出部分会按上限从最早收集的内容开始移除。":
