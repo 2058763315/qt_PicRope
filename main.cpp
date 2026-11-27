@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     QApplication::setApplicationName(QStringLiteral("PicRope"));
-    QApplication::setApplicationVersion(QStringLiteral("1.1.5"));
+    QApplication::setApplicationVersion(QStringLiteral("1.1.6"));
     QApplication::setApplicationDisplayName(QStringLiteral("图绳 PicRope"));
     QApplication::setOrganizationName(QStringLiteral("PicRope"));
     QApplication::setWindowIcon(QIcon(QStringLiteral(":/app.ico")));

@@ -31,6 +31,9 @@ struct SavedState {
     int    shelfOpacity           = 100;   // 挂绳不透明度（20~100%）
     int    hideDelayMs            = 1200;  // 鼠标离开后自动收起延迟（毫秒）
     QString toggleHotkey          = QStringLiteral("Ctrl+Alt+T");  // 显示/收起挂绳的全局热键
+    bool   autoClean              = false;  // 自动清理：超出上限时移除最早的图片 / 文字
+    int    imageLimit             = 200;    // 图片上限（挂绳 + 篮子合计）
+    int    textLimit              = 200;    // 文字笔记上限
     QString displayDevice;                 // 空 = 跟随鼠标
     QString lastUpdateNotification;
     QStringList images;                    // 挂绳的图片路径（最近 50）

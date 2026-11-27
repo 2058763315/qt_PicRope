@@ -16,6 +16,7 @@
 #include <QLabel>
 #include <QPainter>
 #include <QPainterPath>
+#include <QPainterPath>
 #include <QMouseEvent>
 #include <QGuiApplication>
 #include <QScreen>
@@ -127,6 +128,7 @@ PanelWindow::PanelWindow(const QString &title, QWidget *parent)
     header_ = new QHBoxLayout;
     header_->setContentsMargins(0, 0, 0, 0);
     auto *titleLabel = new QLabel(title, this);
+    titleLabel_ = titleLabel;
     QFont tf = titleLabel->font();
     tf.setPixelSize(16);
     tf.setBold(true);
@@ -135,6 +137,7 @@ PanelWindow::PanelWindow(const QString &title, QWidget *parent)
     header_->addStretch(1);
 
     auto *close = new QToolButton(this);
+    closeBtn_ = close;
     close->setObjectName(QStringLiteral("panelClose"));
     close->setText(QStringLiteral("×"));
     close->setFixedSize(36, 36);
@@ -176,6 +179,32 @@ void PanelWindow::hideEvent(QHideEvent *e)
     QWidget::hideEvent(e);
 }
 
+void PanelWindow::configureHeader(int height, int titlePx, int closeSize)
+{
+    if (titleLabel_) {
+        QFont f = titleLabel_->font();
+        f.setPixelSize(titlePx);
+        titleLabel_->setFont(f);
+        titleLabel_->setFixedHeight(height);          // 标题行整体高度
+        titleLabel_->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    }
+    if (closeBtn_) {
+        closeBtn_->setFixedSize(closeSize, closeSize);
+        closeBtn_->setStyleSheet(QStringLiteral(
+            "QToolButton#panelClose{font-size:%1px;}").arg(qMax(16, closeSize - 8)));
+    }
+    // 标题行紧贴面板顶边，正好填满标题栏高度，内容区与标题栏之间保留间距
+    if (auto *v = qobject_cast<QVBoxLayout *>(layout()))
+        v->setContentsMargins(kMargin + 18, kMargin, kMargin + 18, kMargin + 16);
+}
+
+void PanelWindow::setHeaderTint(const QColor &color, int height)
+{
+    headerTint_ = color;
+    headerTintHeight_ = height;
+    update();
+}
+
 void PanelWindow::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
@@ -191,6 +220,21 @@ void PanelWindow::paintEvent(QPaintEvent *)
                           18 + i * 0.7, 18 + i * 0.7);
     }
     p.setBrush(QColor(253, 254, 255, 251));
+    p.setPen(Qt::NoPen);
+    p.drawRoundedRect(panel, 18, 18);
+
+    // 标题栏底色：裁到面板圆角内，避免盖住圆角与边框
+    if (headerTint_.isValid() && headerTintHeight_ > 0) {
+        QPainterPath clip;
+        clip.addRoundedRect(panel.adjusted(1, 1, -1, -1), 17, 17);
+        p.save();
+        p.setClipPath(clip);
+        p.fillRect(QRectF(panel.left(), panel.top(), panel.width(), headerTintHeight_),
+                   headerTint_);
+        p.restore();
+    }
+
+    p.setBrush(Qt::NoBrush);
     p.setPen(QPen(QColor("#DDE3EC"), 1));
     p.drawRoundedRect(panel, 18, 18);
 }

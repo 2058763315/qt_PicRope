@@ -6,6 +6,10 @@
 // =====================================================================
 
 #include <QWidget>
+#include <QColor>
+
+class QLabel;
+class QToolButton;
 #include <QPoint>
 #include <QRect>
 #include <QStringList>
@@ -32,6 +36,12 @@ public:
     // anchor 为工具托板（三个按钮）的屏幕矩形：面板贴在它左侧显示
     void showPanel(const QRect &anchor);
 
+    // 标题栏区域铺一层底色，让顶部与内容区形成层次（不传则保持整窗白色）
+    void setHeaderTint(const QColor &color, int height = 74);
+
+    // 调整标题行高度、标题字号与关闭按钮尺寸（默认不调用，保持原样式）
+    void configureHeader(int height, int titlePx, int closeSize);
+
 signals:
     void hidden();
 
@@ -50,6 +60,10 @@ private:
     QHBoxLayout *header_ = nullptr;
     QPoint dragOffset_;
     bool dragging_ = false;
+    QColor headerTint_;          // 标题栏底色，无效则不绘制
+    int headerTintHeight_ = 0;
+    QLabel *titleLabel_ = nullptr;
+    QToolButton *closeBtn_ = nullptr;
 };
 
 // 图片篮子：待挂 / 全部，两种视图，多选后挂上绳子；支持按文件名搜索与右键重命名

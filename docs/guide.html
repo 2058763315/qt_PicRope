@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN" dir="ltr">
 <head>
 <meta charset="utf-8">
@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#f3f6fa">
 <link rel="icon" href="./app.ico" type="image/x-icon">
 <link rel="apple-touch-icon" href="./app.ico">
-<link rel="stylesheet" href="style.css?v=1.1.5">
+<link rel="stylesheet" href="style.css?v=1.1.6">
 </head>
 <body>
 
@@ -22,9 +22,9 @@
     <nav class="nav-links">
       <a href="index.html#features">功能</a>
       <a href="index.html#basket">篮子</a>
-      <a href="guide.html" class="active">文档</a>
       <a href="index.html#download">下载</a>
       <a href="index.html#faq">常见问题</a>
+      <a href="guide.html" class="active">文档</a>
       <a href="https://github.com/2058763315/qt_PicRope" target="_blank" rel="noreferrer">GitHub</a>
     </nav>
     <div class="nav-right">
@@ -46,7 +46,7 @@
   <div class="container doc-hero">
     <div class="crumb"><a href="index.html">首页</a> / 使用文档</div>
     <h1>使用文档</h1>
-    <p>从安装到日常使用，按顺序读一遍大约十分钟。适用于 1.1.5 版本，Windows 10 / 11 64 位。</p>
+    <p>从安装到日常使用，按顺序读一遍大约十分钟。适用于 1.1.6 版本，Windows 10 / 11 64 位。</p>
   </div>
 
   <div class="container doc-shell">
@@ -84,8 +84,8 @@
       <table>
         <thead><tr><th>版本</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>安装版</td><td>双击 <code>PicRope-1.1.5-Setup.exe</code> 按向导安装，可选开机自启；升级与卸载都会保留 <code>data</code> <span data-i18n="folder">目录</span></td></tr>
-          <tr><td>绿色版</td><td>解压 <code>PicRope-1.1.5-win64.zip</code> 后直接运行 <code>PicRope.exe</code>，不写系统目录</td></tr>
+          <tr><td>安装版</td><td>双击 <code>PicRope-1.1.6-Setup.exe</code> 按向导安装，可选开机自启；升级与卸载都会保留 <code>data</code> <span data-i18n="folder">目录</span></td></tr>
+          <tr><td>绿色版</td><td>解压 <code>PicRope-1.1.6-win64.zip</code> 后直接运行 <code>PicRope.exe</code>，不写系统目录</td></tr>
         </tbody>
       </table>
 
@@ -145,7 +145,7 @@
       </ul>
 
       <h2 id="settings">设置项</h2>
-      <p>托盘菜单<code>设置…</code>打开。设置分为五组：</p>
+      <p>托盘菜单<code>设置…</code>打开。窗口左侧是分区导航（功能 / 快捷键 / 外观 / 数据 / 其他 / 关于），点击即可跳到对应分区，滚动时左侧会自动高亮当前所在分区。</p>
 
       <h3>功能</h3>
       <table>
@@ -157,9 +157,13 @@
           <tr><td>新图片自动上绳</td><td>与托盘菜单同步；关闭后新图先收进图片篮子，需要时再挂上绳子</td></tr>
           <tr><td>界面语言</td><td>简体中文 / English，切换后提示重启，重启生效</td></tr>
           <tr><td>开机时自动启动图绳</td><td>绿色版可直接勾选；与安装包写入同一注册表项，安装时勾选的自启也能在这里关闭</td></tr>
+          <tr><td>自动清理</td><td>勾选后可分别设置图片与文字笔记的上限，超过上限时自动清理最早收集的内容</td></tr>
+          <tr><td>图片篮子上限</td><td>统计所有图片总数（挂绳 + 篮子合计），不是单独的已挂或未挂；默认 200</td></tr>
+          <tr><td>文字笔记上限</td><td>文字笔记总数上限，默认 200</td></tr>
         </tbody>
       </table>
       <div class="callout">若注册表里的自启项指向旧版本路径，取消勾选再重新勾选一次，即可更新为当前程序的路径。</div>
+      <div class="callout">把上限改到低于当前已存数量时会先弹窗确认：选「否」取消修改并恢复原值，选「是」才保存新上限。</div>
 
       <h3>快捷键</h3>
       <p>「显示 / 收起挂绳」的热键可以自定义：点进输入框，按下新的组合键即可，默认 <span class="kbd">Ctrl</span> <span class="kbd">Alt</span> <span class="kbd">T</span>。</p>
@@ -181,10 +185,17 @@
       <table>
         <thead><tr><th>设置</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>导出数据备份…</td><td>把 <code>data</code> 目录打包成 zip，方便迁移到另一台电脑</td></tr>
-          <tr><td>导入数据备份…</td><td>从备份 zip 恢复设置与数据，导入后会提示重启</td></tr>
+          <tr><td>导出数据备份</td><td>把 <code>data</code> 目录打包成 zip，方便迁移到另一台电脑；导出过程异步进行，界面显示进度与百分比，完成后行内提示「导出完成」，不会弹出窗口打断操作</td></tr>
+          <tr><td>导入数据备份</td><td>从备份 zip 恢复设置与数据，导入后会提示重启</td></tr>
           <tr><td>打开数据目录</td><td>直接打开 <code>data</code> 文件夹，查看图片与配置</td></tr>
-          <tr><td>恢复默认设置…</td><td>重置所有设置项，保留图片与文字笔记；可选择立即重启</td></tr>
+        </tbody>
+      </table>
+
+      <h3>其他</h3>
+      <table>
+        <thead><tr><th>设置</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>恢复默认设置</td><td>重置所有设置项，保留图片与文字笔记；可选择立即重启</td></tr>
         </tbody>
       </table>
 
@@ -212,10 +223,13 @@
       <p>语言切换为重启生效。在设置中选择语言后按提示立即重启，或手动退出（托盘菜单<code>退出图绳</code>）再启动。</p>
       <h3>数据存在哪里？</h3>
       <p>程序目录下的 <code>data</code> 文件夹，包含配置与收集的图片、文字。升级与卸载都会保留。</p>
+      <h3>改了自动清理上限，为什么没有立即清理？</h3>
+      <p>新上限低于当前已存数量时，确认后只会先保存上限；实际清理会在下一次添加或删除图片 / 文字时进行，届时超出部分会按上限从最早收集的内容开始移除。</p>
 
       <h2 id="changelog">更新记录</h2>
       <ul>
-        <li><strong>1.1.5</strong> 移除冗余的区域截图全局快捷键（系统自带 Win+Shift+S 已覆盖）；优化多屏环境，呼出的图片篮子、文字笔记与设置窗口跟随鼠标所在屏幕；图片篮子右键新增复制与编辑（未挂 / 已挂通用）；设置新增导入数据备份；快捷键栏目列出全部快捷键</li>
+        <li><strong>1.1.6</strong> 设置界面改为左右两栏，左侧分区导航点击跳转、滚动高亮，各分区收纳进卡片；新增自动清理（图片篮子与文字笔记上限分开设置，默认 200）；导出数据备份改为异步并显示进度，完成后行内提示不再弹窗；恢复默认设置移至「其他」分区；图片篮子右键新增复制与编辑（未挂 / 已挂通用）；设置新增导入数据备份；快捷键栏目列出全部快捷键</li>
+        <li><strong>1.1.5</strong> 移除冗余的区域截图全局快捷键（系统自带 Win+Shift+S 已覆盖）；优化多屏环境，呼出的图片篮子、文字笔记与设置窗口跟随鼠标所在屏幕</li>
         <li><strong>1.1.4</strong> 设置新增剪贴板收集、新图片自动上绳、卡片尺寸、挂绳不透明度、收起延迟、自定义挂绳热键，以及数据备份 / 打开目录 / 恢复默认设置；设置界面支持上下滚动</li>
         <li><strong>1.1.3</strong> 新增英文界面；设置新增「功能」栏目（自动弹出、界面语言、开机自启）；托盘与设置状态同步；修复语言下拉取消后状态错位</li>
         <li><strong>1.1.2</strong> 稳定性与细节优化</li>
@@ -243,7 +257,7 @@
   </div>
 </footer>
 
-<script src="site.js?v=1.1.5d"></script>
-<script src="i18n.js?v=1.1.5"></script>
+<script src="site.js?v=1.1.6d"></script>
+<script src="i18n.js?v=1.1.6d"></script>
 </body>
 </html>

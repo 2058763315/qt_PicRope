@@ -173,8 +173,8 @@
     "/ 使用文档": "/ Documentation",
     "使用文档": "Documentation",
     "托盘菜单": "Open it from the tray menu's",
-    "从安装到日常使用，按顺序读一遍大约十分钟。适用于 1.1.5 版本，Windows 10 / 11 64 位。":
-      "From install to daily use, about ten minutes read in order. Written for 1.1.5 on Windows 10 / 11 64-bit.",
+    "从安装到日常使用，按顺序读一遍大约十分钟。适用于 1.1.6 版本，Windows 10 / 11 64 位。":
+      "From install to daily use, about ten minutes read in order. Written for 1.1.6 on Windows 10 / 11 64-bit.",
     "目录": "Contents",
     "快速开始": "Quick start",
     "截图收集": "Capturing screenshots",
@@ -310,14 +310,48 @@
     "直接打开": "Open the",
     "文件夹，查看图片与配置": "folder to browse images and settings",
     "恢复默认设置…": "Reset to defaults…",
+    "恢复默认设置": "Reset to defaults",
     "重置所有设置项，保留图片与文字笔记；可选择立即重启":
       "Resets every setting but keeps images and text notes; you can restart right away",
+    /* ---------- 1.1.6 新增 ---------- */
+    "其他": "Other",
+    "导出数据备份": "Export data backup",
+    "导入数据备份": "Import data backup",
+    "自动清理": "Auto cleanup",
+    "勾选后可分别设置图片与文字笔记的上限，超过上限时自动清理最早收集的内容":
+      "When enabled, set separate limits for images and text notes; the oldest entries are removed automatically once a limit is exceeded",
+    "图片篮子上限": "Image basket limit",
+    "统计所有图片总数（挂绳 + 篮子合计），不是单独的已挂或未挂；默认 200":
+      "Counts every image together (rope + basket), not the hung or un-hung list alone; 200 by default",
+    "文字笔记上限": "Text note limit",
+    "文字笔记总数上限，默认 200": "Maximum number of text notes, 200 by default",
+    "把上限改到低于当前已存数量时会先弹窗确认：选「否」取消修改并恢复原值，选「是」才保存新上限。":
+      "Lowering a limit below the current count asks first: choose No to cancel and keep the previous value, or Yes to apply the new limit.",
+    "打开。窗口左侧是分区导航（功能 / 快捷键 / 外观 / 数据 / 其他 / 关于），点击即可跳到对应分区，滚动时左侧会自动高亮当前所在分区。":
+      " to open it. The window has a section list on the left (Features / Shortcuts / Appearance / Data / Other / About); click one to jump there, and the current section is highlighted as you scroll.",
+    "目录打包成 zip，方便迁移到另一台电脑；导出过程异步进行，界面显示进度与百分比，完成后行内提示「导出完成」，不会弹出窗口打断操作":
+      "folder into a zip archive for moving to another computer. The export runs asynchronously with a progress bar and percentage, and shows “Export complete” inline afterwards instead of a popup.",
+    "设置界面改为左右两栏：左侧分区导航点击跳转，滚动时自动高亮，各分区收纳进卡片":
+      "Settings now uses two columns: a section list on the left for quick jumps, auto-highlighted as you scroll, with each section in its own card",
+    "新增自动清理：可分别设置图片篮子（挂绳 + 篮子合计）与文字笔记上限，默认 200":
+      "New auto cleanup: set separate limits for the image basket (rope + basket combined) and text notes, 200 by default",
+    "导出数据备份改为异步并显示进度，完成后行内提示，不再弹窗":
+      "Data export now runs asynchronously with a progress bar and an inline completion message instead of a popup",
+    "恢复默认设置移至独立「其他」分区，数据区统一为左侧描述 + 右侧按钮":
+      "Reset to defaults moved into its own Other section; data actions now use a description on the left and a button on the right",
+    "设置界面改为左右两栏，左侧分区导航点击跳转、滚动高亮，各分区收纳进卡片；新增自动清理（图片篮子与文字笔记上限分开设置，默认 200）；导出数据备份改为异步并显示进度，完成后行内提示不再弹窗；恢复默认设置移至「其他」分区；图片篮子右键新增复制与编辑（未挂 / 已挂通用）；设置新增导入数据备份；快捷键栏目列出全部快捷键":
+      "Two-column Settings with a jump list and scroll highlighting; auto cleanup with separate image and text limits (200 by default); asynchronous export with progress and an inline result; Reset to defaults moved to Other; basket context menu gains Copy and Edit; data import from a backup zip; a complete shortcut list",
+    "改了自动清理上限，为什么没有立即清理？":
+      "Changed the auto cleanup limit, but nothing was cleaned up?",
+    "新上限低于当前已存数量时，确认后只会先保存上限；实际清理会在下一次添加或删除图片 / 文字时进行，届时超出部分会按上限从最早收集的内容开始移除。":
+      "When a new limit is lower than the current count, only the limit is saved after you confirm. The actual cleanup runs the next time images or notes are added or removed, trimming the oldest entries down to the limit.",
     "关于": "About",
     "显示当前版本号，并可手动": "Shows the current version and lets you",
     "后，启动时会自动查询新版本；发现新版本时可下载并启动安装程序。":
       "makes it look for a new release at startup; when one is found you can download it and start the installer.",
     "快捷键": "Shortcuts",
     "区域截图（Windows 系统默认）": "Region screenshot (Windows default)",
+    "区域截图": "Region screenshot",
     "查看器缩放复位到 100%": "Reset viewer zoom to 100%",
     "绳子没有自动弹出？": "The rope doesn't pop up?",
     "确认托盘菜单里的": "Make sure the tray menu's",

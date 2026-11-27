@@ -19,22 +19,22 @@
         <translation>The installer will launch automatically after download. The app will exit during installation.</translation>
     </message>
     <message>
-        <location filename="../app.cpp" line="364"/>
+        <location filename="../app.cpp" line="395"/>
         <source>快捷键</source>
         <translation>Shortcuts</translation>
     </message>
     <message>
-        <location filename="../app.cpp" line="365"/>
+        <location filename="../app.cpp" line="396"/>
         <source>快捷键 %1 注册失败，可能已被其它程序占用。</source>
         <translation>Failed to register hotkey %1. It may already be in use by another program.</translation>
     </message>
     <message>
-        <location filename="../app.cpp" line="287"/>
+        <location filename="../app.cpp" line="315"/>
         <source>保存图片副本</source>
         <translation>Save Image Copy</translation>
     </message>
     <message>
-        <location filename="../app.cpp" line="289"/>
+        <location filename="../app.cpp" line="317"/>
         <source>图片 (*.png *.jpg *.jpeg *.bmp);;所有文件 (*)</source>
         <translation>Images (*.png *.jpg *.jpeg *.bmp);;All files (*)</translation>
     </message>
@@ -42,141 +42,141 @@
 <context>
     <name>BasketWindow</name>
     <message>
-        <location filename="../ui/panels.cpp" line="223"/>
+        <location filename="../ui/panels.cpp" line="246"/>
         <source>图片篮子</source>
         <translation>Image Basket</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="229"/>
+        <location filename="../ui/panels.cpp" line="252"/>
         <source>搜索图片文件名…</source>
         <translation>Search image file names…</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="236"/>
+        <location filename="../ui/panels.cpp" line="259"/>
         <source>清空搜索</source>
         <translation>Clear search</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="249"/>
+        <location filename="../ui/panels.cpp" line="272"/>
         <source>待挂</source>
         <translation>To Hang</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="250"/>
+        <location filename="../ui/panels.cpp" line="273"/>
         <source>已挂</source>
         <translation>Hung</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="262"/>
+        <location filename="../ui/panels.cpp" line="285"/>
         <source>打开文件夹</source>
         <translation>Open Folder</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="265"/>
+        <location filename="../ui/panels.cpp" line="288"/>
         <source>在资源管理器中打开图片所在文件夹</source>
         <translation>Open the folder containing images in File Explorer</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="291"/>
-        <location filename="../ui/panels.cpp" line="404"/>
+        <location filename="../ui/panels.cpp" line="314"/>
+        <location filename="../ui/panels.cpp" line="427"/>
         <source>挂上绳子</source>
         <translation>Hang on Rope</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="296"/>
+        <location filename="../ui/panels.cpp" line="319"/>
         <source>删除所选</source>
         <translation>Delete Selected</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="369"/>
+        <location filename="../ui/panels.cpp" line="392"/>
         <source>待挂 %1</source>
         <translation>To Hang: %1</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="370"/>
+        <location filename="../ui/panels.cpp" line="393"/>
         <source>已挂 %1</source>
         <translation>Hung: %1</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="394"/>
+        <location filename="../ui/panels.cpp" line="417"/>
         <source>没有匹配的图片</source>
         <translation>No matching images</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="395"/>
+        <location filename="../ui/panels.cpp" line="418"/>
         <source>篮子里的图片都已挂上绳子</source>
         <translation>All images in the basket are on the rope</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="396"/>
+        <location filename="../ui/panels.cpp" line="419"/>
         <source>还没有已挂上绳子的图片</source>
         <translation>No images on the rope yet</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="405"/>
+        <location filename="../ui/panels.cpp" line="428"/>
         <source>取下绳子</source>
         <translation>Take off Rope</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="414"/>
+        <location filename="../ui/panels.cpp" line="437"/>
         <source>双击预览图片；鼠标拖动可框选，或 Ctrl / Shift 点击多选</source>
         <translation>Double-click to preview; drag to marquee-select, or Ctrl/Shift-click to multi-select</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="423"/>
+        <location filename="../ui/panels.cpp" line="446"/>
         <source>已选择 %1 张</source>
         <translation>%1 selected</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="425"/>
+        <location filename="../ui/panels.cpp" line="448"/>
         <source>共 0 张</source>
         <translation>0 images</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="427"/>
+        <location filename="../ui/panels.cpp" line="450"/>
         <source>共 %1 张</source>
         <translation>%1 images</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="445"/>
+        <location filename="../ui/panels.cpp" line="468"/>
         <source>复制</source>
         <translation>Copy</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="446"/>
+        <location filename="../ui/panels.cpp" line="469"/>
         <source>编辑</source>
         <translation>Edit</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="448"/>
+        <location filename="../ui/panels.cpp" line="470"/>
         <source>重命名…</source>
         <translation>Rename…</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="465"/>
-        <location filename="../ui/panels.cpp" line="477"/>
         <location filename="../ui/panels.cpp" line="487"/>
-        <location filename="../ui/panels.cpp" line="492"/>
+        <location filename="../ui/panels.cpp" line="499"/>
+        <location filename="../ui/panels.cpp" line="509"/>
+        <location filename="../ui/panels.cpp" line="514"/>
         <source>重命名</source>
         <translation>Rename</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="466"/>
+        <location filename="../ui/panels.cpp" line="488"/>
         <source>新的文件名（不含扩展名）：</source>
         <translation>New file name (without extension):</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="478"/>
+        <location filename="../ui/panels.cpp" line="500"/>
         <source>文件名不能包含 \ / : * ? &quot; &lt; &gt; | 等字符。</source>
         <translation>File name cannot contain \ / : * ? &quot; &lt; &gt; | etc.</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="488"/>
+        <location filename="../ui/panels.cpp" line="510"/>
         <source>同名文件已存在，请换一个名字。</source>
         <translation>A file with the same name already exists. Please choose another name.</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="493"/>
+        <location filename="../ui/panels.cpp" line="515"/>
         <source>重命名失败，文件可能正被其他程序占用。</source>
         <translation>Rename failed. The file may be in use by another program.</translation>
     </message>
@@ -245,7 +245,7 @@
 <context>
     <name>PanelWindow</name>
     <message>
-        <location filename="../ui/panels.cpp" line="142"/>
+        <location filename="../ui/panels.cpp" line="143"/>
         <source>关闭</source>
         <translation>Close</translation>
     </message>
@@ -272,62 +272,87 @@
 <context>
     <name>SettingsDialog</name>
     <message>
-        <location filename="../ui/settings.cpp" line="346"/>
+        <location filename="../ui/settings.cpp" line="353"/>
         <source>设置</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="415"/>
-        <location filename="../ui/settings.cpp" line="419"/>
+        <location filename="../ui/settings.cpp" line="437"/>
+        <location filename="../ui/settings.cpp" line="441"/>
         <source>当前已是最新版</source>
         <translation>You&apos;re up to date</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="425"/>
-        <location filename="../ui/settings.cpp" line="986"/>
-        <location filename="../ui/settings.cpp" line="1028"/>
-        <location filename="../ui/settings.cpp" line="1040"/>
+        <location filename="../ui/settings.cpp" line="447"/>
+        <location filename="../ui/settings.cpp" line="1421"/>
+        <location filename="../ui/settings.cpp" line="1464"/>
+        <location filename="../ui/settings.cpp" line="1476"/>
         <source>检查更新</source>
         <translation>Check for Updates</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="432"/>
+        <location filename="../ui/settings.cpp" line="454"/>
         <source>发现新版本</source>
         <translation>New Version Available</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="433"/>
+        <location filename="../ui/settings.cpp" line="455"/>
         <source>发现新版本 %1，但该版本没有可自动安装的安装包，请前往发布页下载。</source>
         <translation>Version %1 is available, but there&apos;s no auto-installable package. Please download from the release page.</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="443"/>
+        <location filename="../ui/settings.cpp" line="465"/>
         <source>%1%</source>
         <translation>%1%</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="510"/>
+        <location filename="../ui/settings.cpp" line="557"/>
+        <location filename="../ui/settings.cpp" line="637"/>
         <source>功能</source>
         <translation>Features</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="516"/>
+        <location filename="../ui/settings.cpp" line="646"/>
         <source>鼠标移到屏幕顶部自动弹出挂绳</source>
         <translation>Auto-show the rope when the mouse reaches the top of the screen</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="647"/>
-        <location filename="../ui/settings.cpp" line="713"/>
+        <location filename="../ui/settings.cpp" line="767"/>
+        <location filename="../ui/settings.cpp" line="834"/>
+        <source>自动清理</source>
+        <translation>Auto cleanup</translation>
+    </message>
+    <message>
+        <source>图片篮子上限（挂绳 + 篮子合计）</source>
+        <translation type="vanished">Image limit (rope + basket combined)</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="803"/>
+        <source>文字笔记上限</source>
+        <translation>Text note limit</translation>
+    </message>
+    <message>
+        <source>当前已存储 %1 张图片，超过新的上限 %2。是否立即自动清理？</source>
+        <translation type="vanished">%1 images are stored, exceeding the new limit of %2. Clean up now?</translation>
+    </message>
+    <message>
+        <source>当前已存储 %1 条文字，超过新的上限 %2。是否立即自动清理？</source>
+        <translation type="vanished">%1 text notes are stored, exceeding the new limit of %2. Clean up now?</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="558"/>
+        <location filename="../ui/settings.cpp" line="937"/>
+        <location filename="../ui/settings.cpp" line="1018"/>
         <source>快捷键</source>
         <translation>Shortcuts</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="690"/>
+        <location filename="../ui/settings.cpp" line="919"/>
         <source>请按下快捷键…</source>
         <translation>Press a shortcut…</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="692"/>
+        <location filename="../ui/settings.cpp" line="995"/>
         <source>显示 / 收起挂绳</source>
         <translation>Show / hide rope</translation>
     </message>
@@ -336,43 +361,43 @@
         <translation type="vanished">Click the key box for &quot;Show / Hide Shelf&quot; and press a new combination to change it. Items with a lock icon on the right are built into the system or viewer and cannot be modified here.</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="714"/>
+        <location filename="../ui/settings.cpp" line="1019"/>
         <source>全局热键需要包含 Ctrl、Alt、Shift 或 Win 修饰键。</source>
         <translation>The global hotkey must include Ctrl, Alt, Shift or Win.</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="547"/>
+        <location filename="../ui/settings.cpp" line="677"/>
         <source>剪贴板收集 · 图片</source>
         <translation>Clipboard Capture · Images</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="552"/>
+        <location filename="../ui/settings.cpp" line="682"/>
         <source>剪贴板收集 · 文字</source>
         <translation>Clipboard Capture · Text</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="557"/>
+        <location filename="../ui/settings.cpp" line="687"/>
         <source>新图片自动上绳</source>
         <translation>Auto-hang new images</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="566"/>
+        <location filename="../ui/settings.cpp" line="696"/>
         <source>开机时自动启动图绳</source>
         <translation>Start PicRope at login</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="583"/>
-        <location filename="../ui/settings.cpp" line="604"/>
+        <location filename="../ui/settings.cpp" line="713"/>
+        <location filename="../ui/settings.cpp" line="734"/>
         <source>界面语言</source>
         <translation>Interface Language</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="589"/>
+        <location filename="../ui/settings.cpp" line="719"/>
         <source>简体中文</source>
         <translation>Simplified Chinese</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="605"/>
+        <location filename="../ui/settings.cpp" line="735"/>
         <source>界面语言将在重启后生效，是否立即重启图绳？</source>
         <translation>The interface language will take effect after restart. Restart PicRope now?</translation>
     </message>
@@ -385,224 +410,294 @@
         <translation type="vanished">Click and press a new key combination (must include Ctrl / Alt / Shift / Win)</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="695"/>
+        <location filename="../ui/settings.cpp" line="998"/>
         <source>区域截图</source>
         <translation>Screenshot</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="696"/>
+        <location filename="../ui/settings.cpp" line="999"/>
         <source>系统默认截图快捷键，无法在此修改，可在 Windows 设置中更改。</source>
         <translation>System default screenshot shortcut. Cannot be changed here; modify it in Windows Settings.</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="697"/>
+        <location filename="../ui/settings.cpp" line="1000"/>
         <source>图片查看器 · 切换图片</source>
         <translation>Image Viewer · Previous/Next</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="698"/>
-        <location filename="../ui/settings.cpp" line="700"/>
-        <location filename="../ui/settings.cpp" line="702"/>
+        <location filename="../ui/settings.cpp" line="1001"/>
+        <location filename="../ui/settings.cpp" line="1003"/>
+        <location filename="../ui/settings.cpp" line="1005"/>
         <source>图片查看器内置快捷键，无法在此修改。</source>
         <translation>Built-in shortcut of the image viewer; cannot be modified here.</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="699"/>
+        <location filename="../ui/settings.cpp" line="1002"/>
         <source>图片查看器 · 缩放复位</source>
         <translation>Image Viewer · Reset Zoom</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="701"/>
+        <location filename="../ui/settings.cpp" line="1004"/>
         <source>图片查看器 · 关闭</source>
         <translation>Image Viewer · Close</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="728"/>
+        <location filename="../ui/settings.cpp" line="559"/>
+        <location filename="../ui/settings.cpp" line="1034"/>
         <source>外观</source>
         <translation>Appearance</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="790"/>
+        <location filename="../ui/settings.cpp" line="561"/>
+        <location filename="../ui/settings.cpp" line="1314"/>
+        <source>其他</source>
+        <translation>Other</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="830"/>
+        <source>当前已存储 %1 张图片，超过新的上限 %2。是否确定修改？</source>
+        <translation>%1 images are already stored, exceeding the new limit of %2. Apply this change?</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="832"/>
+        <source>当前已存储 %1 条文字，超过新的上限 %2。是否确定修改？</source>
+        <translation>%1 text notes are already stored, exceeding the new limit of %2. Apply this change?</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="1099"/>
         <source>卡片尺寸</source>
         <translation>Card Size</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="791"/>
+        <location filename="../ui/settings.cpp" line="1100"/>
         <source>小</source>
         <translation>Small</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="791"/>
+        <location filename="../ui/settings.cpp" line="1100"/>
         <source>中</source>
         <translation>Medium</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="791"/>
+        <location filename="../ui/settings.cpp" line="1100"/>
         <source>大</source>
         <translation>Large</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="793"/>
+        <location filename="../ui/settings.cpp" line="1102"/>
         <source>挂绳不透明度</source>
         <translation>Rope Opacity</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="798"/>
+        <location filename="../ui/settings.cpp" line="1107"/>
         <source>收起延迟</source>
         <translation>Auto-hide Delay</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="799"/>
+        <location filename="../ui/settings.cpp" line="1108"/>
         <source>300 毫秒</source>
         <translation>300 ms</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="799"/>
+        <location filename="../ui/settings.cpp" line="1108"/>
         <source>800 毫秒</source>
         <translation>800 ms</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="800"/>
+        <location filename="../ui/settings.cpp" line="1109"/>
         <source>1200 毫秒</source>
         <translation>1200 ms</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="800"/>
+        <location filename="../ui/settings.cpp" line="1109"/>
         <source>1500 毫秒</source>
         <translation>1500 ms</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="806"/>
+        <location filename="../ui/settings.cpp" line="560"/>
+        <location filename="../ui/settings.cpp" line="1115"/>
         <source>数据</source>
         <translation>Data</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="812"/>
+        <location filename="../ui/settings.cpp" line="802"/>
+        <source>图片篮子上限</source>
+        <translation>Image limit</translation>
+    </message>
+    <message>
         <source>导出数据备份…</source>
-        <translation>Export Data Backup…</translation>
+        <translation type="vanished">Export Data Backup…</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="813"/>
         <source>导入数据备份…</source>
-        <translation>Import Data Backup…</translation>
+        <translation type="vanished">Import Data Backup…</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="814"/>
+        <location filename="../ui/settings.cpp" line="1174"/>
         <source>打开数据目录</source>
         <translation>Open Data Folder</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="815"/>
         <source>恢复默认设置…</source>
-        <translation>Reset to Defaults…</translation>
+        <translation type="vanished">Reset to Defaults…</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="834"/>
-        <location filename="../ui/settings.cpp" line="846"/>
-        <location filename="../ui/settings.cpp" line="849"/>
+        <location filename="../ui/settings.cpp" line="1132"/>
+        <location filename="../ui/settings.cpp" line="1192"/>
         <source>导出数据备份</source>
         <translation>Export Data Backup</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="834"/>
-        <location filename="../ui/settings.cpp" line="859"/>
+        <location filename="../ui/settings.cpp" line="1192"/>
+        <location filename="../ui/settings.cpp" line="1269"/>
         <source>Zip 压缩包 (*.zip)</source>
         <translation>Zip Archive (*.zip)</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="847"/>
         <source>备份已保存到：
 %1</source>
-        <translation>Backup saved to:
+        <translation type="vanished">Backup saved to:
 %1</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="850"/>
         <source>备份失败：%1</source>
-        <translation>Backup failed: %1</translation>
+        <translation type="vanished">Backup failed: %1</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="859"/>
-        <location filename="../ui/settings.cpp" line="862"/>
-        <location filename="../ui/settings.cpp" line="886"/>
-        <location filename="../ui/settings.cpp" line="891"/>
+        <location filename="../ui/settings.cpp" line="1165"/>
+        <location filename="../ui/settings.cpp" line="1269"/>
+        <location filename="../ui/settings.cpp" line="1272"/>
+        <location filename="../ui/settings.cpp" line="1296"/>
+        <location filename="../ui/settings.cpp" line="1301"/>
         <source>导入数据备份</source>
         <translation>Import Data Backup</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="863"/>
+        <source>导入…</source>
+        <translation type="vanished">Import…</translation>
+    </message>
+    <message>
+        <source>打开…</source>
+        <translation type="vanished">Open…</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="1207"/>
+        <source>导出中…</source>
+        <translation>Exporting…</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="1245"/>
+        <source>导出完成</source>
+        <translation>Export complete</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="1245"/>
+        <source>导出失败</source>
+        <translation>Export failed</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="1273"/>
         <source>导入将用备份中的内容覆盖当前设置与数据（图片、文字笔记等），建议先导出一份当前备份。是否继续？</source>
         <translation>Importing will overwrite current settings and data (images, text notes, etc.) with the backup. It is recommended to export a backup first. Continue?</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="887"/>
+        <location filename="../ui/settings.cpp" line="1297"/>
         <source>导入失败：%1</source>
         <translation>Import failed: %1</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="892"/>
+        <location filename="../ui/settings.cpp" line="1302"/>
         <source>数据已导入，需要重启图绳才能完全生效，是否立即重启？</source>
         <translation>Data imported. PicRope must restart for the changes to take full effect. Restart now?</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="902"/>
-        <location filename="../ui/settings.cpp" line="916"/>
+        <location filename="../ui/settings.cpp" line="1323"/>
+        <location filename="../ui/settings.cpp" line="1335"/>
+        <location filename="../ui/settings.cpp" line="1349"/>
         <source>恢复默认设置</source>
         <translation>Reset to Defaults</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="903"/>
+        <location filename="../ui/settings.cpp" line="1327"/>
+        <source>恢复默认</source>
+        <translation>Reset</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="1336"/>
         <source>所有设置项将恢复为默认值（图片、文字笔记与收集的文件都会保留），是否继续？</source>
         <translation>All settings will be restored to their defaults (images, text notes, and collected files are kept). Continue?</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="917"/>
+        <location filename="../ui/settings.cpp" line="1350"/>
         <source>已恢复默认设置，重启后完全生效，是否立即重启图绳？</source>
         <translation>Settings have been reset to defaults and take full effect after a restart. Restart PicRope now?</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="928"/>
+        <location filename="../ui/settings.cpp" line="562"/>
+        <location filename="../ui/settings.cpp" line="1361"/>
         <source>关于</source>
         <translation>About</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="933"/>
+        <location filename="../ui/settings.cpp" line="1158"/>
+        <location filename="../ui/settings.cpp" line="1237"/>
+        <source>导出</source>
+        <translation>Export</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="1167"/>
+        <source>导入</source>
+        <translation>Import</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="1176"/>
+        <source>打开</source>
+        <translation>Open</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="1369"/>
         <source>自动检查更新</source>
         <translation>Check for updates automatically</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="954"/>
+        <location filename="../ui/settings.cpp" line="1389"/>
         <source>当前版本为 %1</source>
         <translation>Current version: %1</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="979"/>
-        <location filename="../ui/settings.cpp" line="1013"/>
+        <location filename="../ui/settings.cpp" line="1151"/>
+        <location filename="../ui/settings.cpp" line="1211"/>
+        <location filename="../ui/settings.cpp" line="1414"/>
+        <location filename="../ui/settings.cpp" line="1449"/>
         <source>0%</source>
         <translation>0%</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="999"/>
+        <source>导出…</source>
+        <translation type="vanished">Export…</translation>
+    </message>
+    <message>
+        <location filename="../ui/settings.cpp" line="1435"/>
         <source>检查中…</source>
         <translation>Checking…</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="1011"/>
+        <location filename="../ui/settings.cpp" line="1447"/>
         <source>下载中…</source>
         <translation>Downloading…</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="1021"/>
+        <location filename="../ui/settings.cpp" line="1457"/>
         <source>100%</source>
         <translation>100%</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="1023"/>
+        <location filename="../ui/settings.cpp" line="1459"/>
         <source>正在安装…</source>
         <translation>Installing…</translation>
     </message>
     <message>
-        <location filename="../ui/settings.cpp" line="1029"/>
+        <location filename="../ui/settings.cpp" line="1465"/>
         <source>无法启动安装程序：%1</source>
         <translation>Cannot launch installer: %1</translation>
     </message>
@@ -728,73 +823,73 @@
 <context>
     <name>TextsWindow</name>
     <message>
-        <location filename="../ui/panels.cpp" line="507"/>
+        <location filename="../ui/panels.cpp" line="529"/>
         <source>文字笔记</source>
         <translation>Text Notes</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="512"/>
+        <location filename="../ui/panels.cpp" line="534"/>
         <source>搜索文字…</source>
         <translation>Search text…</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="521"/>
+        <location filename="../ui/panels.cpp" line="543"/>
         <source>清空搜索</source>
         <translation>Clear search</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="543"/>
+        <location filename="../ui/panels.cpp" line="565"/>
         <source>选择左侧文字可查看全文</source>
         <translation>Select text on the left to view full content</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="554"/>
+        <location filename="../ui/panels.cpp" line="576"/>
         <source>鼠标拖动可框选，或 Ctrl / Shift 点击多选</source>
         <translation>Drag to marquee-select, or Ctrl/Shift-click to multi-select</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="557"/>
+        <location filename="../ui/panels.cpp" line="579"/>
         <source>复制所选</source>
         <translation>Copy Selected</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="558"/>
+        <location filename="../ui/panels.cpp" line="580"/>
         <source>删除所选</source>
         <translation>Delete Selected</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="584"/>
+        <location filename="../ui/panels.cpp" line="606"/>
         <source>已复制到剪贴板</source>
         <translation>Copied to clipboard</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="626"/>
+        <location filename="../ui/panels.cpp" line="648"/>
         <source>还没有收集到文字。复制文字后会自动出现在这里</source>
         <translation>No text collected yet. Copied text will appear here automatically</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="627"/>
+        <location filename="../ui/panels.cpp" line="649"/>
         <source>没有匹配的文字</source>
         <translation>No matching text</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="628"/>
+        <location filename="../ui/panels.cpp" line="650"/>
         <source>共 0 条</source>
         <translation>0 items</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="634"/>
-        <location filename="../ui/panels.cpp" line="690"/>
+        <location filename="../ui/panels.cpp" line="656"/>
+        <location filename="../ui/panels.cpp" line="712"/>
         <source>共 %1 条</source>
         <translation>%1 items</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="667"/>
+        <location filename="../ui/panels.cpp" line="689"/>
         <source>已复制 %1 条</source>
         <translation>%1 items copied</translation>
     </message>
     <message>
-        <location filename="../ui/panels.cpp" line="682"/>
+        <location filename="../ui/panels.cpp" line="704"/>
         <source>已删除 %1 条</source>
         <translation>%1 items deleted</translation>
     </message>

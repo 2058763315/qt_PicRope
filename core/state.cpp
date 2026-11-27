@@ -46,6 +46,9 @@ QJsonObject toJson(const SavedState &s)
     o["ShelfOpacity"] = s.shelfOpacity;
     o["HideDelayMs"] = s.hideDelayMs;
     o["ToggleHotkey"] = s.toggleHotkey;
+    o["AutoClean"] = s.autoClean;
+    o["ImageLimit"] = s.imageLimit;
+    o["TextLimit"] = s.textLimit;
     o["DisplayDevice"] = s.displayDevice;
     o["LastUpdateNotification"] = s.lastUpdateNotification;
 
@@ -80,6 +83,9 @@ bool fromJson(const QJsonObject &o, SavedState &s)
     s.toggleHotkey = o["ToggleHotkey"].toString(QStringLiteral("Ctrl+Alt+T"));
     if (s.toggleHotkey.trimmed().isEmpty())
         s.toggleHotkey = QStringLiteral("Ctrl+Alt+T");
+    s.autoClean = o["AutoClean"].toBool(false);
+    s.imageLimit = qBound(1, o["ImageLimit"].toInt(200), 99999);
+    s.textLimit = qBound(1, o["TextLimit"].toInt(200), 99999);
     s.displayDevice = o["DisplayDevice"].toString();
     s.lastUpdateNotification = o["LastUpdateNotification"].toString();
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN" dir="ltr">
 <head>
 <meta charset="utf-8">
@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#f3f6fa">
 <link rel="icon" href="./app.ico" type="image/x-icon">
 <link rel="apple-touch-icon" href="./app.ico">
-<link rel="stylesheet" href="style.css?v=1.1.5">
+<link rel="stylesheet" href="style.css?v=1.1.6">
 </head>
 <body id="top">
 
@@ -22,9 +22,9 @@
     <nav class="nav-links">
       <a href="#features" class="active">功能</a>
       <a href="#basket">篮子</a>
-      <a href="guide.html">文档</a>
       <a href="#download">下载</a>
       <a href="#faq">常见问题</a>
+      <a href="guide.html">文档</a>
       <a href="https://github.com/2058763315/qt_PicRope" target="_blank" rel="noreferrer">GitHub</a>
     </nav>
     <div class="nav-right">
@@ -243,6 +243,7 @@
 <div class="strip">
   <div class="container">
     <div class="item"><span class="kbd">Ctrl</span><span class="kbd">Alt</span><span class="kbd">T</span><span>呼出 / 收起挂绳</span></div>
+    <div class="item"><span class="kbd">Win</span><span class="kbd">Shift</span><span class="kbd">S</span><span>区域截图</span></div>
     <div class="item"><span class="kbd">←</span><span class="kbd">→</span><span>查看器切换图片</span></div>
     <div class="item"><span class="kbd">0</span><span>缩放复位 100%</span></div>
     <div class="item"><span class="kbd">Esc</span><span>关闭查看器</span></div>
@@ -275,7 +276,7 @@
           <li>卸载时保留图片与文字笔记数据</li>
           <li>开机自启可在设置中随时关闭</li>
         </ul>
-        <a class="btn dl-btn" href="https://github.com/2058763315/qt_PicRope/releases/download/v1.1.5/PicRope-1.1.5-Setup.exe" data-asset="setup">下载安装包</a>
+        <a class="btn dl-btn" href="https://github.com/2058763315/qt_PicRope/releases/download/v1.1.6/PicRope-1.1.6-Setup.exe" data-asset="setup">下载安装包</a>
       </article>
 
       <article class="dl-card">
@@ -293,17 +294,21 @@
           <li>数据保存在程序旁的 data 文件夹</li>
           <li>开机自启可在「设置 → 功能」中开启</li>
         </ul>
-        <a class="btn btn-light dl-btn" href="https://github.com/2058763315/qt_PicRope/releases/download/v1.1.5/PicRope-1.1.5-win64.zip" data-asset="zip">下载压缩包</a>
+        <a class="btn btn-light dl-btn" href="https://github.com/2058763315/qt_PicRope/releases/download/v1.1.6/PicRope-1.1.6-win64.zip" data-asset="zip">下载压缩包</a>
       </article>
     </div>
 
     <div class="dl-log reveal">
       <div class="dl-log-head">
-        <span class="ver">1.1.5</span>
+        <span class="ver">1.1.6</span>
         <h4>本次更新</h4>
         <a class="link-btn log-more" href="https://github.com/2058763315/qt_PicRope/releases" target="_blank" rel="noreferrer">全部更新记录 →</a>
       </div>
       <ul>
+        <li>设置界面改为左右两栏：左侧分区导航点击跳转，滚动时自动高亮，各分区收纳进卡片</li>
+        <li>新增自动清理：可分别设置图片篮子（挂绳 + 篮子合计）与文字笔记上限，默认 200</li>
+        <li>导出数据备份改为异步并显示进度，完成后行内提示，不再弹窗</li>
+        <li>恢复默认设置移至独立「其他」分区，数据区统一为左侧描述 + 右侧按钮</li>
         <li>图片篮子右键新增复制与编辑，未挂 / 已挂通用</li>
         <li>设置 → 数据新增导入数据备份，可从备份 zip 恢复</li>
         <li>快捷键栏目列出全部快捷键，可修改项点击后等待输入，不可修改项悬停说明</li>
@@ -347,6 +352,10 @@
         <summary>为什么切换语言后需要重启？</summary>
         <p>当前版本采用重启生效的方式加载翻译文件，切换时会询问是否立即重启，选「否」则保持原语言不变。</p>
       </details>
+      <details>
+        <summary>改了自动清理上限，为什么没有立即清理？</summary>
+        <p>新上限低于当前已存数量时，确认后只会先保存上限；实际清理会在下一次添加或删除图片 / 文字时进行，届时超出部分会按上限从最早收集的内容开始移除。</p>
+      </details>
     </div>
   </div>
 </section>
@@ -364,7 +373,7 @@
   </div>
 </footer>
 
-<script src="site.js?v=1.1.5d"></script>
-<script src="i18n.js?v=1.1.5"></script>
+<script src="site.js?v=1.1.6d"></script>
+<script src="i18n.js?v=1.1.6d"></script>
 </body>
 </html>

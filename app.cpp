@@ -153,6 +153,9 @@ void AppController::connectAll()
     connect(texts_, &TextCollection::changed, this, [this]{
         if (shelf_) shelf_->refreshBadges();
     });
+    // 收集变化后按「自动清理」上限裁剪（超出时移除最早的内容）
+    connect(gallery_, &Gallery::changed, this, &AppController::enforceLimits);
+    connect(texts_, &TextCollection::changed, this, &AppController::enforceLimits);
     connect(capture_, &CapturePipeline::arrived, this, [this](const QString &, bool){
         if (shelf_) shelf_->slideIn(2200);
     });
@@ -281,6 +284,31 @@ void AppController::onTrash(CaptureItem *item)
     if (ownCopy) QFile::moveToTrash(path);
 }
 
+void AppController::enforceLimits()
+{
+    if (!store_->state.autoClean || trimming_) return;
+    trimming_ = true;
+
+    auto isOwnCopy = [this](const QString &path){
+        return QFileInfo(path).absoluteDir().absolutePath().compare(
+            QDir(store_->inbox).absolutePath(), Qt::CaseInsensitive) == 0;
+    };
+
+    // 图片：上限统计挂绳与篮子的全部图片，超出时从最早收集的开始移除
+    while (gallery_->collected.size() > store_->state.imageLimit) {
+        Gallery::ItemPtr oldest = gallery_->collected.first();
+        const QString path = oldest->path;
+        gallery_->forget(oldest.data());
+        if (isOwnCopy(path)) QFile::moveToTrash(path);
+    }
+
+    // 文字：新条目插入头部，超出时从末尾（最旧）开始移除
+    while (texts_->items().size() > store_->state.textLimit)
+        texts_->remove(&texts_->items().last());
+
+    trimming_ = false;
+}
+
 void AppController::onSave(CaptureItem *item)
 {
     const QString dest = QFileDialog::getSaveFileName(
@@ -319,6 +347,9 @@ void AppController::onSettings()
         settings_ = new SettingsDialog(store_);
         connect(settings_, &SettingsDialog::themeSelected,
                 this, &AppController::applyTheme);
+        // 自动清理：用户确认立即清理时按上限裁剪现有内容
+        connect(settings_, &SettingsDialog::cleanupRequested,
+                this, &AppController::enforceLimits);
         // 设置界面的顶部自动弹出与托盘菜单同一份状态，改动后同步两边
         connect(settings_, &SettingsDialog::edgePopupChanged, this, [this](bool enabled){
             if (shelf_) shelf_->setEdgePopupEnabled(enabled);

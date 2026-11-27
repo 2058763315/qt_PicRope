@@ -53,6 +53,7 @@ private:
     void showPanelBesideDock(PanelWindow *panel);
     void syncShelfHold();
     void onCaptureShortcut();
+    void enforceLimits();          // 自动清理：图片上限按挂绳 + 篮子合计，文字按条目数
 
     StateStore *store_;
     Gallery *gallery_ = nullptr;
@@ -68,4 +69,5 @@ private:
     ImageViewer *viewer_ = nullptr;
     QString activeHotkey_;      // 当前已成功注册的显示/收起热键（注册失败时用于回滚）
     bool running_ = false;
+    bool trimming_ = false;     // 自动清理进行中，避免 changed 信号递归
 };
