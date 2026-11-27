@@ -4,7 +4,7 @@
 English | [简体中文](README.md)
 
 [![GitHub release](https://img.shields.io/github/v/release/2058763315/qt_PicRope?label=release)](https://github.com/2058763315/qt_PicRope/releases)
-[![License](https://img.shields.io/github/license/2058763315/qt_PicRope)](https://github.com/2058763315/qt_PicRope/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/2058763315/qt_PicRope)](https://github.com/2058763315/qt_PicRope/blob/main/LICENSE.md)
 
 </div>
 
