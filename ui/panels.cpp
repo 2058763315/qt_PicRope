@@ -578,6 +578,7 @@ TextsWindow::TextsWindow(TextCollection *texts, QWidget *parent)
     list_ = new QListWidget(this);
     list_->setFixedWidth(300);
     list_->setWordWrap(false);
+    list_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);   // 文字已在刷新时省略，避免出现底部横向滚动条
     list_->setSelectionMode(QAbstractItemView::ExtendedSelection);
     list_->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     list_->viewport()->installEventFilter(this);
@@ -657,7 +658,7 @@ void TextsWindow::refresh()
 
         auto *row = new QListWidgetItem(QStringLiteral("%1\n%2").arg(line, when), list_);
         row->setData(Qt::UserRole, t.id);
-        row->setSizeHint(QSize(280, 46));
+        row->setSizeHint(QSize(260, 46));
         if (t.id == keep) list_->setCurrentItem(row);
         ++shown;
     }
